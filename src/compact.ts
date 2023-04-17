@@ -1,4 +1,4 @@
-import { DefaultOptions, Options } from "./options";
+import { Options, mergeOptions } from "./options";
 import { compressText } from "./compress";
 import {
   AttributeRepalceMap,
@@ -33,7 +33,7 @@ export const compact = (
  * @returns The compacted SDP string.
  */
 export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
-  const options = { ...DefaultOptions, ...newOptions };
+  const options = mergeOptions(newOptions);
 
   const sdp = sdpStr.split("\r\n");
   let compactSDP: string[] = [];

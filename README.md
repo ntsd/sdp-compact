@@ -1,6 +1,6 @@
 # SDP Compact
 
-shorten WebRTC Session Description Protocol (SDP) based on Unified Plan SDP
+Shorten WebRTC Session Description Protocol (SDP) based on Unified Plan SDP
 
 ## Why?
 
@@ -8,8 +8,9 @@ a WebRTC SDP can removing some of attributes can compress/compact and share conf
 
 ## Features
 
-- shorten WebRTC SDP
-- options to fixed parameters for both offer and answer side
+- Shorten WebRTC SDP.
+- Options to fixed parameters for both offer and answer side.
+- Compress with zlib deflate then base64.
 
 ## Installation
 
@@ -25,185 +26,88 @@ const sessDesc: RTCSessionDescriptionInit = {
   sdp: `v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\n`,
 };
 
+
+const options: spdCompact.Options = {};
+
 // compact the `RTCSessionDescriptionInit`
-const compactedSessDesc = spdCompact.compact(sessDesc);
-const decompactedSessDesc = spdCompact.decompact(compactedSPD);
+const compactedSessDesc = spdCompact.compact(sessDesc, options);
+const decompactedSessDesc = spdCompact.decompact(compactedSPD, options);
 
 // compact only the SDP string
-const compactedSPD = spdCompact.compactSDP(sessDesc.sdp);
+const compactedSPD = spdCompact.compactSDP(sessDesc.sdp, options);
 // for decompact need to specify if it's offer or answer because it's not include in SDP
-const decompactedSPD = spdCompact.decompactSDP(compactedSPD, true);
+const decompactedSPD = spdCompact.decompactSDP(compactedSPD, true, options);
 ```
+
+## Options
+
+You can override the default options to suit your application's requirements, while still keeping the default values for any unspecified properties.
+
+### Default Options
+
+```Typescript
+export const DefaultOptions: Options = {
+  compress: true,
+  replaceFieldNames: true,
+  sdpVersion: 0,
+  sessionName: "-",
+  origin: {
+    username: "-",
+    sessionId: "4109260023080860376",
+    netType: "IN",
+    addrtype: "IP4",
+    unicastAddress: "127.0.0.1",
+  },
+  timing: "0 0",
+  extmapAllowMixed: true,
+  msidSemantic: "WMS",
+  mediaOptions: {
+    removeMediaID: true,
+    removeSetup: true,
+    replaceCandidateString: true,
+  },
+};
+```
+
+Here is an explanation of each option and its default value:
+
+### compress (default: true)
+Enables compression using zlib deflate, followed by base64 encoding.
+
+### replaceFieldNames (default: true)
+Replaces field names using FieldReplaceMap and FieldReplaceMapReverse.
+
+### sdpVersion (default: 0)
+The fixed SDP version (v=), which is usually 0 for now.
+
+### sessionName (default: "-")
+The fixed session name (s=), which is usually "-".
+
+### origin (default: see below)
+Fixed origin options (o=). This includes the following properties:
+
+- `username`: Fixed username, can be "-" for an undefined user. (default: "-")
+- `sessionId`: Fixed session ID, can be the same value on all peers. (default: "4109260023080860376")
+- `netType`: Fixed network type, must be "IN" for the internet. (default: "IN")
+- `addrtype`: Fixed address type, must be either "IP4" or "IP6". Usually, it will be "IP4". (default: "IP4")
+- `unicastAddress`: Fixed unicast address, usually "127.0.0.1". (default: "127.0.0.1")
+
+### timing (default: "0 0")
+The fixed timing (t=). It can be "0 0" for unbounded.
+
+### extmapAllowMixed (default: true)
+Allows mixing attributes (a=extmap-allow-mixed), usually allowed by default.
+
+### msidSemantic (default: "WMS")
+The fixed msid semantic (a=msid-semantic:). It should be "WMS" for WebRTC Media Stream.
+
+### mediaOptions (default: see below)
+Customize media options. This includes the following properties:
+
+- `removeMediaID`: Remove media ID (a=mid:) and group (a=group:<type>) (a=group:BUNDLE) to use sequence medias instead. (default: true)
+- `removeSetup`: Remove DTLS role (a=setup:). It will set to actpass for offer and active for answer. (default: true)
+- `replaceCandidateString`: "a=candidate:" replaced string following CandidateReplaceList. (default: true)
 
 ## WebRTC SDP Anatomy
 
-### Version (v=)
-
-`v=0`
-
-SDP version always set to 0 for now, not used.
-
-### Origin (o=)
-
-`o=- 4611731400430051336 2 IN IP4 127.0.0.1`
-`o=<username> <sessID> <sessVersion> <netType> <addrType> <unicastAddress>`
-
-The username can be "-".
-
-The sessID MUST be ignored on a receive.
-
-The sessVersion MUST be a numeric value but the value MUST be ignored on a receive.
-
-The netType MUST be "IN" for Internet.
-
-The addrtype MUST be either "IP4" or "IP6".
-
-the unicastAddress MUST be in "IP4" or "IP6" formatted following addrtype.
-
-### Session name (s=)
-
-`s=-`
-
-session name is not commonly used, not used.
-
-### Timing (t=)
-
-`t=0 0`
-
-Timing field, indicates the session is unbounded (start and stop times are both set to 0).
-
-### Attribute (a=)
-
-#### BUNDLE attribute (a=group:BUNDLE)
-
-`a=group:BUNDLE 0`
-
-This attribute specifies that media lines are bundled together using a single transport (in this case, media line with the identifier '0').
-
-`a=group:BUNDLE m1 m2`
-
-This attribute specifies that media lines have 2 media line (identifiers as m1 and m2).
-
-#### allows mixing attribute (a=extmap-allow-mixed)
-
-`a=extmap-allow-mixed`
-
-This attribute allows the use of both one-byte and two-byte RTP header extensions in the same RTP session.
-
-#### the semantic for multiple media streams (a=msid-semantic:)
-
-`a=msid-semantic: WMS`
-
-This attribute specifies the semantic for multiple media streams (msid). WMS stands for WebRTC Media Stream.
-
-### Media (m=)
-
-`m=application 50782 UDP/DTLS/SCTP webrtc-datachannel`
-
-Media (m) line describes the media type (application), port (50782), transport protocol (UDP/DTLS/SCTP), and media format (webrtc-datachannel).
-
-#### Media Connection information (c=)
-
-`c=IN IP4 115.87.239.220`
-
-Connection (c) line specifies the network type (IN for Internet), address type (IP4), and the connection address (115.87.239.220).
-
-#### Media Attribute (a=)
-
-ice candidates, ice username, ice password, ice options, fingerprint, DTLS role can be equals and reuse on every medias.
-
-For example, if you have more multiple medias the difference is midia id and specific media attributes such as `a=sctp-port:` and `a=max-message-size:` that only have for application media type.
-
-##### ICE Candidate (a=candidate:)
-
-`a=candidate:...`
-
-These attribute lines represent ICE (Interactive Connectivity Establishment) candidates, which provide information about possible network paths for establishing a connection between peers.
-
-##### ICE Username (a=ice-ufrag:)
-
-`a=ice-ufrag:J8xg`
-
-This attribute specifies the ICE username fragment for this session.
-
-##### ICE Password (a=ice-pwd:)
-
-`a=ice-pwd:brYDyKCXku2B1XTvqd2aJgg5`
-
-This attribute specifies the ICE password for this session.
-
-##### ICE Option (a=ice-options:)
-
-`a=ice-options:trickle`
-
-This attribute specifies the ICE options for this session.
-
-##### DTLS Fingerprint (a=fingerprint:)
-
-`a=fingerprint:sha-256 ...`
-
-This line contains the fingerprint of the DTLS (Datagram Transport Layer Security) certificate. It is used to authenticate the DTLS connection, ensuring the integrity and security of the data channel.
-
-##### DTLS role (a=setup:)
-
-for offer will be
-
-`a=setup:actpass`
-
-for answer will be
-
-`a=setup:active`
-
-##### Media identification (a=mid:)
-
-`a=mid:0`
-
-The media identification that specific in `a=group:BUNDLE `
-
-##### SCTPPort (a=sctp-port:)
-
-`a=sctp-port:5000`
-
-For the Data Channel, This line indicates the SCTP (Stream Control Transmission Protocol) port used for the data channel. SCTP is the transport protocol used by WebRTC data channels.
-
-##### Maximum message size (a=max-message-size:)
-
-`a=max-message-size:262144`
-
-For the Data Channel, The maximum message size in bytes that the endpoint can receive on the data channel.
-
-<!-- # Create WebRTC Offer/Answer
-
-```js
-const connection = new RTCPeerConnection({
-  iceServers: [
-    {
-      urls: "stun:stun.l.google.com:19302",
-    },
-  ],
-});
-connection.createOffer({
-	offerToReceiveAudio: true,
-	offerToReceiveVideo: true,
-}).then((offer) => {
-	console.log(offer);
-
-	connection.setRemoteDescription(offer).then(() => {
-		connection.createAnswer().then((answer) => {
-			console.log(answer);
-		});
-	});
-});
-``` -->
-
-## References
-
-<https://webrtchacks.github.io/sdp-anatomy/>
-
-<https://datatracker.ietf.org/doc/html/draft-roach-mmusic-unified-plan-00>
-
-<https://datatracker.ietf.org/doc/html/draft-ietf-rtcweb-jsep-24>
-
-<https://datatracker.ietf.org/doc/html/rfc3264>
-
-<https://chromestatus.com/feature/5723303167655936>
+You can read the WebRTC SDP Anatomy [Here](./sdp.md) for how it's works.

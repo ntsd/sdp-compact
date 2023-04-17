@@ -12,6 +12,7 @@ export interface OriginOptions {
   unicastAddress?: string;
 }
 
+// compact media options
 export interface MediaOptions {
   // remove media id (a=mid:) and group (a=group:<type>) (a=group:BUNDLE), to use sequence medias instead
   removeMediaID?: boolean;
@@ -21,6 +22,7 @@ export interface MediaOptions {
   replaceCandidateString?: boolean;
 }
 
+// compact options
 export interface Options {
   // compress compress with zlib deflate, then base64
   compress?: boolean;
@@ -42,6 +44,7 @@ export interface Options {
   mediaOptions?: MediaOptions;
 }
 
+// default options will be used if no override is specified
 export const DefaultOptions: Options = {
   compress: true,
   replaceFieldNames: true,
@@ -63,3 +66,19 @@ export const DefaultOptions: Options = {
     replaceCandidateString: true,
   },
 };
+
+export function mergeOptions(overwriteOptions: Partial<Options> = {}): Options {
+  const mergedOptions: Options = {
+    ...DefaultOptions,
+    ...overwriteOptions,
+    origin: {
+      ...DefaultOptions.origin,
+      ...overwriteOptions.origin,
+    },
+    mediaOptions: {
+      ...DefaultOptions.mediaOptions,
+      ...overwriteOptions.mediaOptions,
+    },
+  };
+  return mergedOptions;
+}
