@@ -4,7 +4,7 @@ import {
   CandidateReplaceList,
   FieldReplaceMapReverse,
 } from "./dict";
-import { DefaultOptions, Options } from "./options";
+import { Options, mergeOptions } from "./options";
 import * as sdpTransform from "sdp-transform";
 
 /**
@@ -39,7 +39,7 @@ export const decompactSDP = (
   isOffer: boolean,
   newOptions?: Options
 ): string => {
-  const options = { ...DefaultOptions, ...newOptions };
+  const options = mergeOptions(newOptions);
 
   if (options.compress) {
     compactSDPStr = decompressText(compactSDPStr);
