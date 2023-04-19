@@ -4,6 +4,7 @@ import {
   AttributeRepalceMap,
   CandidateReplaceList,
   FieldReplaceMap,
+  MediaReplaceList,
 } from "./dict";
 
 /**
@@ -108,6 +109,21 @@ export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
     }
 
     if (line.startsWith("a=setup:") && options.mediaOptions?.removeSetup) {
+      return;
+    }
+
+    if (
+      line.startsWith("a=ice-options:trickle") &&
+      options.mediaOptions?.forceTrickle
+    ) {
+      return;
+    }
+
+    if (line.startsWith("m=") && options.mediaOptions?.replaceMediaString) {
+      MediaReplaceList.forEach(([from, to]) => {
+        line = line.replace(from, to);
+      });
+      compactSDP.push(line);
       return;
     }
 

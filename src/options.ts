@@ -18,8 +18,12 @@ export interface MediaOptions {
   removeMediaID?: boolean;
   // remove DTLS role (a=setup:), will set to `actpass` for offer and `active` for answer
   removeSetup?: boolean;
-  // "a=candidate:" replaced string following `CandidateReplaceList`
+  // replaced string in ice candidate (a=candidate:) following `CandidateReplaceList`
   replaceCandidateString?: boolean;
+  // replace string in media (m=) following `MediaReplaceList`
+  replaceMediaString?: boolean;
+  // force ice-options to trickle (a=ice-options:trickle)
+  forceTrickle?: boolean;
 }
 
 // compact options
@@ -64,6 +68,8 @@ export const DefaultOptions: Options = {
     removeMediaID: true,
     removeSetup: true,
     replaceCandidateString: true,
+    replaceMediaString: true,
+    forceTrickle: true,
   },
 };
 

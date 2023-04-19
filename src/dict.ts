@@ -40,3 +40,12 @@ export const CandidateReplaceList = [
   ["udp", "U"],
   ["raddr", "A"],
 ];
+
+export const MediaReplaceList = [
+  ["application", "P"],
+  ["UDP/DTLS/SCTP", "U"],
+  ["UDP/TLS/RTP/SAVPF", "T"],
+  ["webrtc-datachannel", "D"],
+  ["audio", "A"],
+  ["video ", "V"],
+];

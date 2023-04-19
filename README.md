@@ -1,5 +1,7 @@
 # SDP Compact
 
+[![npm version](https://badge.fury.io/js/sdp-compact.svg)](https://www.npmjs.com/package/sdp-compact)
+
 Shorten WebRTC Session Description Protocol (SDP) based on Unified Plan SDP
 
 ## Why?
@@ -72,18 +74,23 @@ export const DefaultOptions: Options = {
 Here is an explanation of each option and its default value:
 
 ### compress (default: true)
+
 Enables compression using zlib deflate, followed by base64 encoding.
 
 ### replaceFieldNames (default: true)
+
 Replaces field names using FieldReplaceMap and FieldReplaceMapReverse.
 
 ### sdpVersion (default: 0)
+
 The fixed SDP version (v=), which is usually 0 for now.
 
 ### sessionName (default: "-")
+
 The fixed session name (s=), which is usually "-".
 
 ### origin (default: see below)
+
 Fixed origin options (o=). This includes the following properties:
 
 - `username`: Fixed username, can be "-" for an undefined user. (default: "-")
@@ -93,20 +100,26 @@ Fixed origin options (o=). This includes the following properties:
 - `unicastAddress`: Fixed unicast address, usually "127.0.0.1". (default: "127.0.0.1")
 
 ### timing (default: "0 0")
+
 The fixed timing (t=). It can be "0 0" for unbounded.
 
 ### extmapAllowMixed (default: true)
+
 Allows mixing attributes (a=extmap-allow-mixed), usually allowed by default.
 
 ### msidSemantic (default: "WMS")
+
 The fixed msid semantic (a=msid-semantic:). It should be "WMS" for WebRTC Media Stream.
 
 ### mediaOptions (default: see below)
+
 Customize media options. This includes the following properties:
 
 - `removeMediaID`: Remove media ID (a=mid:) and group (a=group:<type>) (a=group:BUNDLE) to use sequence medias instead. (default: true)
 - `removeSetup`: Remove DTLS role (a=setup:). It will set to actpass for offer and active for answer. (default: true)
-- `replaceCandidateString`: "a=candidate:" replaced string following CandidateReplaceList. (default: true)
+- `replaceCandidateString`: replaced string in ice candidate (a=candidate:) following `CandidateReplaceList`. (default: true)
+- `replaceMediaString`: replace string in media (m=) following `MediaReplaceList`. (default: true)
+- `forceTrickle`: force ice-options to trickle (a=ice-options:trickle). (default: true)
 
 ## WebRTC SDP Anatomy
 

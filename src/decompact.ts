@@ -3,6 +3,7 @@ import {
   AttributeRepalceMapReverse,
   CandidateReplaceList,
   FieldReplaceMapReverse,
+  MediaReplaceList,
 } from "./dict";
 import { Options, mergeOptions } from "./options";
 import * as sdpTransform from "sdp-transform";
@@ -150,6 +151,13 @@ export const decompactSDP = (
 
     // media
     if (line.startsWith("m=") && options.mediaOptions !== undefined) {
+      // replace media string
+      if (options.mediaOptions?.replaceMediaString) {
+        MediaReplaceList.forEach(([to, from]) => {
+          line = line.replace(from, to);
+        });
+      }
+
       decompactSDP.push(line);
 
       if (options.mediaOptions.removeSetup) {
@@ -159,6 +167,10 @@ export const decompactSDP = (
       if (options.mediaOptions.removeMediaID) {
         decompactSDP.push(`a=mid:${mediaID}`);
         mediaID++;
+      }
+
+      if (options.mediaOptions.forceTrickle) {
+        decompactSDP.push("a=ice-options:trickle");
       }
 
       return;

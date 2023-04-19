@@ -2,3 +2,5 @@
 /src
 /jest.config.ts
 /tsconfig.json
+/page
+/.github
