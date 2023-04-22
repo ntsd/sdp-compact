@@ -124,6 +124,7 @@ Customize media options. This includes the following properties:
 - `replaceMediaString`: replace string in media (m=) following `MediaReplaceList`. (default: true)
 - `forceTrickle`: force ice-options to trickle (a=ice-options:trickle). (default: true)
 - `compressFingerprint`: compress fingerprint (a=fingerprint:). (default: true)
+- `compressConnection`: compress media connection (c=). (default: true)
 
 ## WebRTC SDP Anatomy
 

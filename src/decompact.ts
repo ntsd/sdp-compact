@@ -4,6 +4,8 @@ import {
   AttributeRepalceMapReverse,
   FieldReplaceMapReverse,
   HashFuncMapReverse,
+  MediaConnectionAddressTypeMapReverse,
+  MediaConnectionIPMapReverse,
   candidateDecode,
   mediaDecode,
   mediaEncode,
@@ -196,6 +198,19 @@ export const decompactSDP = (
       }
       fingerprint = FingerprintToBase64.decode(fingerprint);
       decompactSDP.push(`a=fingerprint:${hashMethod} ${fingerprint}`);
+      return;
+    }
+
+    if (line.startsWith("c=") && options.mediaOptions?.compressConnection) {
+      let [addressType, ip] = line.slice(2).split(" ");
+      if (addressType in MediaConnectionAddressTypeMapReverse) {
+        addressType = MediaConnectionAddressTypeMapReverse[addressType];
+      }
+      if (ip in MediaConnectionIPMapReverse) {
+        ip = MediaConnectionIPMapReverse[ip];
+      }
+      // network type (IN for Internet), address type (IP4), and the connection address (115.87.239.220)
+      decompactSDP.push(`c=IN ${addressType} ${ip}`);
       return;
     }
 

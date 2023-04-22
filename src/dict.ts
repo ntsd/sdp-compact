@@ -104,3 +104,20 @@ const mediaDecodeRegex = new RegExp(Object.keys(mediaDecodeMap).join("|"), "g");
 export function mediaDecode(line: string) {
   return line.replace(mediaDecodeRegex, (match) => mediaDecodeMap[match]);
 }
+
+// Media Connection
+export const MediaConnectionAddressTypeMap: { [key: string]: string } = {
+  IP4: "4",
+  IP6: "6",
+};
+export const MediaConnectionAddressTypeMapReverse: { [key: string]: string } =
+  Object.fromEntries(
+    Object.entries(MediaConnectionAddressTypeMap).map((a) => a.reverse())
+  );
+export const MediaConnectionIPMap: { [key: string]: string } = {
+  "0.0.0.0": "0",
+};
+export const MediaConnectionIPMapReverse: { [key: string]: string } =
+  Object.fromEntries(
+    Object.entries(MediaConnectionIPMap).map((a) => a.reverse())
+  );

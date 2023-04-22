@@ -4,6 +4,8 @@ import {
   AttributeRepalceMap,
   FieldReplaceMap,
   HashFuncMap,
+  MediaConnectionAddressTypeMap,
+  MediaConnectionIPMap,
   candidateEncode,
   mediaEncode,
 } from "./dict";
@@ -146,6 +148,19 @@ export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
       }
       fingerprint = FingerprintToBase64.encode(fingerprint);
       compactSDP.push(`a=fingerprint:${hashMethod} ${fingerprint}`);
+      return;
+    }
+
+    if (line.startsWith("c=") && options.mediaOptions?.compressConnection) {
+      // network type (IN for Internet), address type (IP4), and the connection address (115.87.239.220)
+      let [networkType, addressType, ip] = line.slice(2).split(" ");
+      if (addressType in MediaConnectionAddressTypeMap) {
+        addressType = MediaConnectionAddressTypeMap[addressType];
+      }
+      if (ip in MediaConnectionIPMap) {
+        ip = MediaConnectionIPMap[ip];
+      }
+      compactSDP.push(`c=${addressType} ${ip}`);
       return;
     }
 

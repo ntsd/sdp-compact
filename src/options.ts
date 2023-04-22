@@ -18,9 +18,9 @@ export interface MediaOptions {
   removeMediaID?: boolean;
   // remove DTLS role (a=setup:), will set to `actpass` for offer and `active` for answer
   removeSetup?: boolean;
-  // replaced string in ice candidate (a=candidate:) following `CandidateReplaceList`
+  // replaced string in ice candidate (a=candidate:) following `candidateEncodeMap`
   replaceCandidateString?: boolean;
-  // replace string in media (m=) following `MediaReplaceList`
+  // replace string in media (m=) following `mediaEncodeMap`
   replaceMediaString?: boolean;
   // force ice-options to trickle (a=ice-options:trickle)
   forceTrickle?: boolean;
@@ -29,6 +29,8 @@ export interface MediaOptions {
   // fingerprint: 2UHEX *(":" 2UHEX) Each byte in upper-case hex, separated by colons
   // remove colons and hex to base64 encoding
   compressFingerprint?: boolean;
+  // compress media connection (c=)
+  compressConnection?: boolean;
 }
 
 // compact options
@@ -76,6 +78,7 @@ export const DefaultOptions: Options = {
     replaceMediaString: true,
     forceTrickle: true,
     compressFingerprint: true,
+    compressConnection: true,
   },
 };
 
