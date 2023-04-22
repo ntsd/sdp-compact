@@ -2,10 +2,12 @@ import { Options, mergeOptions } from "./options";
 import { compressText } from "./compress";
 import {
   AttributeRepalceMap,
-  CandidateReplaceList,
   FieldReplaceMap,
-  MediaReplaceList,
+  HashFuncMap,
+  candidateEncode,
+  mediaEncode,
 } from "./dict";
+import { FingerprintToBase64 } from "./base64";
 
 /**
  * Compact a RTCSessionDescription
@@ -120,9 +122,7 @@ export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
     }
 
     if (line.startsWith("m=") && options.mediaOptions?.replaceMediaString) {
-      MediaReplaceList.forEach(([from, to]) => {
-        line = line.replace(from, to);
-      });
+      line = mediaEncode(line);
       compactSDP.push(line);
       return;
     }
@@ -131,10 +131,21 @@ export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
       line.startsWith("a=candidate:") &&
       options.mediaOptions?.replaceCandidateString
     ) {
-      CandidateReplaceList.forEach(([from, to]) => {
-        line = line.replace(from, to);
-      });
+      line = candidateEncode(line);
       compactSDP.push(line);
+      return;
+    }
+
+    if (
+      line.startsWith("a=fingerprint:") &&
+      options.mediaOptions?.compressFingerprint
+    ) {
+      let [hashMethod, fingerprint] = line.slice(14).split(" ");
+      if (hashMethod in HashFuncMap) {
+        hashMethod = HashFuncMap[hashMethod];
+      }
+      fingerprint = FingerprintToBase64.encode(fingerprint);
+      compactSDP.push(`a=fingerprint:${hashMethod} ${fingerprint}`);
       return;
     }
 

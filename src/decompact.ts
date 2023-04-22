@@ -1,9 +1,12 @@
+import { FingerprintToBase64 } from "./base64";
 import { decompressText } from "./compress";
 import {
   AttributeRepalceMapReverse,
-  CandidateReplaceList,
   FieldReplaceMapReverse,
-  MediaReplaceList,
+  HashFuncMapReverse,
+  candidateDecode,
+  mediaDecode,
+  mediaEncode,
 } from "./dict";
 import { Options, mergeOptions } from "./options";
 import * as sdpTransform from "sdp-transform";
@@ -153,9 +156,7 @@ export const decompactSDP = (
     if (line.startsWith("m=") && options.mediaOptions !== undefined) {
       // replace media string
       if (options.mediaOptions?.replaceMediaString) {
-        MediaReplaceList.forEach(([to, from]) => {
-          line = line.replace(from, to);
-        });
+        line = mediaDecode(line);
       }
 
       decompactSDP.push(line);
@@ -180,10 +181,21 @@ export const decompactSDP = (
       line.startsWith("a=candidate:") &&
       options.mediaOptions?.replaceCandidateString
     ) {
-      CandidateReplaceList.forEach(([to, from]) => {
-        line = line.replace(from, to);
-      });
+      line = candidateDecode(line);
       decompactSDP.push(line);
+      return;
+    }
+
+    if (
+      line.startsWith("a=fingerprint:") &&
+      options.mediaOptions?.compressFingerprint
+    ) {
+      let [hashMethod, fingerprint] = line.slice(14).split(" ");
+      if (hashMethod in HashFuncMapReverse) {
+        hashMethod = HashFuncMapReverse[hashMethod];
+      }
+      fingerprint = FingerprintToBase64.decode(fingerprint);
+      decompactSDP.push(`a=fingerprint:${hashMethod} ${fingerprint}`);
       return;
     }
 

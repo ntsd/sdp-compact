@@ -48,7 +48,7 @@ You can override the default options to suit your application's requirements, wh
 ### Default Options
 
 ```Typescript
-export const DefaultOptions: Options = {
+const DefaultOptions: Options = {
   compress: true,
   replaceFieldNames: true,
   sdpVersion: 0,
@@ -67,6 +67,9 @@ export const DefaultOptions: Options = {
     removeMediaID: true,
     removeSetup: true,
     replaceCandidateString: true,
+    replaceMediaString: true,
+    forceTrickle: true,
+    compressFingerprint: true,
   },
 };
 ```
@@ -120,6 +123,7 @@ Customize media options. This includes the following properties:
 - `replaceCandidateString`: replaced string in ice candidate (a=candidate:) following `CandidateReplaceList`. (default: true)
 - `replaceMediaString`: replace string in media (m=) following `MediaReplaceList`. (default: true)
 - `forceTrickle`: force ice-options to trickle (a=ice-options:trickle). (default: true)
+- `compressFingerprint`: compress fingerprint (a=fingerprint:). (default: true)
 
 ## WebRTC SDP Anatomy
 

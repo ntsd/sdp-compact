@@ -24,6 +24,11 @@ export interface MediaOptions {
   replaceMediaString?: boolean;
   // force ice-options to trickle (a=ice-options:trickle)
   forceTrickle?: boolean;
+  // compress fingerprint (RFC 8122)
+  // hash-func: replace `SHA-256` to T, `SHA-1` to O
+  // fingerprint: 2UHEX *(":" 2UHEX) Each byte in upper-case hex, separated by colons
+  // remove colons and hex to base64 encoding
+  compressFingerprint?: boolean;
 }
 
 // compact options
@@ -70,6 +75,7 @@ export const DefaultOptions: Options = {
     replaceCandidateString: true,
     replaceMediaString: true,
     forceTrickle: true,
+    compressFingerprint: true,
   },
 };
 

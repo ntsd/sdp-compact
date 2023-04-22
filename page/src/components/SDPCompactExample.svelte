@@ -81,12 +81,21 @@
     bind:value={offer}
     on:input={compact}
     rows="10"
-  ></textarea>
+  />
 </div>
 <div class="mt-4">
-  <h3 class="font-bold mb-2">
-    Compacted SDP ({byteSize(compactedOffer)} bytes)
-  </h3>
+  <div class="mb-2 flex justify-between">
+    <h3 class="font-bold">
+      Compacted SDP ({byteSize(compactedOffer)} bytes)
+    </h3>
+    {#if byteSize(offer) > 0}
+      <h3>
+        saving {byteSize(offer) - byteSize(compactedOffer)} bytes ({Math.round(
+          ((byteSize(offer) - byteSize(compactedOffer)) / byteSize(offer)) * 100
+        )}%)
+      </h3>
+    {/if}
+  </div>
   <pre class="bg-gray-200 p-2 scrollable">{compactedOffer}</pre>
 </div>
 

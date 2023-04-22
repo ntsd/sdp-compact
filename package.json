@@ -1,7 +1,8 @@
 {
   "name": "sdp-compact",
-  "version": "0.0.3",
-  "description": "shorten Session Description Protocol (SDP)",
+  "version": "0.0.4",
+  "type": "module",
+  "description": "Shorten WebRTC Session Description Protocol (SDP)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -24,7 +25,7 @@
   "bugs": {
     "url": "https://github.com/ntsd/sdp-compact/issues"
   },
-  "homepage": "https://github.com/ntsd/sdp-compact#readme",
+  "homepage": "https://ntsd.github.io/sdp-compact",
   "devDependencies": {
     "@types/pako": "^2.0.0",
     "@types/jest": "^29.5.0",
