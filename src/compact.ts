@@ -1,5 +1,5 @@
 import { Options, mergeOptions } from "./options";
-import { compressText } from "./compress";
+import { compressText, compressToBytes } from "./compress";
 import {
   AttributeRepalceMap,
   FieldReplaceMap,
@@ -40,6 +40,41 @@ export const compact = (
 export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
   const options = mergeOptions(newOptions);
 
+  sdpStr = compactSDPStr(sdpStr, options);
+
+  if (options.compress) {
+    sdpStr = compressText(sdpStr);
+  }
+
+  return sdpStr;
+};
+
+/**
+ * Compact a Session Description Protocol (SDP) to Uint8Array
+ *
+ * @param sdpStr The SDP string to compact.
+ * @param newOptions The options.
+ * @returns The compacted SDP Uint8Array.
+ */
+export const compactSDPBytes = (
+  sdpStr: string,
+  newOptions?: Options
+): Uint8Array => {
+  const options = mergeOptions(newOptions);
+
+  sdpStr = compactSDPStr(sdpStr, options);
+
+  let sdpBytes: Uint8Array;
+  if (options.compress) {
+    sdpBytes = compressToBytes(sdpStr);
+  } else {
+    sdpBytes = new TextEncoder().encode(sdpStr);
+  }
+
+  return sdpBytes;
+};
+
+function compactSDPStr(sdpStr: string, options: Options): string {
   const sdp = sdpStr.split("\r\n");
   let compactSDP: string[] = [];
 
@@ -191,11 +226,5 @@ export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
     });
   }
 
-  sdpStr = compactSDP.join("~");
-
-  if (options.compress) {
-    sdpStr = compressText(sdpStr);
-  }
-
-  return sdpStr;
-};
+  return compactSDP.join("~");
+}

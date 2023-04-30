@@ -1,5 +1,5 @@
-import { compact, compactSDP } from "../src/compact";
-import { decompact, decompactSDP } from "../src/decompact";
+import { compact, compactSDP, compactSDPBytes } from "../src/compact";
+import { decompact, decompactSDP, decompactSDPBytes } from "../src/decompact";
 import { Options } from "../src/options";
 import * as sdpTransform from "sdp-transform";
 
@@ -63,6 +63,58 @@ describe("minimize", () => {
     const sdp = answer2.sdp as string;
     const compacted = compactSDP(sdp, options);
     const decompacted = decompactSDP(compacted, false, options);
+
+    console.log("sdp len: " + sdp.length);
+    console.log("compact len: " + compacted.length);
+
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  test("compactSDP and decompactSDP offer no compress", () => {
+    const options: Options = { compress: false };
+
+    const sdp = offer2.sdp as string;
+    const compacted = compactSDP(sdp, options);
+    const decompacted = decompactSDP(compacted, true, options);
+
+    console.log("sdp len: " + sdp.length);
+    console.log("compact len: " + compacted.length);
+
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  test("compactSDP and decompactSDP answer no compress", () => {
+    const options: Options = { compress: false };
+
+    const sdp = answer2.sdp as string;
+    const compacted = compactSDP(sdp, options);
+    const decompacted = decompactSDP(compacted, false, options);
+
+    console.log("sdp len: " + sdp.length);
+    console.log("compact len: " + compacted.length);
+
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  test("compactSDP and decompactSDP offer bytes", () => {
+    const options: Options = { compress: true };
+
+    const sdp = offer2.sdp as string;
+    const compacted = compactSDPBytes(sdp, options);
+    const decompacted = decompactSDPBytes(compacted, true, options);
+
+    console.log("sdp len: " + sdp.length);
+    console.log("compact len: " + compacted.length);
+
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  test("compactSDP and decompactSDP answer bytes", () => {
+    const options: Options = { compress: true };
+
+    const sdp = answer2.sdp as string;
+    const compacted = compactSDPBytes(sdp, options);
+    const decompacted = decompactSDPBytes(compacted, false, options);
 
     console.log("sdp len: " + sdp.length);
     console.log("compact len: " + compacted.length);

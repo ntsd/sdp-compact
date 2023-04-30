@@ -12,7 +12,8 @@ a WebRTC SDP can removing some of attributes can compress/compact and share conf
 
 - Shorten WebRTC SDP.
 - Options to fixed parameters for both offer and answer side.
-- Compress with zlib deflate then base64.
+- Compress with zlib deflate.
+- Bytes based allow to choose any encoding.
 
 ## Installation
 
@@ -29,7 +30,7 @@ const sessDesc: RTCSessionDescriptionInit = {
 };
 
 
-const options: spdCompact.Options = {};
+const options: spdCompact.Options = { compress: true };
 
 // compact the `RTCSessionDescriptionInit`
 const compactedSessDesc = spdCompact.compact(sessDesc, options);
@@ -39,6 +40,11 @@ const decompactedSessDesc = spdCompact.decompact(compactedSPD, options);
 const compactedSPD = spdCompact.compactSDP(sessDesc.sdp, options);
 // for decompact need to specify if it's offer or answer because it's not include in SDP
 const decompactedSPD = spdCompact.decompactSDP(compactedSPD, true, options);
+
+// compact only the SDP string to bytes
+const compactedSPDBytes = spdCompact.compactSDPBytes(sessDesc.sdp, options);
+// decompact the compacted SDP bytes to decompacted string
+const decompactedSPD = spdCompact.decompactSDPBytes(compactedSPDBytes, true, options);
 ```
 
 ## Options

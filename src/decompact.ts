@@ -1,5 +1,5 @@
 import { FingerprintToBase64 } from "./base64";
-import { decompressText } from "./compress";
+import { decompresBytes, decompressText } from "./compress";
 import {
   AttributeRepalceMapReverse,
   FieldReplaceMapReverse,
@@ -51,6 +51,38 @@ export const decompactSDP = (
     compactSDPStr = decompressText(compactSDPStr);
   }
 
+  return decompactSDPStr(compactSDPStr, isOffer, options);
+};
+
+/**
+ * Decompact a compacted spd Uint8Array to spd string
+ *
+ * @param compactSDPBytes The compacted spd Uint8Array to decompact.
+ * @param options The options.
+ * @returns The decompacted spd string.
+ */
+export const decompactSDPBytes = (
+  compactSDPBytes: Uint8Array,
+  isOffer: boolean,
+  newOptions?: Options
+): string => {
+  const options = mergeOptions(newOptions);
+
+  let compactSDPStr: string;
+  if (options.compress) {
+    compactSDPStr = decompresBytes(compactSDPBytes);
+  } else {
+    compactSDPStr = new TextDecoder().decode(compactSDPBytes);
+  }
+
+  return decompactSDPStr(compactSDPStr, isOffer, options);
+};
+
+function decompactSDPStr(
+  compactSDPStr: string,
+  isOffer: boolean,
+  options: Options
+): string {
   let compactSDP = compactSDPStr.split("~");
   let decompactSDP: string[] = [];
 
@@ -229,4 +261,4 @@ export const decompactSDP = (
   sdpStr = sdpTransform.write(sdpTransform.parse(sdpStr));
 
   return sdpStr;
-};
+}

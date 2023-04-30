@@ -10,10 +10,9 @@
   let compress = true;
 
   function compact() {
-    const compacted = sdpCompact.compactSDP(offer, {
+    compactedOffer = sdpCompact.compactSDP(offer.replaceAll('\n', '\r\n'), {
       compress,
     });
-    compactedOffer = compacted;
   }
 
   async function generateOffer() {
@@ -62,7 +61,7 @@
   </div>
   <div>
     <label class="mb-2" for="video">Compress</label>
-    <input type="checkbox" bind:checked={compress} />
+    <input type="checkbox" bind:checked={compress} on:change={compact} />
   </div>
 </div>
 <button
@@ -80,9 +79,11 @@
     class="p-2 scrollable ring resize-none min-w-full"
     bind:value={offer}
     on:input={compact}
+    placeholder="Generate SDP or paste here..."
     rows="10"
   />
 </div>
+
 <div class="mt-4">
   <div class="mb-2 flex justify-between">
     <h3 class="font-bold">

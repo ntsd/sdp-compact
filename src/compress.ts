@@ -10,3 +10,11 @@ export function decompressText(compressedText: string): string {
   const compressedData = base64ToUint8Array(compressedText);
   return pako.inflate(compressedData, { to: "string" });
 }
+
+export function compressToBytes(text: string): Uint8Array {
+  return pako.deflate(text, { level: 9 });
+}
+
+export function decompresBytes(compressedData: Uint8Array): string {
+  return pako.inflate(compressedData, { to: "string" });
+}
