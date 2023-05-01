@@ -3,6 +3,7 @@
 
   let offer: string = "";
   let compactedOffer = "";
+  let compactedOfferBytes: Uint8Array = new Uint8Array();
 
   let isAudioChannel = true;
   let isVideoChannel = true;
@@ -10,9 +11,15 @@
   let compress = true;
 
   function compact() {
-    compactedOffer = sdpCompact.compactSDP(offer.replaceAll('\n', '\r\n'), {
+    compactedOffer = sdpCompact.compactSDP(offer.replaceAll("\n", "\r\n"), {
       compress,
     });
+    compactedOfferBytes = sdpCompact.compactSDPBytes(
+      offer.replaceAll("\n", "\r\n"),
+      {
+        compress,
+      }
+    );
   }
 
   async function generateOffer() {
@@ -33,19 +40,27 @@
       connection.createDataChannel("data");
     }
 
+    connection.onicecandidate = async (ev) => {
+      if (ev.candidate && connection.localDescription) {
+        offer = connection.localDescription.sdp;
+        compact();
+      }
+    };
+
     const offerDescription = await connection.createOffer(options);
     if (!offerDescription.sdp) {
       throw Error("can not create offer");
     }
     offer = offerDescription.sdp;
-
     compact();
+
+    await connection.setLocalDescription(offerDescription);
   }
 
   const byteSize = (str: string) => new Blob([str]).size;
 </script>
 
-<h2 class="text-xl font-bold mt-8 mb-4">Online Test</h2>
+<h2 class="text-xl font-bold mt-8 mb-4">Try It Online</h2>
 <div class="grid grid-cols-2 xl:grid-cols-4 gap-2">
   <div>
     <label class="mb-2" for="audio">Audio Channel</label>
@@ -87,7 +102,7 @@
 <div class="mt-4">
   <div class="mb-2 flex justify-between">
     <h3 class="font-bold">
-      Compacted SDP ({byteSize(compactedOffer)} bytes)
+      Compacted SDP base64 ({byteSize(compactedOffer)} bytes)
     </h3>
     {#if byteSize(offer) > 0}
       <h3>
@@ -98,6 +113,23 @@
     {/if}
   </div>
   <pre class="bg-gray-200 p-2 scrollable">{compactedOffer}</pre>
+</div>
+
+<div class="mt-4">
+  <div class="mb-2 flex justify-between">
+    <h3 class="font-bold">
+      Compacted SDP bytes ({compactedOfferBytes.length} bytes)
+    </h3>
+    {#if byteSize(offer) > 0}
+      <h3>
+        saving {byteSize(offer) - compactedOfferBytes.length} bytes ({Math.round(
+          ((byteSize(offer) - compactedOfferBytes.length) / byteSize(offer)) *
+            100
+        )}%)
+      </h3>
+    {/if}
+  </div>
+  <pre class="bg-gray-200 p-2 scrollable">{compactedOfferBytes}</pre>
 </div>
 
 <style>

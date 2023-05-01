@@ -20,7 +20,7 @@
     "browser",
     "p2p"
   ],
-  "author": "Jirawat Boonkumnerd <contact@ntsd.dev>",
+  "author": "Jirawat Boonkumnerd <contact@ntsd.dev> (https://ntsd.dev)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ntsd/sdp-compact/issues"

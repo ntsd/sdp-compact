@@ -6,14 +6,18 @@ Shorten WebRTC Session Description Protocol (SDP) based on Unified Plan SDP
 
 ## Why?
 
-a WebRTC SDP can removing some of attributes can compress/compact and share config on both offer and answer sides.
+A WebRTC SDP can remove some of the attributes to compress/compact and share config on both the offer and answer sides. 
 
 ## Features
 
 - Shorten WebRTC SDP.
-- Options to fixed parameters for both offer and answer side.
+- Options to fixed parameters for both the offer and answer side.
 - Compress with zlib deflate.
-- Bytes based allow to choose any encoding.
+- Bytes based allow choosing any encoding.
+
+## Tri It Online
+
+<https://ntsd.github.io/sdp-compact>
 
 ## Installation
 
@@ -36,7 +40,7 @@ const options: spdCompact.Options = { compress: true };
 const compactedSessDesc = spdCompact.compact(sessDesc, options);
 const decompactedSessDesc = spdCompact.decompact(compactedSPD, options);
 
-// compact only the SDP string
+// compact only the SDP string, will return base64 encoded if compress is enabled.
 const compactedSPD = spdCompact.compactSDP(sessDesc.sdp, options);
 // for decompact need to specify if it's offer or answer because it's not include in SDP
 const decompactedSPD = spdCompact.decompactSDP(compactedSPD, true, options);
@@ -135,3 +139,7 @@ Customize media options. This includes the following properties:
 ## WebRTC SDP Anatomy
 
 You can read the WebRTC SDP Anatomy [Here](./sdp.md) for how it's works.
+
+## Projects using SDP Compact
+
+- [Zero Share](https://github.com/ntsd/zero-share) - A client-side secure P2P file sharing using WebRTC.
