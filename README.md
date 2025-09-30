@@ -80,6 +80,8 @@ const DefaultOptions: Options = {
     replaceMediaString: true,
     forceTrickle: true,
     compressFingerprint: true,
+    compressConnection: true,
+    compressExtmap: true,
   },
 };
 ```
@@ -135,6 +137,7 @@ Customize media options. This includes the following properties:
 - `forceTrickle`: force ice-options to trickle (a=ice-options:trickle). (default: true)
 - `compressFingerprint`: compress fingerprint (a=fingerprint:). (default: true)
 - `compressConnection`: compress media connection (c=). (default: true)
+- `compressExtmap`: compress extmap URIs by replacing common URNs with short identifiers (a=extmap:). (default: true)
 
 ## WebRTC SDP Anatomy
 
