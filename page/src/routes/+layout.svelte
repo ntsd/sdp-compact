@@ -2,6 +2,13 @@
   import "../app.css";
   import Footer from "../components/Footer.svelte";
   import Navbar from "../components/Navbar.svelte";
+  import type { Snippet } from "svelte";
+
+  interface Props {
+    children: Snippet;
+  }
+
+  let { children }: Props = $props();
 
   const pageDescription = "";
 </script>
@@ -18,7 +25,7 @@
 <div class="flex flex-col h-screen">
   <Navbar />
   <div class="flex-grow container mx-auto justify-items-center">
-    <slot />
+    {@render children()}
   </div>
   <Footer />
 </div>
