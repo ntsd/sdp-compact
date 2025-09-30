@@ -121,4 +121,39 @@ describe("minimize", () => {
 
     expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
   });
+
+  test("extmap compression", () => {
+    // Create SDP with extmap attributes
+    const sdpWithExtmap = `v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\nc=IN IP4 0.0.0.0\r\na=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r\na=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time\r\na=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r\na=extmap:4 urn:ietf:params:rtp-hdrext:sdes:mid\r\n`;
+
+    // Test with extmap compression enabled
+    const optionsWithExtmap: Options = { compress: false, mediaOptions: { compressExtmap: true } };
+    const compactedWithExtmap = compactSDP(sdpWithExtmap, optionsWithExtmap);
+    
+    // Test with extmap compression disabled
+    const optionsWithoutExtmap: Options = { compress: false, mediaOptions: { compressExtmap: false } };
+    const compactedWithoutExtmap = compactSDP(sdpWithExtmap, optionsWithoutExtmap);
+
+    // The compressed version should be shorter
+    expect(compactedWithExtmap.length).toBeLessThan(compactedWithoutExtmap.length);
+    
+    // The compressed version should contain short identifiers instead of full URIs
+    expect(compactedWithExtmap).toContain("AE1 A"); // compressed ssrc-audio-level
+    expect(compactedWithExtmap).toContain("AE2 B"); // compressed abs-send-time
+    expect(compactedWithExtmap).toContain("AE3 C"); // compressed transport-wide-cc-extensions
+    expect(compactedWithExtmap).toContain("AE4 D"); // compressed sdes:mid
+    
+    // The uncompressed version should still contain full URIs
+    expect(compactedWithoutExtmap).toContain("urn:ietf:params:rtp-hdrext:ssrc-audio-level");
+    expect(compactedWithoutExtmap).toContain("http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time");
+
+    // Test decompression works correctly - the extmap URIs should be restored
+    const decompactedWithExtmap = decompactSDP(compactedWithExtmap, true, optionsWithExtmap);
+    
+    // Check that extmap URIs are properly restored
+    expect(decompactedWithExtmap).toContain("urn:ietf:params:rtp-hdrext:ssrc-audio-level");
+    expect(decompactedWithExtmap).toContain("http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time");
+    expect(decompactedWithExtmap).toContain("http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01");
+    expect(decompactedWithExtmap).toContain("urn:ietf:params:rtp-hdrext:sdes:mid");
+  });
 });

@@ -121,3 +121,25 @@ export const MediaConnectionIPMapReverse: { [key: string]: string } =
   Object.fromEntries(
     Object.entries(MediaConnectionIPMap).map((a) => a.reverse())
   );
+
+// Extmap URI compression - Map common WebRTC extension URNs to short identifiers
+export const ExtmapURIMap: { [key: string]: string } = {
+  "urn:ietf:params:rtp-hdrext:ssrc-audio-level": "A",
+  "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time": "B",
+  "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01": "C",
+  "urn:ietf:params:rtp-hdrext:sdes:mid": "D",
+  "urn:ietf:params:rtp-hdrext:toffset": "E",
+  "urn:3gpp:video-orientation": "F",
+  "http://www.webrtc.org/experiments/rtp-hdrext/playout-delay": "G",
+  "http://www.webrtc.org/experiments/rtp-hdrext/video-content-type": "H",
+  "http://www.webrtc.org/experiments/rtp-hdrext/video-timing": "I",
+  "http://www.webrtc.org/experiments/rtp-hdrext/color-space": "J",
+  "urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id": "K",
+  "urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id": "L",
+  "urn:ietf:params:rtp-hdrext:encrypt": "M",
+  "urn:ietf:params:rtp-hdrext:framemarking": "N",
+  "http://www.webrtc.org/experiments/rtp-hdrext/video-frame-tracking-id": "O",
+  "urn:ietf:params:rtp-hdrext:splicing-interval": "P",
+};
+export const ExtmapURIMapReverse: { [key: string]: string } =
+  Object.fromEntries(Object.entries(ExtmapURIMap).map((a) => a.reverse()));

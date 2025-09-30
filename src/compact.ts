@@ -6,6 +6,7 @@ import {
   HashFuncMap,
   MediaConnectionAddressTypeMap,
   MediaConnectionIPMap,
+  ExtmapURIMap,
   candidateEncode,
   mediaEncode,
 } from "./dict";
@@ -79,6 +80,12 @@ function compactSDPStr(sdpStr: string, options: Options): string {
   let compactSDP: string[] = [];
 
   sdp.forEach((line) => {
+    line = line.trim();
+    // remove empty line
+    if (line.length === 0) {
+      return;
+    }
+
     if (line.startsWith("v=") && options.sdpVersion !== undefined) {
       return;
     }
@@ -196,6 +203,22 @@ function compactSDPStr(sdpStr: string, options: Options): string {
         ip = MediaConnectionIPMap[ip];
       }
       compactSDP.push(`c=${addressType} ${ip}`);
+      return;
+    }
+
+    if (line.startsWith("a=extmap:") && options.mediaOptions?.compressExtmap) {
+      // Parse extmap line: a=extmap:<id> <uri> [<attributes>]
+      let [id, compressedURI, ...attributes] = line.slice(9).split(" ");
+      if (compressedURI) {
+        if (compressedURI in ExtmapURIMap) {
+          compressedURI = ExtmapURIMap[compressedURI];
+        }
+        line = `a=extmap:${id} ${compressedURI}`;
+        if (attributes.length > 0) {
+          line += ` ${attributes.join(" ")}`;
+        }
+      }
+      compactSDP.push(line);
       return;
     }
 

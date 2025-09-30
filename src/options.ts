@@ -31,6 +31,8 @@ export interface MediaOptions {
   compressFingerprint?: boolean;
   // compress media connection (c=)
   compressConnection?: boolean;
+  // compress extmap URIs by replacing common URNs with short identifiers
+  compressExtmap?: boolean;
 }
 
 // compact options
@@ -79,6 +81,7 @@ export const DefaultOptions: Options = {
     forceTrickle: true,
     compressFingerprint: true,
     compressConnection: true,
+    compressExtmap: true,
   },
 };
 

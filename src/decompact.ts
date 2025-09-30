@@ -6,9 +6,9 @@ import {
   HashFuncMapReverse,
   MediaConnectionAddressTypeMapReverse,
   MediaConnectionIPMapReverse,
+  ExtmapURIMapReverse,
   candidateDecode,
   mediaDecode,
-  mediaEncode,
 } from "./dict";
 import { Options, mergeOptions } from "./options";
 import * as sdpTransform from "sdp-transform";
@@ -243,6 +243,20 @@ function decompactSDPStr(
       }
       // network type (IN for Internet), address type (IP4), and the connection address (115.87.239.220)
       decompactSDP.push(`c=IN ${addressType} ${ip}`);
+      return;
+    }
+
+    if (line.startsWith("a=extmap:") && options.mediaOptions?.compressExtmap) {
+      // Parse extmap line: a=extmap:<id> <compressedURI> [<attributes>]
+      let [id, compressedURI, ...attributes] = line.slice(9).split(" ");
+      if (compressedURI in ExtmapURIMapReverse) {
+        compressedURI = ExtmapURIMapReverse[compressedURI];
+      }
+      decompactSDP.push(
+        `a=extmap:${id} ${compressedURI}${
+          attributes.length > 0 ? ` ${attributes.join(" ")}` : ""
+        }`
+      );
       return;
     }
 
