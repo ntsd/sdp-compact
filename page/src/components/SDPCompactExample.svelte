@@ -1,14 +1,14 @@
 <script lang="ts">
   import * as sdpCompact from "sdp-compact";
 
-  let offer: string = "";
-  let compactedOffer = "";
-  let compactedOfferBytes: Uint8Array = new Uint8Array();
+  let offer = $state("");
+  let compactedOffer = $state("");
+  let compactedOfferBytes: Uint8Array = $state(new Uint8Array());
 
-  let isAudioChannel = true;
-  let isVideoChannel = true;
-  let isDataChannel = true;
-  let compress = true;
+  let isAudioChannel = $state(true);
+  let isVideoChannel = $state(true);
+  let isDataChannel = $state(true);
+  let compress = $state(true);
 
   function compact() {
     compactedOffer = sdpCompact.compactSDP(offer.replaceAll("\n", "\r\n"), {
@@ -75,13 +75,13 @@
     <input type="checkbox" bind:checked={isDataChannel} />
   </div>
   <div>
-    <label class="mb-2" for="video">Compress</label>
-    <input type="checkbox" bind:checked={compress} on:change={compact} />
+    <label class="mb-2" for="compress">Compress</label>
+    <input type="checkbox" bind:checked={compress} onchange={compact} />
   </div>
 </div>
 <button
   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mt-8 mb-4"
-  on:click={generateOffer}
+  onclick={generateOffer}
 >
   Generate SDP
 </button>
@@ -93,10 +93,10 @@
   <textarea
     class="p-2 scrollable ring resize-none min-w-full"
     bind:value={offer}
-    on:input={compact}
+    oninput={compact}
     placeholder="Generate SDP or paste here..."
     rows="10"
-  />
+  ></textarea>
 </div>
 
 <div class="mt-4">

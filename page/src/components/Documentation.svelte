@@ -1,11 +1,16 @@
 <script lang="ts">
-  import Highlight from "svelte-highlight";
-  import typescript from "svelte-highlight/languages/typescript";
-  import "svelte-highlight/styles/github.css";
+  import CodeHighlight from "./CodeHighlight.svelte";
   import { npmLink } from "../const";
 
-  let copied = false;
+  let copied = $state(false);
   let copiedTimeout: NodeJS.Timeout;
+
+  function copyToClipboard() {
+    navigator.clipboard.writeText(installCode);
+    copied = true;
+    clearTimeout(copiedTimeout);
+    copiedTimeout = setTimeout(() => (copied = false), 2000);
+  }
 
   const installCode = "npm install sdp-compact";
   const exmapleCode = String.raw`import * as spdCompact from "sdp-compact";
@@ -64,17 +69,13 @@ const decompactedSPD = spdCompact.decompactSDPBytes(compactedSPDBytes, true, opt
 
 <h2 class="text-2xl font-bold mt-8 mb-4">Installation</h2>
 
-<code
-  class="cursor-pointer select-all rounded px-4 py-2 ring-2"
-  on:mousedown={(e) => {
-    navigator.clipboard.writeText(e.currentTarget.innerText);
-    copied = true;
-    if (copiedTimeout !== undefined) clearTimeout(copiedTimeout);
-    copiedTimeout = setTimeout(() => (copied = false), 2000);
-  }}
+<button
+  class="select-all cursor-pointer bg-gray-200 px-2 py-1 rounded font-mono"
+  onclick={copyToClipboard}
+  type="button"
 >
   {installCode}
-</code>
+</button>
 
 <p class="opacity-0 transition" class:opacity-100={copied}>
   copied to clipboard
@@ -86,8 +87,8 @@ const decompactedSPD = spdCompact.decompactSDPBytes(compactedSPDBytes, true, opt
 *For options reference can see <a href="https://github.com/ntsd/sdp-compact#options" class="underline">GitHub README</a>
 </p>
 
-<Highlight
+<CodeHighlight
   class="select-all rounded ring-2"
-  language={typescript}
+  language="typescript"
   code={exmapleCode}
 />
