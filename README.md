@@ -82,6 +82,7 @@ const DefaultOptions: Options = {
     compressFingerprint: true,
     compressConnection: true,
     compressExtmap: true,
+    compressRtcpFb: true,
   },
 };
 ```
@@ -138,6 +139,7 @@ Customize media options. This includes the following properties:
 - `compressFingerprint`: compress fingerprint (a=fingerprint:). (default: true)
 - `compressConnection`: compress media connection (c=). (default: true)
 - `compressExtmap`: compress extmap URIs by replacing common URNs with short identifiers (a=extmap:). (default: true)
+- `compressRtcpFb`: compress RTCP feedback types by replacing common types with short identifiers (a=rtcp-fb:). (default: true)
 
 ## WebRTC SDP Anatomy
 

@@ -33,6 +33,8 @@ export interface MediaOptions {
   compressConnection?: boolean;
   // compress extmap URIs by replacing common URNs with short identifiers
   compressExtmap?: boolean;
+  // compress RTCP feedback types by replacing common types with short identifiers (a=rtcp-fb:)
+  compressRtcpFb?: boolean;
 }
 
 // compact options
@@ -82,6 +84,7 @@ export const DefaultOptions: Options = {
     compressFingerprint: true,
     compressConnection: true,
     compressExtmap: true,
+    compressRtcpFb: true,
   },
 };
 

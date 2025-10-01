@@ -55,6 +55,7 @@ const candidateEncodeMap: { [key: string]: string } = {
   "rport 0 generation 0 network-cost 999": "R",
   udp: "U",
   raddr: "A",
+  "0.0.0.0": "Z",
 };
 const candidateEncodeRegex = new RegExp(
   Object.keys(candidateEncodeMap).join("|"),
@@ -126,7 +127,8 @@ export const MediaConnectionIPMapReverse: { [key: string]: string } =
 export const ExtmapURIMap: { [key: string]: string } = {
   "urn:ietf:params:rtp-hdrext:ssrc-audio-level": "A",
   "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time": "B",
-  "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01": "C",
+  "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01":
+    "C",
   "urn:ietf:params:rtp-hdrext:sdes:mid": "D",
   "urn:ietf:params:rtp-hdrext:toffset": "E",
   "urn:3gpp:video-orientation": "F",
@@ -143,3 +145,36 @@ export const ExtmapURIMap: { [key: string]: string } = {
 };
 export const ExtmapURIMapReverse: { [key: string]: string } =
   Object.fromEntries(Object.entries(ExtmapURIMap).map((a) => a.reverse()));
+
+// RTCP feedback type compression - Map common feedback types to short identifiers
+export const RtcpFbMap: { [key: string]: string } = {
+  "nack pli": "P", // Must come before "nack" for proper matching
+  "goog-remb": "G",
+  "transport-cc": "T",
+  "ccm fir": "C",
+  "nack": "N",
+};
+export const RtcpFbMapReverse: { [key: string]: string } =
+  Object.fromEntries(Object.entries(RtcpFbMap).map((a) => a.reverse()));
+
+// RTCP feedback encode - Sort keys by length desc to match longer patterns first
+const rtcpFbEncodeRegex = new RegExp(
+  Object.keys(RtcpFbMap)
+    .sort((a, b) => b.length - a.length)
+    .join("|"),
+  "g"
+);
+export function rtcpFbEncode(line: string) {
+  return line.replace(rtcpFbEncodeRegex, (match) => RtcpFbMap[match]);
+}
+
+// RTCP feedback decode - Sort keys by length desc to match longer patterns first
+const rtcpFbDecodeRegex = new RegExp(
+  Object.keys(RtcpFbMapReverse)
+    .sort((a, b) => b.length - a.length)
+    .join("|"),
+  "g"
+);
+export function rtcpFbDecode(line: string) {
+  return line.replace(rtcpFbDecodeRegex, (match) => RtcpFbMapReverse[match]);
+}

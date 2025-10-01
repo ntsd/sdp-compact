@@ -9,6 +9,7 @@ import {
   ExtmapURIMap,
   candidateEncode,
   mediaEncode,
+  rtcpFbEncode,
 } from "./dict";
 import { FingerprintToBase64 } from "./base64";
 
@@ -218,6 +219,12 @@ function compactSDPStr(sdpStr: string, options: Options): string {
           line += ` ${attributes.join(" ")}`;
         }
       }
+      compactSDP.push(line);
+      return;
+    }
+
+    if (line.startsWith("a=rtcp-fb:") && options.mediaOptions?.compressRtcpFb) {
+      line = rtcpFbEncode(line);
       compactSDP.push(line);
       return;
     }
