@@ -156,4 +156,43 @@ describe("minimize", () => {
     expect(decompactedWithExtmap).toContain("http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01");
     expect(decompactedWithExtmap).toContain("urn:ietf:params:rtp-hdrext:sdes:mid");
   });
+
+  test("rtcp-fb compression", () => {
+    // Create SDP with rtcp-fb attributes
+    const sdpWithRtcpFb = `v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=video 9 UDP/TLS/RTP/SAVPF 96\r\nc=IN IP4 0.0.0.0\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\n`;
+
+    // Test with rtcp-fb compression enabled
+    const optionsWithRtcpFb: Options = { compress: false, mediaOptions: { compressRtcpFb: true } };
+    const compactedWithRtcpFb = compactSDP(sdpWithRtcpFb, optionsWithRtcpFb);
+    
+    // Test with rtcp-fb compression disabled
+    const optionsWithoutRtcpFb: Options = { compress: false, mediaOptions: { compressRtcpFb: false } };
+    const compactedWithoutRtcpFb = compactSDP(sdpWithRtcpFb, optionsWithoutRtcpFb);
+
+    // The compressed version should be shorter
+    expect(compactedWithRtcpFb.length).toBeLessThan(compactedWithoutRtcpFb.length);
+    
+    // The compressed version should contain short identifiers instead of full feedback types
+    expect(compactedWithRtcpFb).toContain("AB96 G"); // compressed goog-remb
+    expect(compactedWithRtcpFb).toContain("AB96 T"); // compressed transport-cc
+    expect(compactedWithRtcpFb).toContain("AB96 C"); // compressed ccm fir
+    expect(compactedWithRtcpFb).toContain("AB96 N"); // compressed nack
+    expect(compactedWithRtcpFb).toContain("AB96 P"); // compressed nack pli
+    
+    // The uncompressed version should still contain full feedback types
+    expect(compactedWithoutRtcpFb).toContain("goog-remb");
+    expect(compactedWithoutRtcpFb).toContain("transport-cc");
+    expect(compactedWithoutRtcpFb).toContain("ccm fir");
+    expect(compactedWithoutRtcpFb).toContain("nack pli");
+
+    // Test decompression works correctly
+    const decompactedWithRtcpFb = decompactSDP(compactedWithRtcpFb, true, optionsWithRtcpFb);
+    
+    // Check that rtcp-fb types are properly restored
+    expect(decompactedWithRtcpFb).toContain("goog-remb");
+    expect(decompactedWithRtcpFb).toContain("transport-cc");
+    expect(decompactedWithRtcpFb).toContain("ccm fir");
+    expect(decompactedWithRtcpFb).toContain("nack");
+    expect(decompactedWithRtcpFb).toContain("nack pli");
+  });
 });

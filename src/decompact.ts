@@ -9,6 +9,7 @@ import {
   ExtmapURIMapReverse,
   candidateDecode,
   mediaDecode,
+  rtcpFbDecode,
 } from "./dict";
 import { Options, mergeOptions } from "./options";
 import * as sdpTransform from "sdp-transform";
@@ -257,6 +258,12 @@ function decompactSDPStr(
           attributes.length > 0 ? ` ${attributes.join(" ")}` : ""
         }`
       );
+      return;
+    }
+
+    if (line.startsWith("a=rtcp-fb:") && options.mediaOptions?.compressRtcpFb) {
+      line = rtcpFbDecode(line);
+      decompactSDP.push(line);
       return;
     }
 
