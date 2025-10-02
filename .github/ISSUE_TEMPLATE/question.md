@@ -7,12 +7,6 @@ assignees: ""
 
 ---
 
-### 🔍 Have You Searched Existing Issues for the same Question?
-
-- [ ] I have searched the existing issues to avoid duplicates
-
----
-
 ### 🧠 What's Your Question?  
 Be specific so others can help you quickly.
 
@@ -22,8 +16,3 @@ Be specific so others can help you quickly.
 Include screenshots, links, or any other relevant info.
 
 ---
-
-### 🙌 Contributor Checklist
-
-- [ ] I have searched existing issues  
-- [ ] I agree to follow this project's Code of Conduct  

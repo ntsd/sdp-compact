@@ -7,11 +7,6 @@ assignees: ""
 
 ---
 
-### 🔍 Have You Searched Existing Issues?
-
-- [ ] I have searched the existing issues to avoid duplicates
-
----
 
 ### 🐞 Describe the Bug  
 What is happening and what should happen instead?
@@ -29,20 +24,3 @@ What is happening and what should happen instead?
 ### ✅ Expected Behavior  
 What should have happened?
 
----
-
-### 🖼️ Screenshots (If applicable)  
-Add screenshots to help explain the issue.
-
----
-
-### 📘 Additional Context  
-Any other details that might help.
-
----
-
-### 🙌 Contributor Checklist
-
-- [ ] I agree to follow this project's Code of Conduct  
-- [ ] I am a Hacktoberfest contributor  
-- [ ] I want to work on this issue  
