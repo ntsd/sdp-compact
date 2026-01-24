@@ -1,6 +1,6 @@
 {
   "name": "sdp-compact",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "type": "module",
   "description": "Shorten WebRTC Session Description Protocol (SDP)",
   "main": "dist/index.js",
@@ -29,12 +29,12 @@
   "devDependencies": {
     "@types/pako": "^2.0.4",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.6.0",
+    "@types/node": "^25.0.10",
     "@types/sdp-transform": "^2.15.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "pako": "^2.1.0",
