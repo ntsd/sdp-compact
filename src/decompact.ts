@@ -49,7 +49,7 @@ export const decompactSDP = (
   const options = mergeOptions(newOptions);
 
   if (options.compress) {
-    compactSDPStr = decompressText(compactSDPStr);
+    compactSDPStr = decompressText(compactSDPStr, options.compress);
   }
 
   return decompactSDPStr(compactSDPStr, isOffer, options);

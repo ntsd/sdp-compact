@@ -39,8 +39,8 @@ export interface MediaOptions {
 
 // compact options
 export interface Options {
-  // compress compress with zlib deflate, then base64
-  compress?: boolean;
+  // compress compress with zlib deflate, then encode to string
+  compress?: boolean | 'base64' | 'base92';
   // replace field name using `FieldReplaceMap` and `FieldReplaceMapReverse`
   replaceFieldNames?: boolean;
   // fixed sdp version (v=), usually will always be "0" for now
@@ -60,8 +60,8 @@ export interface Options {
 }
 
 // default options will be used if no override is specified
-export const DefaultOptions: Options = {
-  compress: true,
+export const DefaultOptions: Required<Options> = {
+  compress: 'base64',
   replaceFieldNames: true,
   sdpVersion: 0,
   sessionName: "-",
@@ -88,10 +88,21 @@ export const DefaultOptions: Options = {
   },
 };
 
-export function mergeOptions(overwriteOptions: Partial<Options> = {}): Options {
-  const mergedOptions: Options = {
+type MergedOptions = Required<Options> & {
+  compress: false | 'base64' | 'base92';
+}
+
+export function mergeOptions(overwriteOptions: Partial<Options> = {}): MergedOptions {
+  // backward compatibility: if compress is true, set to 'base64'
+  let compress = overwriteOptions.compress ?? DefaultOptions.compress;
+  if (compress === true) {
+    compress = 'base64';
+  }
+
+  const mergedOptions: MergedOptions = {
     ...DefaultOptions,
     ...overwriteOptions,
+    compress,
     origin: {
       ...DefaultOptions.origin,
       ...overwriteOptions.origin,
