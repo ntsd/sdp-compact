@@ -45,7 +45,7 @@ export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
   sdpStr = compactSDPStr(sdpStr, options);
 
   if (options.compress) {
-    sdpStr = compressText(sdpStr);
+    sdpStr = compressText(sdpStr, options.compress);
   }
 
   return sdpStr;

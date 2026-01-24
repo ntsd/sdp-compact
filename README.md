@@ -35,6 +35,8 @@ const sessDesc: RTCSessionDescriptionInit = {
 
 
 const options: spdCompact.Options = { compress: true };
+// When compress is enabled, sdp-compact use base64 encoding by default. You can switch to base92 for more compact size:
+const options: spdCompact.Options = { compress: 'base92' };
 
 // compact the `RTCSessionDescriptionInit`
 const compactedSessDesc = spdCompact.compact(sessDesc, options);

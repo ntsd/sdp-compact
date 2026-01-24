@@ -1,13 +1,23 @@
 import * as pako from "pako";
 import { base64ToUint8Array, uint8ArrayToBase64 } from "./base64";
+import { base92ToUint8Array, uint8ArrayToBase92 } from "./base92";
 
-export function compressText(text: string): string {
+const encoder = {
+  base64: uint8ArrayToBase64,
+  base92: uint8ArrayToBase92
+} as const;
+const decoder = {
+  base64: base64ToUint8Array,
+  base92: base92ToUint8Array
+} as const;
+
+export function compressText(text: string, encoding: 'base64' | 'base92'): string {
   const compressedData = pako.deflate(text, { level: 9 });
-  return uint8ArrayToBase64(compressedData);
+  return encoder[encoding](compressedData);
 }
 
-export function decompressText(compressedText: string): string {
-  const compressedData = base64ToUint8Array(compressedText);
+export function decompressText(compressedText: string, encoding: 'base64' | 'base92'): string {
+  const compressedData = decoder[encoding](compressedText);
   return pako.inflate(compressedData, { to: "string" });
 }
 
