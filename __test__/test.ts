@@ -44,30 +44,48 @@ describe("minimize", () => {
     expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
   });
 
-  test("compactSDP and decompactSDP offer 2", () => {
-    const options: Options = {};
+  ([
+    'base64',
+    'base92'
+  ] as const).forEach((encoding) => {
+    test("compactSDP and decompactSDP offer (" + encoding + ")", () => {
+      const options: Options = { compress: encoding };
 
-    const sdp = offer2.sdp as string;
-    const compacted = compactSDP(sdp, options);
-    const decompacted = decompactSDP(compacted, true, options);
+      const sdp = offer.sdp as string;
+      const compacted = compactSDP(sdp, options);
+      const decompacted = decompactSDP(compacted, true, options);
 
-    console.log("sdp len: " + sdp.length);
-    console.log("compact len: " + compacted.length);
+      console.log("sdp len: " + sdp.length);
+      console.log("compact len (" + encoding + "): " + compacted.length);
 
-    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
-  });
+      expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+    });
 
-  test("compactSDP and decompactSDP answer 2", () => {
-    const options: Options = {};
+    test("compactSDP and decompactSDP offer 2 (" + encoding + ")", () => {
+      const options: Options = { compress: encoding };
 
-    const sdp = answer2.sdp as string;
-    const compacted = compactSDP(sdp, options);
-    const decompacted = decompactSDP(compacted, false, options);
+      const sdp = offer2.sdp as string;
+      const compacted = compactSDP(sdp, options);
+      const decompacted = decompactSDP(compacted, true, options);
 
-    console.log("sdp len: " + sdp.length);
-    console.log("compact len: " + compacted.length);
+      console.log("sdp len: " + sdp.length);
+      console.log("compact len (" + encoding + "): " + compacted.length);
 
-    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+      expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+    });
+
+    test("compactSDP and decompactSDP answer 2 (" + encoding + ")", () => {
+      const options: Options = { compress: encoding };
+
+      const sdp = answer2.sdp as string;
+      const compacted = compactSDP(sdp, options);
+      const decompacted = decompactSDP(compacted, false, options);
+
+      console.log("sdp len: " + sdp.length);
+      console.log("compact len (" + encoding + "): " + compacted.length);
+
+      expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+    });
   });
 
   test("compactSDP and decompactSDP offer no compress", () => {
@@ -129,27 +147,27 @@ describe("minimize", () => {
     // Test with extmap compression enabled
     const optionsWithExtmap: Options = { compress: false, mediaOptions: { compressExtmap: true } };
     const compactedWithExtmap = compactSDP(sdpWithExtmap, optionsWithExtmap);
-    
+
     // Test with extmap compression disabled
     const optionsWithoutExtmap: Options = { compress: false, mediaOptions: { compressExtmap: false } };
     const compactedWithoutExtmap = compactSDP(sdpWithExtmap, optionsWithoutExtmap);
 
     // The compressed version should be shorter
     expect(compactedWithExtmap.length).toBeLessThan(compactedWithoutExtmap.length);
-    
+
     // The compressed version should contain short identifiers instead of full URIs
     expect(compactedWithExtmap).toContain("AE1 A"); // compressed ssrc-audio-level
     expect(compactedWithExtmap).toContain("AE2 B"); // compressed abs-send-time
     expect(compactedWithExtmap).toContain("AE3 C"); // compressed transport-wide-cc-extensions
     expect(compactedWithExtmap).toContain("AE4 D"); // compressed sdes:mid
-    
+
     // The uncompressed version should still contain full URIs
     expect(compactedWithoutExtmap).toContain("urn:ietf:params:rtp-hdrext:ssrc-audio-level");
     expect(compactedWithoutExtmap).toContain("http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time");
 
     // Test decompression works correctly - the extmap URIs should be restored
     const decompactedWithExtmap = decompactSDP(compactedWithExtmap, true, optionsWithExtmap);
-    
+
     // Check that extmap URIs are properly restored
     expect(decompactedWithExtmap).toContain("urn:ietf:params:rtp-hdrext:ssrc-audio-level");
     expect(decompactedWithExtmap).toContain("http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time");
@@ -164,21 +182,21 @@ describe("minimize", () => {
     // Test with rtcp-fb compression enabled
     const optionsWithRtcpFb: Options = { compress: false, mediaOptions: { compressRtcpFb: true } };
     const compactedWithRtcpFb = compactSDP(sdpWithRtcpFb, optionsWithRtcpFb);
-    
+
     // Test with rtcp-fb compression disabled
     const optionsWithoutRtcpFb: Options = { compress: false, mediaOptions: { compressRtcpFb: false } };
     const compactedWithoutRtcpFb = compactSDP(sdpWithRtcpFb, optionsWithoutRtcpFb);
 
     // The compressed version should be shorter
     expect(compactedWithRtcpFb.length).toBeLessThan(compactedWithoutRtcpFb.length);
-    
+
     // The compressed version should contain short identifiers instead of full feedback types
     expect(compactedWithRtcpFb).toContain("AB96 G"); // compressed goog-remb
     expect(compactedWithRtcpFb).toContain("AB96 T"); // compressed transport-cc
     expect(compactedWithRtcpFb).toContain("AB96 C"); // compressed ccm fir
     expect(compactedWithRtcpFb).toContain("AB96 N"); // compressed nack
     expect(compactedWithRtcpFb).toContain("AB96 P"); // compressed nack pli
-    
+
     // The uncompressed version should still contain full feedback types
     expect(compactedWithoutRtcpFb).toContain("goog-remb");
     expect(compactedWithoutRtcpFb).toContain("transport-cc");
@@ -187,7 +205,7 @@ describe("minimize", () => {
 
     // Test decompression works correctly
     const decompactedWithRtcpFb = decompactSDP(compactedWithRtcpFb, true, optionsWithRtcpFb);
-    
+
     // Check that rtcp-fb types are properly restored
     expect(decompactedWithRtcpFb).toContain("goog-remb");
     expect(decompactedWithRtcpFb).toContain("transport-cc");
