@@ -61,7 +61,7 @@ You can override the default options to suit your application's requirements, wh
 
 ```Typescript
 const DefaultOptions: Options = {
-  compress: true,
+  compress: 'base64'
   replaceFieldNames: true,
   sdpVersion: 0,
   sessionName: "-",
@@ -91,9 +91,9 @@ const DefaultOptions: Options = {
 
 Here is an explanation of each option and its default value:
 
-### compress (default: true)
+### compress (default: 'base64')
 
-Enables compression using zlib deflate, followed by base64 encoding.
+Enables compression using zlib deflate, followed by base64/base92 encoding.
 
 ### replaceFieldNames (default: true)
 

@@ -20,7 +20,7 @@ const sessDesc: RTCSessionDescriptionInit = {
   sdp: "v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\n",
 };
 
-const options: spdCompact.Options = { compress: true };
+const options: spdCompact.Options = { compress: 'base64' };
 
 // compact the 'RTCSessionDescriptionInit'
 const compactedSessDesc = spdCompact.compact(sessDesc, options);
