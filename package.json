@@ -27,7 +27,6 @@
   },
   "homepage": "https://ntsd.github.io/sdp-compact",
   "devDependencies": {
-    "@types/pako": "^2.0.4",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.0.10",
     "@types/sdp-transform": "^2.15.0",
@@ -37,7 +36,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "pako": "^2.1.0",
+    "fflate": "^0.8.2",
     "sdp-transform": "^2.15.0"
   }
 }
