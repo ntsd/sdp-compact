@@ -1,3 +1,20 @@
+// Helpers
+function reverseMap(m: { [key: string]: string }): { [key: string]: string } {
+  return Object.fromEntries(
+    Object.entries(m).map(([k, v]) => [v, k] as const)
+  );
+}
+function makeRegexSubstitution(
+  map: { [key: string]: string },
+  options: { longestFirst?: boolean } = {}
+): (line: string) => string {
+  const keys = options.longestFirst
+    ? Object.keys(map).sort((a, b) => b.length - a.length)
+    : Object.keys(map);
+  const regex = new RegExp(keys.join("|"), "g");
+  return (line: string) => line.replace(regex, (match) => map[match]);
+}
+
 // replace sdp fields key
 export const FieldReplaceMap: { [key: string]: string } = {
   "v=": "V",
@@ -9,7 +26,7 @@ export const FieldReplaceMap: { [key: string]: string } = {
   "t=": "T",
 };
 export const FieldReplaceMapReverse: { [key: string]: string } =
-  Object.fromEntries(Object.entries(FieldReplaceMap).map((a) => a.reverse()));
+  reverseMap(FieldReplaceMap);
 
 // replace media attributes
 export const AttributeRepalceMap: { [key: string]: string } = {
@@ -29,9 +46,7 @@ export const AttributeRepalceMap: { [key: string]: string } = {
   "fmtp:": "Z",
 };
 export const AttributeRepalceMapReverse: { [key: string]: string } =
-  Object.fromEntries(
-    Object.entries(AttributeRepalceMap).map((a) => a.reverse())
-  );
+  reverseMap(AttributeRepalceMap);
 
 // Replace fingerprint hash function, RFC 8122 section-5
 export const HashFuncMap: { [key: string]: string } = {
@@ -44,9 +59,8 @@ export const HashFuncMap: { [key: string]: string } = {
   md2: "7",
   token: "8",
 };
-export const HashFuncMapReverse: { [key: string]: string } = Object.fromEntries(
-  Object.entries(HashFuncMap).map((a) => a.reverse())
-);
+export const HashFuncMapReverse: { [key: string]: string } =
+  reverseMap(HashFuncMap);
 
 // Candidate encode
 const candidateEncodeMap: { [key: string]: string } = {
@@ -57,30 +71,17 @@ const candidateEncodeMap: { [key: string]: string } = {
   raddr: "A",
   "0.0.0.0": "Z",
 };
-const candidateEncodeRegex = new RegExp(
-  Object.keys(candidateEncodeMap).join("|"),
-  "g"
-);
+const candidateEncodeFn = makeRegexSubstitution(candidateEncodeMap);
 export function candidateEncode(line: string) {
-  return line.replace(
-    candidateEncodeRegex,
-    (match) => candidateEncodeMap[match]
-  );
+  return candidateEncodeFn(line);
 }
 
 // Candidate decode
-const candidateDecodeMap: { [key: string]: string } = Object.fromEntries(
-  Object.entries(candidateEncodeMap).map((a) => a.reverse())
-);
-const candidateDecodeRegex = new RegExp(
-  Object.keys(candidateDecodeMap).join("|"),
-  "g"
-);
+const candidateDecodeMap: { [key: string]: string } =
+  reverseMap(candidateEncodeMap);
+const candidateDecodeFn = makeRegexSubstitution(candidateDecodeMap);
 export function candidateDecode(line: string) {
-  return line.replace(
-    candidateDecodeRegex,
-    (match) => candidateDecodeMap[match]
-  );
+  return candidateDecodeFn(line);
 }
 
 // Media encode
@@ -92,18 +93,17 @@ const mediaEncodeMap: { [key: string]: string } = {
   audio: "A",
   video: "V",
 };
-const mediaEncodeRegex = new RegExp(Object.keys(mediaEncodeMap).join("|"), "g");
+const mediaEncodeFn = makeRegexSubstitution(mediaEncodeMap);
 export function mediaEncode(line: string) {
-  return line.replace(mediaEncodeRegex, (match) => mediaEncodeMap[match]);
+  return mediaEncodeFn(line);
 }
 
 // Media decode
-const mediaDecodeMap: { [key: string]: string } = Object.fromEntries(
-  Object.entries(mediaEncodeMap).map((a) => a.reverse())
-);
-const mediaDecodeRegex = new RegExp(Object.keys(mediaDecodeMap).join("|"), "g");
+const mediaDecodeMap: { [key: string]: string } =
+  reverseMap(mediaEncodeMap);
+const mediaDecodeFn = makeRegexSubstitution(mediaDecodeMap);
 export function mediaDecode(line: string) {
-  return line.replace(mediaDecodeRegex, (match) => mediaDecodeMap[match]);
+  return mediaDecodeFn(line);
 }
 
 // Media Connection
@@ -111,17 +111,14 @@ export const MediaConnectionAddressTypeMap: { [key: string]: string } = {
   IP4: "4",
   IP6: "6",
 };
-export const MediaConnectionAddressTypeMapReverse: { [key: string]: string } =
-  Object.fromEntries(
-    Object.entries(MediaConnectionAddressTypeMap).map((a) => a.reverse())
-  );
+export const MediaConnectionAddressTypeMapReverse: {
+  [key: string]: string;
+} = reverseMap(MediaConnectionAddressTypeMap);
 export const MediaConnectionIPMap: { [key: string]: string } = {
   "0.0.0.0": "0",
 };
 export const MediaConnectionIPMapReverse: { [key: string]: string } =
-  Object.fromEntries(
-    Object.entries(MediaConnectionIPMap).map((a) => a.reverse())
-  );
+  reverseMap(MediaConnectionIPMap);
 
 // Extmap URI compression - Map common WebRTC extension URNs to short identifiers
 export const ExtmapURIMap: { [key: string]: string } = {
@@ -144,7 +141,7 @@ export const ExtmapURIMap: { [key: string]: string } = {
   "urn:ietf:params:rtp-hdrext:splicing-interval": "P",
 };
 export const ExtmapURIMapReverse: { [key: string]: string } =
-  Object.fromEntries(Object.entries(ExtmapURIMap).map((a) => a.reverse()));
+  reverseMap(ExtmapURIMap);
 
 // RTCP feedback type compression - Map common feedback types to short identifiers
 export const RtcpFbMap: { [key: string]: string } = {
@@ -155,26 +152,18 @@ export const RtcpFbMap: { [key: string]: string } = {
   "nack": "N",
 };
 export const RtcpFbMapReverse: { [key: string]: string } =
-  Object.fromEntries(Object.entries(RtcpFbMap).map((a) => a.reverse()));
+  reverseMap(RtcpFbMap);
 
 // RTCP feedback encode - Sort keys by length desc to match longer patterns first
-const rtcpFbEncodeRegex = new RegExp(
-  Object.keys(RtcpFbMap)
-    .sort((a, b) => b.length - a.length)
-    .join("|"),
-  "g"
-);
+const rtcpFbEncodeFn = makeRegexSubstitution(RtcpFbMap, { longestFirst: true });
 export function rtcpFbEncode(line: string) {
-  return line.replace(rtcpFbEncodeRegex, (match) => RtcpFbMap[match]);
+  return rtcpFbEncodeFn(line);
 }
 
 // RTCP feedback decode - Sort keys by length desc to match longer patterns first
-const rtcpFbDecodeRegex = new RegExp(
-  Object.keys(RtcpFbMapReverse)
-    .sort((a, b) => b.length - a.length)
-    .join("|"),
-  "g"
-);
+const rtcpFbDecodeFn = makeRegexSubstitution(RtcpFbMapReverse, {
+  longestFirst: true,
+});
 export function rtcpFbDecode(line: string) {
-  return line.replace(rtcpFbDecodeRegex, (match) => RtcpFbMapReverse[match]);
+  return rtcpFbDecodeFn(line);
 }
