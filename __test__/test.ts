@@ -1,6 +1,7 @@
 import { compact, compactSDP, compactSDPBytes } from "../src/compact";
 import { decompact, decompactSDP, decompactSDPBytes } from "../src/decompact";
 import { Options } from "../src/options";
+import { uint8ArrayToBase92, base92ToUint8Array } from "../src/base92";
 import * as sdpTransform from "sdp-transform";
 
 const offer: RTCSessionDescriptionInit = {
@@ -212,5 +213,87 @@ describe("minimize", () => {
     expect(decompactedWithRtcpFb).toContain("ccm fir");
     expect(decompactedWithRtcpFb).toContain("nack");
     expect(decompactedWithRtcpFb).toContain("nack pli");
+  });
+});
+
+describe("base92", () => {
+  test("round-trip: base92ToUint8Array(uint8ArrayToBase92(bytes)).equals(bytes)", () => {
+    const payloads: Uint8Array[] = [
+      new Uint8Array([0xde, 0xad, 0xbe, 0xef]),
+      new Uint8Array([0xde, 0xad, 0xbe, 0xef, 0x00, 0x11, 0x22, 0x33]),
+      new Uint8Array([0x00, 0x00, 0x01, 0x02, 0x03]), // leading 0x00 -> LEADER repeat path
+      new Uint8Array([0x00, 0x00, 0x00, 0xff]), // multiple leading 0x00
+      new Uint8Array([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a]),
+      new TextEncoder().encode(
+        "v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\nt=0 0\r\n"
+      ),
+    ];
+
+    for (const bytes of payloads) {
+      const encoded = uint8ArrayToBase92(bytes);
+      const decoded = base92ToUint8Array(encoded);
+
+      // Re-encoding the decoded bytes must reproduce the original string.
+      expect(uint8ArrayToBase92(decoded)).toBe(encoded);
+      // Decoded bytes must equal the original payload.
+      expect(Array.from(decoded)).toEqual(Array.from(bytes));
+    }
+  });
+
+  test("round-trip: single 0x00 payload (LEADER only)", () => {
+    const bytes = new Uint8Array([0x00]);
+    const decoded = base92ToUint8Array(uint8ArrayToBase92(bytes));
+    expect(Array.from(decoded)).toEqual([0x00]);
+  });
+
+  test("empty input returns empty output", () => {
+    expect(Array.from(base92ToUint8Array(""))).toEqual([]);
+  });
+
+  test("invalid char throws: single space injected into a valid string", () => {
+    const bytes = new Uint8Array([0xde, 0xad, 0xbe, 0xef, 0x00, 0x11, 0x22, 0x33]);
+    const valid = uint8ArrayToBase92(bytes);
+    // 0x20 (space) is not in ALPHABET; inject it mid-string.
+    const tampered = valid.slice(0, 2) + " " + valid.slice(3);
+    expect(() => base92ToUint8Array(tampered)).toThrow();
+  });
+
+  test("invalid char throws: tab injected into a valid string", () => {
+    const bytes = new Uint8Array([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]);
+    const valid = uint8ArrayToBase92(bytes);
+    const tampered = valid.slice(0, 3) + "\t" + valid.slice(4);
+    expect(() => base92ToUint8Array(tampered)).toThrow();
+  });
+
+  test("fully-invalid input throws: three spaces", () => {
+    // 3 spaces (0x20) — none of them are in ALPHABET.
+    expect(() => base92ToUint8Array("   ")).toThrow();
+  });
+
+  test("fully-invalid input throws: non-alphabet prefix before valid tail", () => {
+    // Pick a confirmed-absent char (space) followed by valid base92 chars.
+    expect(() => base92ToUint8Array(" !#$")).toThrow();
+  });
+
+  test("invalid char throws: non-ASCII (out-of-bounds charCode) char", () => {
+    // A non-ASCII char has charCode >= 256 -> BASE_MAP reads undefined,
+    // not the INVALID sentinel. Must still throw, not silently corrupt.
+    const bytes = new Uint8Array([0x01, 0x02, 0x03, 0x04, 0x05]);
+    const valid = uint8ArrayToBase92(bytes);
+    const tampered = valid.slice(0, 2) + "€" + valid.slice(3);
+    expect(() => base92ToUint8Array(tampered)).toThrow();
+  });
+
+  test("end-to-end: compactSDP/decompactSDP (base92) on a tampered compact string surfaces an error", () => {
+    const options: Options = { compress: "base92" };
+    const sdp = offer.sdp as string;
+    const compacted = compactSDP(sdp, options);
+    // Tamper with the compressed base92 payload: inject a space (0x20) mid-string.
+    const mid = Math.floor(compacted.length / 2);
+    const tampered = compacted.slice(0, mid) + " " + compacted.slice(mid + 1);
+
+    // Decompacting the tampered string must surface an error (not silently
+    // return wrong SDP bytes).
+    expect(() => decompactSDP(tampered, true, options)).toThrow();
   });
 });
