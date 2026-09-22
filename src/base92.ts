@@ -29,9 +29,13 @@ const ALPHABET = [
   125, 126
 ];
 
+// Sentinel value for characters not present in ALPHABET. The decoder
+// checks for this to reject invalid input (matching upstream base-x).
+const INVALID = 255
+
 const BASE_MAP = new Uint8Array(256)
 for (let j = 0; j < BASE_MAP.length; j++) {
-  BASE_MAP[j] = 255
+  BASE_MAP[j] = INVALID
 }
 
 const BASE = 92
@@ -115,8 +119,18 @@ export function base92ToUint8Array(source: string): Uint8Array {
     // Find code of next character
     const charCode = source.charCodeAt(psz)
 
-    // Decode character
-    let carry = BASE_MAP[charCode]
+    // Decode character. Out-of-bounds charCodes (non-ASCII, charCode >= 256)
+    // read as undefined rather than the INVALID sentinel.
+    let carry: number | undefined = BASE_MAP[charCode]
+
+    // Reject any character not present in ALPHABET. Without this guard the
+    // INVALID sentinel (255) would flow through the decode arithmetic as if
+    // it were a legitimate base-92 digit, silently corrupting the output.
+    // Valid digits are 0..91; out-of-bounds charCodes (non-ASCII, e.g. a
+    // mangled URL-encoding artifact) yield undefined instead.
+    if (carry === undefined || carry === INVALID) {
+      throw new Error("Invalid base92 character");
+    }
 
     let i = 0
     for (let it3 = size - 1; (carry !== 0 || i < length) && (it3 !== -1); it3--, i++) {
