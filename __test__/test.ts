@@ -319,6 +319,15 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     expect(() => decompactSDP("AE1", true, noCompress)).toThrow("a=extmap:1");
   });
 
+  test("extmap line with empty id token throws a descriptive error", () => {
+    // `AE 1`: extmap attr with an empty id token. Empty-string tokens must be
+    // rejected just like missing ones — an empty id is a structurally invalid
+    // extmap (id 1-15 required) and must not be silently emitted.
+    expect(() => decompactSDP("O~AE 1", true, noCompress)).toThrow(
+      /missing extmap id or URI/
+    );
+  });
+
   test("connection line missing IP throws a descriptive error (no literal 'undefined')", () => {
     // c= line missing the IP token. Previously this silently emitted
     // `c=IN IP4 undefined`.
@@ -329,6 +338,14 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
 
   test("connection error message includes the offending line", () => {
     expect(() => decompactSDP("C4", true, noCompress)).toThrow('c=4');
+  });
+
+  test("connection line with empty address type token throws a descriptive error", () => {
+    // `C 1`: c= line with an empty address type token. Previously the
+    // malformed `c=IN  1` line was silently dropped by sdpTransform.parse.
+    expect(() => decompactSDP("O~C 1", true, noCompress)).toThrow(
+      /missing address type or IP address/
+    );
   });
 
   test("fingerprint line missing value token throws a descriptive error (not a raw TypeError)", () => {

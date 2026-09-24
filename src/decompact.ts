@@ -251,7 +251,12 @@ function decompactSDPStr(
 
     if (line.startsWith("c=") && options.mediaOptions?.compressConnection) {
       let [addressType, ip] = line.slice(2).split(" ");
-      if (addressType === undefined || ip === undefined || ip === "") {
+      if (
+        addressType === undefined ||
+        addressType === "" ||
+        ip === undefined ||
+        ip === ""
+      ) {
         throw new Error(
           `Malformed c= line (missing address type or IP address): "${line}"`
         );
@@ -272,6 +277,7 @@ function decompactSDPStr(
       let [id, compressedURI, ...attributes] = line.slice(9).split(" ");
       if (
         id === undefined ||
+        id === "" ||
         compressedURI === undefined ||
         compressedURI === ""
       ) {
