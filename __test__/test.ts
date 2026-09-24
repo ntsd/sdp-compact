@@ -3,6 +3,7 @@ import { decompact, decompactSDP, decompactSDPBytes } from "../src/decompact";
 import { Options } from "../src/options";
 import { uint8ArrayToBase92, base92ToUint8Array } from "../src/base92";
 import * as sdpTransform from "sdp-transform";
+import { deflateSync, strToU8 } from "fflate";
 
 const offer: RTCSessionDescriptionInit = {
   type: "offer",
@@ -213,6 +214,72 @@ describe("minimize", () => {
     expect(decompactedWithRtcpFb).toContain("ccm fir");
     expect(decompactedWithRtcpFb).toContain("nack");
     expect(decompactedWithRtcpFb).toContain("nack pli");
+  });
+
+  test("compactSDP/decompactSDP survives an SDP whose deflated payload exceeds the String.fromCharCode spread limit (base64)", () => {
+    // Regression: uint8ArrayToBase64 used `String.fromCharCode(...array)`,
+    // which spreads the whole deflated buffer as call arguments and throws
+    // `RangeError: Maximum call stack size exceeded` once the byte count
+    // exceeds the engine's argument limit (~126k on Node v26).
+    //
+    // Build a valid SDP with many ICE candidates so the deflated (level 9)
+    // payload of the COMPACTED string — the exact buffer that reaches
+    // uint8ArrayToBase64 — is measured (not guessed) to exceed 120,000
+    // bytes.
+    //
+    // Note: candidate priorities/IPs are chosen so no octet run of zeros
+    // (0<*>0<*>0<*>0) occurs: candidateEncode's "0.0.0.0" dict pattern uses
+    // unescaped dots and would otherwise leak literal "undefined" into the
+    // compacted string (a separate, pre-existing dict bug, out of scope
+    // here — cf. zf-224ba8b4).
+    const candidateCount = 12000;
+    // `a=group:BUNDLE 0..N-1` is required: decompact re-inserts it for every
+    // media section (removeMediaID), so the original must carry it for the
+    // parsed round-trip to be equal.
+    const bundleIDs = Array.from({ length: candidateCount }, (_, i) => i).join(" ");
+    const lines: string[] = [
+      "v=0",
+      "o=- 4109260023080860376 2 IN IP4 127.0.0.1",
+      "s=-",
+      "t=0 0",
+      `a=group:BUNDLE ${bundleIDs}`,
+      "a=extmap-allow-mixed",
+      "a=msid-semantic: WMS",
+    ];
+    for (let i = 0; i < candidateCount; i++) {
+      const ip = `10.${1 + (i % 250)}.${1 + (i % 200)}.${1 + (i % 150)}`;
+      lines.push("m=audio 9 UDP/TLS/RTP/SAVPF 111");
+      lines.push("c=IN IP4 0.0.0.0");
+      lines.push(
+        `a=candidate:${100000 + i} 1 udp ${
+          2147483648 + i
+        } ${ip} ${10000 + i} typ host generation 0 network-cost 999`
+      );
+      // decompact re-inserts these for every media section
+      // (removeSetup / removeMediaID / forceTrickle), so the original must
+      // carry them.
+      lines.push("a=setup:actpass");
+      lines.push(`a=mid:${i}`);
+      lines.push("a=ice-options:trickle");
+    }
+    const sdp = lines.join("\r\n") + "\r\n";
+
+    // The test is only meaningful if the deflated compacted payload actually
+    // crosses the spread limit; otherwise the RangeError could not be
+    // reproduced. (Measurement only — not the encoding under test.)
+    const compactedPlain = compactSDP(sdp, { compress: false });
+    const deflated = deflateSync(strToU8(compactedPlain), { level: 9 });
+    console.log("large sdp len: " + sdp.length);
+    console.log("large compacted deflated len: " + deflated.length);
+    expect(deflated.length).toBeGreaterThan(120000);
+
+    // Default compress: 'base64' — compactSDP must not throw.
+    const compacted = compactSDP(sdp);
+    console.log("large compact len: " + compacted.length);
+
+    const decompacted = decompactSDP(compacted, true);
+
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
   });
 });
 
