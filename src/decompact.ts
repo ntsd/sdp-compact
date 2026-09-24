@@ -25,6 +25,11 @@ export const decompact = (
   compacted: string,
   options?: Options
 ): RTCSessionDescriptionInit => {
+  if (typeof compacted !== "string" || compacted.trim().length === 0) {
+    throw new Error(
+      "Invalid compacted input: empty or non-string value (expected a compacted SDP string)"
+    );
+  }
   const isOffer = compacted[0] === "O";
   const sdpMinStr = compacted.slice(1);
 
@@ -226,6 +231,16 @@ function decompactSDPStr(
       options.mediaOptions?.compressFingerprint
     ) {
       let [hashMethod, fingerprint] = line.slice(14).split(" ");
+      if (
+        hashMethod === undefined ||
+        hashMethod === "" ||
+        fingerprint === undefined ||
+        fingerprint === ""
+      ) {
+        throw new Error(
+          `Malformed a=fingerprint line (missing hash method or fingerprint value): "${line}"`
+        );
+      }
       if (hashMethod in HashFuncMapReverse) {
         hashMethod = HashFuncMapReverse[hashMethod];
       }
@@ -236,6 +251,16 @@ function decompactSDPStr(
 
     if (line.startsWith("c=") && options.mediaOptions?.compressConnection) {
       let [addressType, ip] = line.slice(2).split(" ");
+      if (
+        addressType === undefined ||
+        addressType === "" ||
+        ip === undefined ||
+        ip === ""
+      ) {
+        throw new Error(
+          `Malformed c= line (missing address type or IP address): "${line}"`
+        );
+      }
       if (addressType in MediaConnectionAddressTypeMapReverse) {
         addressType = MediaConnectionAddressTypeMapReverse[addressType];
       }
@@ -250,6 +275,16 @@ function decompactSDPStr(
     if (line.startsWith("a=extmap:") && options.mediaOptions?.compressExtmap) {
       // Parse extmap line: a=extmap:<id> <compressedURI> [<attributes>]
       let [id, compressedURI, ...attributes] = line.slice(9).split(" ");
+      if (
+        id === undefined ||
+        id === "" ||
+        compressedURI === undefined ||
+        compressedURI === ""
+      ) {
+        throw new Error(
+          `Malformed a=extmap line (missing extmap id or URI): "${line}"`
+        );
+      }
       if (compressedURI in ExtmapURIMapReverse) {
         compressedURI = ExtmapURIMapReverse[compressedURI];
       }

@@ -93,6 +93,15 @@ export class FingerprintToBase64 {
   }
 
   static decode(base64String: string): string {
+    if (
+      base64String === undefined ||
+      base64String === null ||
+      base64String === ""
+    ) {
+      throw new Error(
+        "Fingerprint base64 decode failed: empty or missing base64 string"
+      );
+    }
     let bitBuffer = 0;
     let bitCount = 0;
     let hexString = "";
