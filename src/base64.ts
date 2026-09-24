@@ -29,7 +29,15 @@ export function base64decode(s: string): string {
 }
 
 export function uint8ArrayToBase64(array: Uint8Array): string {
-  return base64encode(String.fromCharCode(...array));
+  // Build the binary string in bounded chunks: spreading the whole array
+  // into String.fromCharCode throws a RangeError once the byte count
+  // exceeds the engine's call-argument limit (~126k on Node v26).
+  let binary = "";
+  const CHUNK = 0x8000; // 32k, well under the call-argument limit
+  for (let i = 0; i < array.length; i += CHUNK) {
+    binary += String.fromCharCode(...array.subarray(i, i + CHUNK));
+  }
+  return base64encode(binary);
 }
 
 export function base64ToUint8Array(base64: string): Uint8Array {
@@ -85,6 +93,15 @@ export class FingerprintToBase64 {
   }
 
   static decode(base64String: string): string {
+    if (
+      base64String === undefined ||
+      base64String === null ||
+      base64String === ""
+    ) {
+      throw new Error(
+        "Fingerprint base64 decode failed: empty or missing base64 string"
+      );
+    }
     let bitBuffer = 0;
     let bitCount = 0;
     let hexString = "";
