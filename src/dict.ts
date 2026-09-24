@@ -62,48 +62,152 @@ export const HashFuncMap: { [key: string]: string } = {
 export const HashFuncMapReverse: { [key: string]: string } =
   reverseMap(HashFuncMap);
 
-// Candidate encode
-const candidateEncodeMap: { [key: string]: string } = {
-  "typ host generation 0 network-cost 999": "H",
-  "typ srflx": "S",
-  "rport 0 generation 0 network-cost 999": "R",
-  udp: "U",
-  raddr: "A",
-  "0.0.0.0": "Z",
-};
-const candidateEncodeFn = makeRegexSubstitution(candidateEncodeMap);
+// Candidate encode/decode.
+//
+// `a=candidate:<foundation> <component> <protocol> <priority> <ip> <port> [attributes]`
+//
+// Only exact tokens at known positions are substituted:
+//   protocol token (index 2):   `udp` <-> `U`
+//   ip token (index 4):         `0.0.0.0` <-> `Z`
+//   `raddr <ip>`:               the attribute <-> `A`, ip `0.0.0.0` <-> `Z`
+//   `typ srflx`:                <-> `S`
+//   `typ host generation 0 network-cost 999`:   <-> `H`
+//   `rport 0 generation 0 network-cost 999`:    <-> `R`
+//
+// The single-character codes are never matched inside a longer token, so
+// hostnames or other attribute values that contain them (e.g.
+// `S.example.com`) survive the round-trip untouched.
+const CANDIDATE_PREFIX = "a=candidate:";
+
+function candidateEncodeTokens(tokens: string[]): string[] {
+  // [foundation, component, protocol, priority, ip, port, ...attributes]
+  if (tokens[2] === "udp") {
+    tokens[2] = "U";
+  }
+  if (tokens[4] === "0.0.0.0") {
+    tokens[4] = "Z";
+  }
+  for (let i = 6; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t === "raddr" && tokens[i + 1] === "0.0.0.0") {
+      tokens[i] = "A";
+      tokens[i + 1] = "Z";
+    } else if (
+      t === "typ" &&
+      tokens[i + 1] === "host" &&
+      tokens[i + 2] === "generation" &&
+      tokens[i + 3] === "0" &&
+      tokens[i + 4] === "network-cost" &&
+      tokens[i + 5] === "999"
+    ) {
+      tokens.splice(i, 6, "H");
+    } else if (t === "typ" && tokens[i + 1] === "srflx") {
+      tokens.splice(i, 2, "S");
+    } else if (
+      t === "rport" &&
+      tokens[i + 1] === "0" &&
+      tokens[i + 2] === "generation" &&
+      tokens[i + 3] === "0" &&
+      tokens[i + 4] === "network-cost" &&
+      tokens[i + 5] === "999"
+    ) {
+      tokens.splice(i, 6, "R");
+    }
+  }
+  return tokens;
+}
+
+function candidateDecodeTokens(tokens: string[]): string[] {
+  if (tokens[2] === "U") {
+    tokens[2] = "udp";
+  }
+  if (tokens[4] === "Z") {
+    tokens[4] = "0.0.0.0";
+  }
+  for (let i = 6; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t === "A" && tokens[i + 1] === "Z") {
+      tokens[i] = "raddr";
+      tokens[i + 1] = "0.0.0.0";
+    } else if (t === "S") {
+      tokens.splice(i, 1, "typ", "srflx");
+    } else if (t === "H") {
+      tokens.splice(i, 1, "typ", "host", "generation", "0", "network-cost", "999");
+    } else if (t === "R") {
+      tokens.splice(i, 1, "rport", "0", "generation", "0", "network-cost", "999");
+    }
+  }
+  return tokens;
+}
+
 export function candidateEncode(line: string) {
-  return candidateEncodeFn(line);
+  if (!line.startsWith(CANDIDATE_PREFIX)) {
+    return line;
+  }
+  const value = line.slice(CANDIDATE_PREFIX.length);
+  return CANDIDATE_PREFIX + candidateEncodeTokens(value.split(" ")).join(" ");
 }
 
-// Candidate decode
-const candidateDecodeMap: { [key: string]: string } =
-  reverseMap(candidateEncodeMap);
-const candidateDecodeFn = makeRegexSubstitution(candidateDecodeMap);
 export function candidateDecode(line: string) {
-  return candidateDecodeFn(line);
+  if (!line.startsWith(CANDIDATE_PREFIX)) {
+    return line;
+  }
+  const value = line.slice(CANDIDATE_PREFIX.length);
+  return CANDIDATE_PREFIX + candidateDecodeTokens(value.split(" ")).join(" ");
 }
 
-// Media encode
+// Media encode/decode.
+//
+// `m=<media> <port> <protocol> <formats...>`
+//
+// Only the media-type token (index 0) and the protocol token (index 2) are
+// substituted; everything after the protocol (payload types / formats) is
+// never touched, so codec names and data-channel formats survive intact.
 const mediaEncodeMap: { [key: string]: string } = {
   application: "P",
   "UDP/DTLS/SCTP": "U",
   "UDP/TLS/RTP/SAVPF": "T",
-  "webrtc-datachannel": "D",
   audio: "A",
   video: "V",
 };
-const mediaEncodeFn = makeRegexSubstitution(mediaEncodeMap);
-export function mediaEncode(line: string) {
-  return mediaEncodeFn(line);
+const mediaDecodeMap: { [key: string]: string } = reverseMap(mediaEncodeMap);
+const MEDIA_PREFIX = "m=";
+
+function mediaEncodeTokens(tokens: string[]): string[] {
+  // [media, port, protocol, ...formats]
+  if (tokens[0] in mediaEncodeMap) {
+    tokens[0] = mediaEncodeMap[tokens[0]];
+  }
+  if (tokens[2] in mediaEncodeMap) {
+    tokens[2] = mediaEncodeMap[tokens[2]];
+  }
+  return tokens;
 }
 
-// Media decode
-const mediaDecodeMap: { [key: string]: string } =
-  reverseMap(mediaEncodeMap);
-const mediaDecodeFn = makeRegexSubstitution(mediaDecodeMap);
+function mediaDecodeTokens(tokens: string[]): string[] {
+  if (tokens[0] in mediaDecodeMap) {
+    tokens[0] = mediaDecodeMap[tokens[0]];
+  }
+  if (tokens[2] in mediaDecodeMap) {
+    tokens[2] = mediaDecodeMap[tokens[2]];
+  }
+  return tokens;
+}
+
+export function mediaEncode(line: string) {
+  if (!line.startsWith(MEDIA_PREFIX)) {
+    return line;
+  }
+  const value = line.slice(MEDIA_PREFIX.length);
+  return MEDIA_PREFIX + mediaEncodeTokens(value.split(" ")).join(" ");
+}
+
 export function mediaDecode(line: string) {
-  return mediaDecodeFn(line);
+  if (!line.startsWith(MEDIA_PREFIX)) {
+    return line;
+  }
+  const value = line.slice(MEDIA_PREFIX.length);
+  return MEDIA_PREFIX + mediaDecodeTokens(value.split(" ")).join(" ");
 }
 
 // Media Connection
