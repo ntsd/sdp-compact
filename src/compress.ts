@@ -17,8 +17,14 @@ export function compressText(text: string, encoding: 'base64' | 'base92'): strin
 }
 
 export function decompressText(compressedText: string, encoding: 'base64' | 'base92'): string {
-  const compressedData = decoder[encoding](compressedText);
-  return strFromU8(inflateSync(compressedData));
+  try {
+    const compressedData = decoder[encoding](compressedText);
+    return strFromU8(inflateSync(compressedData));
+  } catch (e) {
+    throw new Error(
+      `Failed to decompress compacted SDP payload (encoding: ${encoding}): ${(e as Error)?.message ?? e}`
+    );
+  }
 }
 
 export function compressToBytes(text: string): Uint8Array {
@@ -26,5 +32,11 @@ export function compressToBytes(text: string): Uint8Array {
 }
 
 export function decompresBytes(compressedData: Uint8Array): string {
-  return strFromU8(inflateSync(compressedData));
+  try {
+    return strFromU8(inflateSync(compressedData));
+  } catch (e) {
+    throw new Error(
+      `Failed to decompress compacted SDP bytes payload: ${(e as Error)?.message ?? e}`
+    );
+  }
 }
