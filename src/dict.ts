@@ -29,7 +29,7 @@ export const FieldReplaceMapReverse: { [key: string]: string } =
   reverseMap(FieldReplaceMap);
 
 // replace media attributes
-export const AttributeRepalceMap: { [key: string]: string } = {
+export const AttributeReplaceMap: { [key: string]: string } = {
   "rtcp:": "R",
   "ice-ufrag:": "U",
   "ice-pwd:": "P",
@@ -45,8 +45,8 @@ export const AttributeRepalceMap: { [key: string]: string } = {
   "rtcp-fb:": "B",
   "fmtp:": "Z",
 };
-export const AttributeRepalceMapReverse: { [key: string]: string } =
-  reverseMap(AttributeRepalceMap);
+export const AttributeReplaceMapReverse: { [key: string]: string } =
+  reverseMap(AttributeReplaceMap);
 
 // Replace fingerprint hash function, RFC 8122 section-5
 export const HashFuncMap: { [key: string]: string } = {
