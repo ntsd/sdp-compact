@@ -135,8 +135,8 @@ Customize media options. This includes the following properties:
 
 - `removeMediaID`: Remove media ID (a=mid:) and group (a=group:<type>) (a=group:BUNDLE) to use sequence medias instead. (default: true)
 - `removeSetup`: Remove DTLS role (a=setup:). It will set to actpass for offer and active for answer. (default: true)
-- `replaceCandidateString`: replaced string in ice candidate (a=candidate:) following `CandidateReplaceList`. (default: true)
-- `replaceMediaString`: replace string in media (m=) following `MediaReplaceList`. (default: true)
+- `replaceCandidateString`: replace strings in ice candidate (a=candidate:) following `candidateEncodeMap`/`candidateDecodeMap` in `src/dict.ts`. (default: true)
+- `replaceMediaString`: replace strings in media (m=) following `mediaEncodeMap`/`mediaDecodeMap` in `src/dict.ts`. (default: true)
 - `forceTrickle`: force ice-options to trickle (a=ice-options:trickle). (default: true)
 - `compressFingerprint`: compress fingerprint (a=fingerprint:). (default: true)
 - `compressConnection`: compress media connection (c=). (default: true)
