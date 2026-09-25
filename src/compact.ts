@@ -1,7 +1,7 @@
 import { Options, mergeOptions } from "./options";
 import { compressText, compressToBytes } from "./compress";
 import {
-  AttributeRepalceMap,
+  AttributeReplaceMap,
   FieldReplaceMap,
   HashFuncMap,
   MediaConnectionAddressTypeMap,
@@ -14,10 +14,22 @@ import {
 import { FingerprintToBase64 } from "./base64";
 
 /**
+ * Map `RTCSdpType` to the single-character prefix stored at the start of a
+ * compacted `RTCSessionDescriptionInit` string.
+ */
+const SDPTypePrefixMap: Record<RTCSdpType, string> = {
+  offer: "O",
+  answer: "A",
+  pranswer: "P",
+  rollback: "R",
+};
+
+/**
  * Compact a RTCSessionDescription
  *
  * @param rtcSessionDesc The `RTCSessionDescriptionInit` to compact.
  * @returns The compacted `RTCSessionDescriptionInit` string.
+ * @throws Error if `sdp` is missing or `type` is not a supported `RTCSdpType`.
  */
 export const compact = (
   rtcSessionDesc: RTCSessionDescriptionInit,
@@ -27,9 +39,13 @@ export const compact = (
   if (!sdp) {
     throw new Error("SDP not found");
   }
+  const prefix: string | undefined = SDPTypePrefixMap[rtcSessionDesc.type];
+  if (!prefix) {
+    throw new Error(`Unsupported SDP type: ${String(rtcSessionDesc.type)}`);
+  }
   const comp = compactSDP(sdp, options);
 
-  return (rtcSessionDesc.type === "offer" ? "O" : "A") + comp;
+  return prefix + comp;
 };
 
 /**
@@ -113,37 +129,37 @@ function compactSDPStr(sdpStr: string, options: Options): string {
     if (line.startsWith("o=") && options.origin !== undefined) {
       // `o=<username> <sessID> <sessVersion> <netType> <addrType> <unicastAddress>`
       let origin = line.slice(2).split(" ");
-      let newOrgin: string[] = [];
+      let newOrigin: string[] = [];
 
       // username
       if (options.origin.username === undefined) {
-        newOrgin.push(origin[0]);
+        newOrigin.push(origin[0]);
       }
 
       // sessID
       if (options.origin.sessionId === undefined) {
-        newOrgin.push(origin[1]);
+        newOrigin.push(origin[1]);
       }
 
       // sessVersion
-      newOrgin.push(origin[2]);
+      newOrigin.push(origin[2]);
 
       // netType
       if (options.origin.netType === undefined) {
-        newOrgin.push(origin[3]);
+        newOrigin.push(origin[3]);
       }
 
       // addrType
       if (options.origin.addrtype === undefined) {
-        newOrgin.push(origin[4]);
+        newOrigin.push(origin[4]);
       }
 
       // unicastAddress
       if (options.origin.unicastAddress === undefined) {
-        newOrgin.push(origin[5]);
+        newOrigin.push(origin[5]);
       }
 
-      compactSDP.push(`o=${newOrgin.join(" ")}`);
+      compactSDP.push(`o=${newOrigin.join(" ")}`);
       return;
     }
 
@@ -242,8 +258,8 @@ function compactSDPStr(sdpStr: string, options: Options): string {
         let [attr, ...subValue] = value.split(":");
         attr = attr + ":";
 
-        if (attr in AttributeRepalceMap) {
-          attr = AttributeRepalceMap[attr];
+        if (attr in AttributeReplaceMap) {
+          attr = AttributeReplaceMap[attr];
           value = attr + subValue.join(":");
         }
       }

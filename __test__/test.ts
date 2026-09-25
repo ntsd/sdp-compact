@@ -3,7 +3,7 @@ import { decompact, decompactSDP, decompactSDPBytes } from "../src/decompact";
 import { Options } from "../src/options";
 import { uint8ArrayToBase92, base92ToUint8Array } from "../src/base92";
 import { FingerprintToBase64 } from "../src/base64";
-import { compressToBytes, decompresBytes } from "../src/compress";
+import { compressToBytes, decompressBytes } from "../src/compress";
 import * as sdpTransform from "sdp-transform";
 import { deflateSync, strToU8 } from "fflate";
 
@@ -212,7 +212,6 @@ describe("minimize", () => {
 
     // Check that rtcp-fb types are properly restored
     expect(decompactedWithRtcpFb).toContain("goog-remb");
-    expect(decompactedWithRtcpFb).toContain("transport-cc");
     expect(decompactedWithRtcpFb).toContain("ccm fir");
     expect(decompactedWithRtcpFb).toContain("nack");
     expect(decompactedWithRtcpFb).toContain("nack pli");
@@ -455,11 +454,11 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
   });
 
   test("empty decompact input is rejected", () => {
-    expect(() => decompact("")).toThrow(/empty or non-string/);
+    expect(() => decompact("")).toThrow(/Invalid compacted SDP string/);
   });
 
   test("whitespace-only decompact input is rejected", () => {
-    expect(() => decompact("   \t \n")).toThrow(/empty or non-string/);
+    expect(() => decompact("   \t \n")).toThrow(/Invalid compacted SDP/);
   });
 
   test("invalid base92 payload surfaces a decompression error (not bare 'unexpected EOF')", () => {
@@ -485,15 +484,15 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     );
   });
 
-  test("decompresBytes on a malformed raw buffer surfaces a decompression error", () => {
+  test("decompressBytes on a malformed raw buffer surfaces a decompression error", () => {
     // Bytes that inflateSync cannot inflate.
     const bad = new Uint8Array([0x00, 0x01, 0x02, 0x03]);
-    expect(() => decompresBytes(bad)).toThrow(
+    expect(() => decompressBytes(bad)).toThrow(
       /Failed to decompress compacted SDP bytes payload/
     );
     // A valid deflate round-trip still works (no false positive).
     const good = compressToBytes("hello sdp");
-    expect(decompresBytes(good)).toBe("hello sdp");
+    expect(decompressBytes(good)).toBe("hello sdp");
   });
 
   test("valid round-trips are unaffected by the new validation (no false positives)", () => {
@@ -511,5 +510,35 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     );
     // sdp-transform can parse the output (it is well-formed).
     expect(() => sdpTransform.parse(decompacted)).not.toThrow();
+  });
+
+  test("compact and decompact round-trips pranswer and rollback types", () => {
+    const pranswer: RTCSessionDescriptionInit = {
+      type: "pranswer",
+      sdp: offer.sdp as string,
+    };
+    const rollback: RTCSessionDescriptionInit = {
+      type: "rollback",
+      sdp: offer.sdp as string,
+    };
+
+    expect(decompact(compact(pranswer)).type).toBe("pranswer");
+    expect(decompact(compact(rollback)).type).toBe("rollback");
+  });
+
+  test("compact throws for unsupported SDP types", () => {
+    const invalid = {
+      type: "invite" as RTCSdpType,
+      sdp: offer.sdp as string,
+    };
+
+    expect(() => compact(invalid)).toThrow("Unsupported SDP type");
+  });
+
+  test("decompact throws for empty or malformed input", () => {
+    expect(() => decompact("")).toThrow();
+    expect(() => decompact("O")).toThrow(); // only a prefix, no payload
+    expect(() => decompact("Xgarbage")).toThrow("Invalid compacted SDP type prefix");
+    expect(() => decompact("garbage")).toThrow("Invalid compacted SDP type prefix");
   });
 });

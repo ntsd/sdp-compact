@@ -31,7 +31,7 @@ export function compressToBytes(text: string): Uint8Array {
   return deflateSync(strToU8(text), { level: 9 });
 }
 
-export function decompresBytes(compressedData: Uint8Array): string {
+export function decompressBytes(compressedData: Uint8Array): string {
   try {
     return strFromU8(inflateSync(compressedData));
   } catch (e) {

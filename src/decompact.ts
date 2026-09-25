@@ -1,7 +1,7 @@
 import { FingerprintToBase64 } from "./base64";
-import { decompresBytes, decompressText } from "./compress";
+import { decompressBytes, decompressText } from "./compress";
 import {
-  AttributeRepalceMapReverse,
+  AttributeReplaceMapReverse,
   FieldReplaceMapReverse,
   HashFuncMapReverse,
   MediaConnectionAddressTypeMapReverse,
@@ -15,26 +15,44 @@ import { Options, mergeOptions } from "./options";
 import * as sdpTransform from "sdp-transform";
 
 /**
+ * Map the single-character prefix at the start of a compacted
+ * `RTCSessionDescriptionInit` string to `RTCSdpType` (reverse of `SDPTypePrefixMap`).
+ */
+const SDPTypePrefixMapReverse: Record<string, RTCSdpType> = {
+  O: "offer",
+  A: "answer",
+  P: "pranswer",
+  R: "rollback",
+};
+
+/**
  * Decompact a compacted `RTCSessionDescriptionInit` string to the `RTCSessionDescriptionInit`
  *
  * @param compacted The compacted `RTCSessionDescriptionInit` string to decompact.
  * @param options The options.
  * @returns The `RTCSessionDescriptionInit`.
+ * @throws Error if `compacted` is empty or does not start with a known type prefix.
  */
 export const decompact = (
   compacted: string,
   options?: Options
 ): RTCSessionDescriptionInit => {
-  if (typeof compacted !== "string" || compacted.trim().length === 0) {
+  if (typeof compacted !== "string" || compacted.length < 2) {
     throw new Error(
-      "Invalid compacted input: empty or non-string value (expected a compacted SDP string)"
+      `Invalid compacted SDP string: expected a non-empty string starting with a type prefix ("O", "A", "P", or "R")`
     );
   }
-  const isOffer = compacted[0] === "O";
+  const type: RTCSdpType | undefined = SDPTypePrefixMapReverse[compacted[0]];
+  if (!type) {
+    throw new Error(
+      `Invalid compacted SDP type prefix: ${String(compacted[0])}`
+    );
+  }
+  const isOffer = type === "offer";
   const sdpMinStr = compacted.slice(1);
 
   return {
-    type: isOffer ? "offer" : "answer",
+    type,
     sdp: decompactSDP(sdpMinStr, isOffer, options),
   };
 };
@@ -76,7 +94,7 @@ export const decompactSDPBytes = (
 
   let compactSDPStr: string;
   if (options.compress) {
-    compactSDPStr = decompresBytes(compactSDPBytes);
+    compactSDPStr = decompressBytes(compactSDPBytes);
   } else {
     compactSDPStr = new TextDecoder().decode(compactSDPBytes);
   }
@@ -103,12 +121,13 @@ function decompactSDPStr(
 
       // replace attributes
       if (field === "a=") {
-        let attr = value.slice(0, 1);
+        // value is like "E1 A" where first char is the attribute code
+        const attr = value[0];
         const subValue = value.slice(1);
 
-        if (attr in AttributeRepalceMapReverse) {
-          attr = AttributeRepalceMapReverse[attr];
-          value = attr + subValue;
+        if (attr in AttributeReplaceMapReverse) {
+          const mapped = AttributeReplaceMapReverse[attr];
+          value = mapped + subValue;
         }
       }
 
@@ -142,53 +161,53 @@ function decompactSDPStr(
     if (line.startsWith("o=") && options.origin !== undefined) {
       // `o=<username> <sessID> <sessVersion> <netType> <addrType> <unicastAddress>`
       let origin = line.slice(2).split(" ");
-      let newOrgin: string[] = [];
+      let newOrigin: string[] = [];
 
       // username
       if (options.origin.username !== undefined) {
-        newOrgin.push(options.origin.username);
+        newOrigin.push(options.origin.username);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
       // sessionId
       if (options.origin.sessionId !== undefined) {
-        newOrgin.push(options.origin.sessionId);
+        newOrigin.push(options.origin.sessionId);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
       // sessVersion
       const f = origin.shift();
-      if (f) newOrgin.push(f);
+      if (f) newOrigin.push(f);
 
       // netType
       if (options.origin.netType !== undefined) {
-        newOrgin.push(options.origin.netType);
+        newOrigin.push(options.origin.netType);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
       // addrtype
       if (options.origin.addrtype !== undefined) {
-        newOrgin.push(options.origin.addrtype);
+        newOrigin.push(options.origin.addrtype);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
       // unicastAddress
       if (options.origin.unicastAddress !== undefined) {
-        newOrgin.push(options.origin.unicastAddress);
+        newOrigin.push(options.origin.unicastAddress);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
-      decompactSDP.push(`o=${newOrgin.join(" ")}`);
+      decompactSDP.push(`o=${newOrigin.join(" ")}`);
       return;
     }
 
