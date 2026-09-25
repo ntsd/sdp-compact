@@ -453,6 +453,74 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     expect(() => FingerprintToBase64.decode(b64)).not.toThrow();
   });
 
+  test("FingerprintToBase64.decode throws on non-alphabet characters (no silent corruption)", () => {
+    // A character outside the base64 alphabet used to be OR'd into the bit
+    // buffer as -1 and silently produced a wrong fingerprint.
+    expect(() => FingerprintToBase64.decode("A~B")).toThrow(
+      /Invalid base64 character at index 1/
+    );
+    // The error must be a descriptive Error, not a TypeError.
+    let caught: unknown;
+    try {
+      FingerprintToBase64.decode("A~B");
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect(caught).not.toBeInstanceOf(TypeError);
+    expect((caught as Error).message).toMatch(/~/);
+    // Whitespace and other common mangled-input characters are rejected too.
+    expect(() => FingerprintToBase64.decode("A B")).toThrow(
+      /Invalid base64 character/
+    );
+    expect(() => FingerprintToBase64.decode("A!B")).toThrow(
+      /Invalid base64 character/
+    );
+  });
+
+  test("FingerprintToBase64.decode throws on a stray '=' in the middle of the string", () => {
+    // '=' is only valid as trailing padding.
+    expect(() => FingerprintToBase64.decode("A==B")).toThrow(
+      /Invalid base64 padding at index 1/
+    );
+    expect(() => FingerprintToBase64.decode("A===")).toThrow(
+      /Invalid base64 padding/
+    );
+    expect(() => FingerprintToBase64.decode("AB==C")).toThrow(
+      /Invalid base64 padding/
+    );
+  });
+
+  test("FingerprintToBase64 encode/decode round-trips SHA-1/SHA-256/SHA-512 fingerprints", () => {
+    const fingerprints: [string, string][] = [
+      // SHA-1 (20 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C",
+        "4yXjEVE9okuqsajr2wOY8ccNTRw=",
+      ],
+      // SHA-256 (32 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
+        "4yXjEVE9okuqsajr2wOY8ccNTRxsiOy7INrQtzMzuow=",
+      ],
+      // SHA-512 (64 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA",
+        "4yXjEVE9okuqsajr2wOY8ccNTRxsiOy7INrQtzMzuoyY8ccNTRxsiOy7INrQtzMzuoyY8ccNTRxsiOy7INrQtzMzug==",
+      ],
+    ];
+    for (const [hex, canonicalBase64] of fingerprints) {
+      // Encoder output is standard (canonical) base64.
+      expect(FingerprintToBase64.encode(hex)).toBe(canonicalBase64);
+      // Round-trip is exact.
+      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(
+        hex
+      );
+      // Decoding the canonical encoding yields the same fingerprint.
+      expect(FingerprintToBase64.decode(canonicalBase64)).toBe(hex);
+    }
+  });
+
   test("empty decompact input is rejected", () => {
     expect(() => decompact("")).toThrow(/Invalid compacted SDP string/);
   });
