@@ -284,6 +284,111 @@ describe("minimize", () => {
   });
 });
 
+// Token-safety round-trip tests.
+//
+// `candidateDecode`/`mediaDecode` (and their encode counterparts) must never
+// substitute a single-char code inside a longer token — only exact tokens at
+// known field positions. Hostnames containing S/U/A/R/Z and codec names such
+// as AV1/VP8/VP9 must survive compact -> decompact intact.
+describe("token-safe candidate/media round-trip", () => {
+  const base =
+    "v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\n";
+
+  // Real WebRTC places candidates under a media section (sdp-transform
+  // attaches candidate lines to the preceding `m=`).
+  const candidateSdpPrefix = base + "m=video 9 UDP/TLS/RTP/SAVPF 96\r\nc=IN IP4 0.0.0.0\r\n";
+
+  test.each([
+    // candidate protocol is `udp`; hostname collides with single-char codes
+    ["S", "a=candidate:1 1 udp 2113937151 S.example.com 57834 typ host generation 0 network-cost 999"],
+    ["U", "a=candidate:1 1 udp 2113937151 U.example.com 57834 typ host generation 0 network-cost 999"],
+    ["A", "a=candidate:1 1 udp 2113937151 A.example.com 57834 typ host generation 0 network-cost 999"],
+    ["R", "a=candidate:1 1 udp 2113937151 R.example.com 57834 typ host generation 0 network-cost 999"],
+    ["Z", "a=candidate:1 1 udp 2113937151 Z.example.com 57834 typ host generation 0 network-cost 999"],
+    // all colliding uppercase letters in one hostname
+    ["SUAZR", "a=candidate:1 1 udp 2113937151 SUAZR.example.com 57834 typ host generation 0 network-cost 999"],
+    // srflx candidate with an raddr-bearing hostname that contains colliding chars
+    [
+      "srflx-S",
+      "a=candidate:2 1 udp 1677729535 S.example.com 57834 typ srflx raddr 0.0.0.0 rport 0 generation 0 network-cost 999",
+    ],
+    // 0.0.0.0 ip host candidate with a colliding-char hostname elsewhere
+    [
+      "Z-ip",
+      "a=candidate:3 1 udp 2113937151 0.0.0.0 57834 typ host generation 0 network-cost 999",
+    ],
+  ])("candidate hostname %s preserved", (_label, candidateLine) => {
+    const sdp = candidateSdpPrefix + candidateLine + "\r\n";
+    const options: Options = { compress: false };
+    const compacted = compactSDP(sdp, options);
+    const decompacted = decompactSDP(compacted, true, options);
+
+    const origTokens = candidateLine.slice("a=candidate:".length).split(" ");
+    const parsedOrig = sdpTransform.parse(sdp);
+    const parsedDec = sdpTransform.parse(decompacted);
+
+    const origCand = parsedOrig.media?.[0]?.candidates?.[0];
+    const decCand = parsedDec.media?.[0]?.candidates?.[0];
+    expect(origCand).toBeDefined();
+    expect(decCand).toBeDefined();
+
+    // The IP/hostname field must survive the round-trip exactly.
+    expect(decCand?.ip).toBe(origTokens[4]);
+    // Protocol and typ must round-trip.
+    expect(decCand?.transport).toBe(origTokens[2]);
+    expect(decCand?.type).toBe(origTokens[origTokens.indexOf("typ") + 1]);
+    if (origTokens.includes("raddr")) {
+      expect(decCand?.raddr).toBe(origTokens[origTokens.indexOf("raddr") + 1]);
+    }
+
+    // No corrupted hostname fragments in either direction.
+    for (const s of [compacted, decompacted]) {
+      expect(s).not.toContain("typ srflx.example.com");
+      expect(s).not.toContain("raddr.example.com");
+      expect(s).not.toContain("rport 0 generation 0 network-cost 999.example.com");
+      expect(s).not.toContain("0.0.0.0.example.com");
+    }
+  });
+
+  test.each([
+    // codec names after the protocol contain V/P/A — must never be touched
+    ["AV1", "m=video 9 UDP/TLS/RTP/SAVPF 96 AV1"],
+    ["VP9", "m=video 9 UDP/TLS/RTP/SAVPF 97 VP9"],
+    ["VP8", "m=video 9 UDP/TLS/RTP/SAVPF 98 VP8"],
+    ["VP9+VP8", "m=video 9 UDP/TLS/RTP/SAVPF 97 VP9 98 VP8"],
+    // datachannel with a colliding payload token after the protocol
+    ["datachannel", "m=application 57834 UDP/DTLS/SCTP webrtc-datachannel AV1"],
+    // media-type + protocol substituted but payload untouched
+    ["AV1+VP8", "m=video 9 UDP/TLS/RTP/SAVPF 96 AV1 97 VP9 98 VP8"],
+  ])("media codec %s preserved", (_label, mediaLine) => {
+    const sdp = base + mediaLine + "\r\nc=IN IP4 0.0.0.0\r\n";
+    const options: Options = { compress: false };
+    const compacted = compactSDP(sdp, options);
+    const decompacted = decompactSDP(compacted, true, options);
+
+    const mTokens = mediaLine.slice("m=".length).split(" ");
+    // Everything after the protocol token is the payload list.
+    const payloads = mTokens.slice(3).join(" ");
+
+    const origMedia = sdpTransform.parse(sdp).media?.[0];
+    const decMedia = sdpTransform.parse(decompacted).media?.[0];
+    expect(origMedia).toBeDefined();
+    expect(decMedia).toBeDefined();
+
+    // Media type, protocol and the full payload list must round-trip.
+    expect(decMedia?.type).toBe(mTokens[0]);
+    expect(decMedia?.protocol).toBe(mTokens[2]);
+    expect(decMedia?.payloads).toBe(payloads);
+
+    // No corrupted codec fragments in either direction.
+    for (const s of [compacted, decompacted]) {
+      expect(s).not.toContain("audiovideo1");
+      expect(s).not.toContain("videoapplication9");
+      expect(s).not.toContain("videoapplication8");
+    }
+  });
+});
+
 describe("base92", () => {
   test("round-trip: base92ToUint8Array(uint8ArrayToBase92(bytes)).equals(bytes)", () => {
     const payloads: Uint8Array[] = [
