@@ -27,7 +27,7 @@ export const compact = (
   if (!sdp) {
     throw new Error("SDP not found");
   }
-  const comp = compactSDP(sdp, options);
+  const comp = compactSDP(sdp, options, rtcSessionDesc.type === "offer");
 
   return (rtcSessionDesc.type === "offer" ? "O" : "A") + comp;
 };
@@ -37,12 +37,19 @@ export const compact = (
  *
  * @param sdpStr The SDP string to compact.
  * @param newOptions The options.
+ * @param isOffer Whether the SDP is an offer (affects which `a=setup:` value
+ * is treated as the default that decompact synthesizes; `actpass` for
+ * offers, `active` for answers). Defaults to `true`.
  * @returns The compacted SDP string.
  */
-export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
+export const compactSDP = (
+  sdpStr: string,
+  newOptions?: Options,
+  isOffer: boolean = true
+): string => {
   const options = mergeOptions(newOptions);
 
-  sdpStr = compactSDPStr(sdpStr, options);
+  sdpStr = compactSDPStr(sdpStr, options, isOffer);
 
   if (options.compress) {
     sdpStr = compressText(sdpStr, options.compress);
@@ -56,15 +63,19 @@ export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
  *
  * @param sdpStr The SDP string to compact.
  * @param newOptions The options.
+ * @param isOffer Whether the SDP is an offer (affects which `a=setup:` value
+ * is treated as the default; `actpass` for offers, `active` for answers).
+ * Defaults to `true`.
  * @returns The compacted SDP Uint8Array.
  */
 export const compactSDPBytes = (
   sdpStr: string,
-  newOptions?: Options
+  newOptions?: Options,
+  isOffer: boolean = true
 ): Uint8Array => {
   const options = mergeOptions(newOptions);
 
-  sdpStr = compactSDPStr(sdpStr, options);
+  sdpStr = compactSDPStr(sdpStr, options, isOffer);
 
   let sdpBytes: Uint8Array;
   if (options.compress) {
@@ -76,9 +87,24 @@ export const compactSDPBytes = (
   return sdpBytes;
 };
 
-function compactSDPStr(sdpStr: string, options: Options): string {
+function compactSDPStr(
+  sdpStr: string,
+  options: Options,
+  isOffer: boolean
+): string {
   const sdp = sdpStr.split("\r\n");
   let compactSDP: string[] = [];
+
+  // Number of media sections (m= lines). A `a=group:BUNDLE` line whose
+  // members list all media ids in order is the default and is omitted when
+  // removeMediaID is set; anything else is retained as a `GP=` token.
+  const mediaCount = sdp.filter((l) => l.trim().startsWith("m=")).length;
+  // True when any a=group: line was present in the original.
+  let sawGroupLine = false;
+  // Index of the current `a=mid:` line. A mid value equal to the number of
+  // previous mids (i.e. sequential 0,1,2,...) is the default and is omitted;
+  // anything else is retained as an `NM=` token.
+  let midIndex = 0;
 
   sdp.forEach((line) => {
     line = line.trim();
@@ -148,14 +174,44 @@ function compactSDPStr(sdpStr: string, options: Options): string {
     }
 
     if (line.startsWith("a=group:") && options.mediaOptions?.removeMediaID) {
+      sawGroupLine = true;
+      // A BUNDLE (or any group) line listing all media ids in order is the
+      // default that decompact synthesizes — omit it. Anything else
+      // (subset BUNDLE, custom ids/order, non-BUNDLE group) is preserved
+      // verbatim as a `GP=` token so the round-trip stays lossless.
+      if (line.startsWith("a=group:BUNDLE ")) {
+        const members = line.slice("a=group:BUNDLE ".length).split(" ");
+        const isDefault =
+          members.length === mediaCount &&
+          members.every((m, i) => m === String(i));
+        if (isDefault) {
+          return;
+        }
+      }
+      compactSDP.push(`GP=${line}`);
       return;
     }
 
     if (line.startsWith("a=mid:") && options.mediaOptions?.removeMediaID) {
+      const mid = line.slice(6);
+      if (mid === String(midIndex)) {
+        // Sequential 0,1,2,... matches what decompact synthesizes — omit.
+      } else {
+        compactSDP.push(`NM=${mid}`);
+      }
+      midIndex++;
       return;
     }
 
     if (line.startsWith("a=setup:") && options.mediaOptions?.removeSetup) {
+      // decompact synthesizes `actpass` for offers and `active` for answers —
+      // a matching value is omitted; anything else (e.g. `passive`, or
+      // `actpass`/`active` on the "wrong" side) is retained as a `PS=` token
+      // so the round-trip stays lossless.
+      const role = line.slice(8);
+      if (role !== (isOffer ? "actpass" : "active")) {
+        compactSDP.push(`PS=${role}`);
+      }
       return;
     }
 
@@ -231,6 +287,17 @@ function compactSDPStr(sdpStr: string, options: Options): string {
 
     compactSDP.push(line);
   });
+
+  // If the original had media sections but no a=group: line at all, emit an
+  // empty GP= marker so decompact does not synthesize a default
+  // a=group:BUNDLE that wasn't there originally.
+  if (
+    options.mediaOptions?.removeMediaID &&
+    mediaCount > 0 &&
+    !sawGroupLine
+  ) {
+    compactSDP.push("GP=");
+  }
 
   if (options.replaceFieldNames) {
     compactSDP = compactSDP.map((line) => {

@@ -137,7 +137,42 @@ function decompactSDPStr(
   }
 
   let mediaID = 0;
+  // Index of the last synthesized a=setup: / a=mid: line — replaced when a
+  // retained (PS= / NM=) token with the original value arrives.
+  let lastSetupIdx = -1;
+  let lastMidIdx = -1;
+  // True when a GP= token was seen (retained group line or empty marker
+  // meaning the original had no a=group:BUNDLE line) — suppresses the
+  // synthesized default BUNDLE.
+  let sawGroupToken = false;
   compactSDP.forEach((line) => {
+    // retained non-default DTLS setup role — replace the synthesized one
+    if (line.startsWith("PS=") && options.mediaOptions?.removeSetup) {
+      if (lastSetupIdx >= 0) {
+        decompactSDP[lastSetupIdx] = `a=setup:${line.slice(3)}`;
+      }
+      return;
+    }
+
+    // retained non-sequential media id — replace the synthesized one
+    if (line.startsWith("NM=") && options.mediaOptions?.removeMediaID) {
+      if (lastMidIdx >= 0) {
+        decompactSDP[lastMidIdx] = `a=mid:${line.slice(3)}`;
+      }
+      return;
+    }
+
+    // retained group line (GP=<line>), or an empty GP= marker meaning the
+    // original had no a=group:BUNDLE line (suppress default synthesis)
+    if (line.startsWith("GP=") && options.mediaOptions?.removeMediaID) {
+      sawGroupToken = true;
+      const groupLine = line.slice(3);
+      if (groupLine.length > 0) {
+        decompactSDP.push(groupLine);
+      }
+      return;
+    }
+
     // origin
     if (line.startsWith("o=") && options.origin !== undefined) {
       // `o=<username> <sessID> <sessVersion> <netType> <addrType> <unicastAddress>`
@@ -203,10 +238,12 @@ function decompactSDPStr(
 
       if (options.mediaOptions.removeSetup) {
         decompactSDP.push(`a=setup:${isOffer ? "actpass" : "active"}`);
+        lastSetupIdx = decompactSDP.length - 1;
       }
 
       if (options.mediaOptions.removeMediaID) {
         decompactSDP.push(`a=mid:${mediaID}`);
+        lastMidIdx = decompactSDP.length - 1;
         mediaID++;
       }
 
@@ -305,7 +342,7 @@ function decompactSDPStr(
     decompactSDP.push(line);
   });
 
-  if (options.mediaOptions?.removeMediaID) {
+  if (options.mediaOptions?.removeMediaID && !sawGroupToken) {
     decompactSDP.unshift(
       `a=group:BUNDLE ${Array.from(Array(mediaID).keys()).join(" ")}`
     );

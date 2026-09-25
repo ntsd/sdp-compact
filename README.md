@@ -133,8 +133,8 @@ The fixed msid semantic (a=msid-semantic:). It should be "WMS" for WebRTC Media 
 
 Customize media options. This includes the following properties:
 
-- `removeMediaID`: Remove media ID (a=mid:) and group (a=group:<type>) (a=group:BUNDLE) to use sequence medias instead. (default: true)
-- `removeSetup`: Remove DTLS role (a=setup:). It will set to actpass for offer and active for answer. (default: true)
+- `removeMediaID`: Remove media ID (a=mid:) and group (a=group:<type>) (a=group:BUNDLE) to use sequence medias instead. Non-default values (non-sequential mids, non-default BUNDLE/group lines) are preserved so decompact reproduces the original. (default: true)
+- `removeSetup`: Remove DTLS role (a=setup:). It will set to actpass for offer and active for answer; a non-matching original role (e.g. passive) is preserved so decompact reproduces the original. (default: true)
 - `replaceCandidateString`: replaced string in ice candidate (a=candidate:) following `CandidateReplaceList`. (default: true)
 - `replaceMediaString`: replace string in media (m=) following `MediaReplaceList`. (default: true)
 - `forceTrickle`: force ice-options to trickle (a=ice-options:trickle). (default: true)

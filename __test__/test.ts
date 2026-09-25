@@ -513,3 +513,184 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     expect(() => sdpTransform.parse(decompacted)).not.toThrow();
   });
 });
+
+describe("lossless round-trip: non-default a=setup: / a=mid: / a=group: (zf-nsc-e1935f2e)", () => {
+  // With default options (removeSetup/removeMediaID true) the decompact side
+  // used to silently synthesize a fixed a=setup: role (actpass/active from
+  // the isOffer flag), sequential a=mid: values and a full-range
+  // a=group:BUNDLE — corrupting any original that deviated from those
+  // defaults. These are regression tests for that silent data loss.
+
+  const noCompress: Options = { compress: false };
+
+  const makeSdp = (
+    setup: string,
+    mid: string,
+    bundle?: string
+  ): string =>
+    [
+      "v=0",
+      "o=- 4109260023080860376 2 IN IP4 127.0.0.1",
+      "s=-",
+      "t=0 0",
+      ...(bundle !== undefined ? [bundle] : []),
+      "a=extmap-allow-mixed",
+      "a=msid-semantic: WMS",
+      "m=audio 9 UDP/TLS/RTP/SAVPF 111",
+      "c=IN IP4 0.0.0.0",
+      "a=fingerprint:sha-256 E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
+      `a=setup:${setup}`,
+      `a=mid:${mid}`,
+      "a=ice-options:trickle",
+    ].join("\r\n") + "\r\n";
+
+  // (a) a=setup:passive must survive the round-trip — previously the
+  // decompacted output contained a=setup:active (isOffer=false).
+  test("a=setup:passive round-trip (isOffer=false)", () => {
+    const sdp = makeSdp("passive", "0", "a=group:BUNDLE 0");
+    const compacted = compactSDP(sdp, noCompress);
+    const decompacted = decompactSDP(compacted, false, noCompress);
+
+    expect(decompacted).toContain("a=setup:passive");
+    expect(decompacted).not.toContain("a=setup:active");
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  // (a) same on the offer side: a=setup:passive on an offer must not be
+  // normalized to the synthesized a=setup:actpass.
+  test("a=setup:passive round-trip (isOffer=true)", () => {
+    const sdp = makeSdp("passive", "0", "a=group:BUNDLE 0");
+    const compacted = compactSDP(sdp, noCompress);
+    const decompacted = decompactSDP(compacted, true, noCompress);
+
+    expect(decompacted).toContain("a=setup:passive");
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  // (a) a default-matching role still round-trips (no retained token needed):
+  // actpass on an offer, active on an answer.
+  test("default a=setup values (actpass offer / active answer) still round-trip", () => {
+    const offerSdp = makeSdp("actpass", "0", "a=group:BUNDLE 0");
+    const offerCompacted = compactSDP(offerSdp, noCompress);
+    expect(decompactSDP(offerCompacted, true, noCompress)).toContain(
+      "a=setup:actpass"
+    );
+
+    const answerSdp = makeSdp("active", "0", "a=group:BUNDLE 0");
+    const answerCompacted = compactSDP(answerSdp, noCompress);
+    expect(decompactSDP(answerCompacted, false, noCompress)).toContain(
+      "a=setup:active"
+    );
+  });
+
+  // (b) a non-zero a=mid: must survive — previously the decompacted output
+  // contained a=mid:0 regardless of the original value.
+  test("non-zero a=mid round-trip", () => {
+    const sdp = makeSdp("active", "7"); // no a=group: line at all
+    const compacted = compactSDP(sdp, noCompress);
+    const decompacted = decompactSDP(compacted, false, noCompress);
+
+    expect(decompacted).toContain("a=mid:7");
+    expect(decompacted).not.toContain("a=mid:0");
+    // the original had no a=group:BUNDLE — decompact must not invent one
+    expect(decompacted).not.toContain("a=group:BUNDLE");
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  // (b) non-sequential mids across two media sections must survive in order.
+  test("non-sequential a=mid values round-trip", () => {
+    const sdp = [
+      "v=0",
+      "o=- 4109260023080860376 2 IN IP4 127.0.0.1",
+      "s=-",
+      "t=0 0",
+      "a=group:BUNDLE 3 9",
+      "a=extmap-allow-mixed",
+      "a=msid-semantic: WMS",
+      "m=audio 9 UDP/TLS/RTP/SAVPF 111",
+      "c=IN IP4 0.0.0.0",
+      "a=fingerprint:sha-256 E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
+      "a=setup:actpass",
+      "a=mid:3",
+      "a=ice-options:trickle",
+      "m=video 9 UDP/TLS/RTP/SAVPF 96",
+      "c=IN IP4 0.0.0.0",
+      "a=fingerprint:sha-256 E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
+      "a=setup:actpass",
+      "a=mid:9",
+      "a=ice-options:trickle",
+    ].join("\r\n") + "\r\n";
+    const compacted = compactSDP(sdp, noCompress);
+    const decompacted = decompactSDP(compacted, true, noCompress);
+
+    expect(decompacted).toContain("a=mid:3");
+    expect(decompacted).toContain("a=mid:9");
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  // (c) an a=group:BUNDLE with a non-default member list (subset) must be
+  // preserved verbatim — previously it was rebuilt as the full range 0..N.
+  test("subset a=group:BUNDLE member list round-trips", () => {
+    const sdp = [
+      "v=0",
+      "o=- 4109260023080860376 2 IN IP4 127.0.0.1",
+      "s=-",
+      "t=0 0",
+      "a=group:BUNDLE 0 2",
+      "a=extmap-allow-mixed",
+      "a=msid-semantic: WMS",
+      "m=audio 9 UDP/TLS/RTP/SAVPF 111",
+      "c=IN IP4 0.0.0.0",
+      "a=fingerprint:sha-256 E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
+      "a=setup:actpass",
+      "a=mid:0",
+      "a=ice-options:trickle",
+      "m=video 9 UDP/TLS/RTP/SAVPF 96",
+      "c=IN IP4 0.0.0.0",
+      "a=fingerprint:sha-256 E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
+      "a=setup:actpass",
+      "a=mid:2",
+      "a=ice-options:trickle",
+    ].join("\r\n") + "\r\n";
+    const compacted = compactSDP(sdp, noCompress);
+    const decompacted = decompactSDP(compacted, true, noCompress);
+
+    expect(decompacted).toContain("a=group:BUNDLE 0 2");
+    expect(decompacted).toContain("a=mid:2");
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  // the task's probe 1, verbatim: SDP with a=setup:passive + a=mid:0,
+  // compacted then decompacted with isOffer=false.
+  test("probe 1: a=setup:passive + a=mid:0, decompacted as answer", () => {
+    const sdp = makeSdp("passive", "0", "a=group:BUNDLE 0");
+    const compacted = compactSDP(sdp, noCompress);
+    const decompacted = decompactSDP(compacted, false, noCompress);
+    expect(decompacted).toContain("a=setup:passive");
+  });
+
+  // the task's probe 2, verbatim: SDP with a=mid:7 + a=setup:active,
+  // compacted then decompacted with isOffer=false.
+  test("probe 2: a=mid:7 + a=setup:active, decompacted as answer", () => {
+    const sdp = makeSdp("active", "7", "a=group:BUNDLE 7");
+    const compacted = compactSDP(sdp, noCompress);
+    const decompacted = decompactSDP(compacted, false, noCompress);
+    expect(decompacted).toContain("a=mid:7");
+    expect(decompacted).toContain("a=setup:active");
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+
+  // compacted size regression guard: the fix must not bloat the common
+  // (all-default-values) case — a fully default SDP must compact to exactly
+  // the same tokens as before the fix (no PS=/NM=/GP= noise).
+  test("all-default SDP compaction is unchanged (no retained tokens)", () => {
+    const sdp = makeSdp("actpass", "0", "a=group:BUNDLE 0");
+    const compacted = compactSDP(sdp, noCompress);
+    expect(compacted).not.toContain("PS=");
+    expect(compacted).not.toContain("NM=");
+    expect(compacted).not.toContain("GP=");
+    expect(sdpTransform.parse(sdp)).toEqual(
+      sdpTransform.parse(decompactSDP(compacted, true, noCompress))
+    );
+  });
+});

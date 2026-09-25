@@ -14,9 +14,11 @@ export interface OriginOptions {
 
 // compact media options
 export interface MediaOptions {
-  // remove media id (a=mid:) and group (a=group:<type>) (a=group:BUNDLE), to use sequence medias instead
+  // remove media id (a=mid:) and group (a=group:<type>) (a=group:BUNDLE), to use sequence medias instead;
+  // non-default values (non-sequential mids, non-default group lines) are preserved so the round-trip stays lossless
   removeMediaID?: boolean;
-  // remove DTLS role (a=setup:), will set to `actpass` for offer and `active` for answer
+  // remove DTLS role (a=setup:), will set to `actpass` for offer and `active` for answer;
+  // a non-matching original role (e.g. `passive`) is preserved so the round-trip stays lossless
   removeSetup?: boolean;
   // replaced string in ice candidate (a=candidate:) following `candidateEncodeMap`
   replaceCandidateString?: boolean;
