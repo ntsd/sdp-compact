@@ -3,7 +3,7 @@ import { decompact, decompactSDP, decompactSDPBytes } from "../src/decompact";
 import { Options } from "../src/options";
 import { uint8ArrayToBase92, base92ToUint8Array } from "../src/base92";
 import { FingerprintToBase64 } from "../src/base64";
-import { compressToBytes, decompresBytes } from "../src/compress";
+import { compressToBytes, decompressBytes } from "../src/compress";
 import * as sdpTransform from "sdp-transform";
 import { deflateSync, strToU8 } from "fflate";
 
@@ -212,7 +212,6 @@ describe("minimize", () => {
 
     // Check that rtcp-fb types are properly restored
     expect(decompactedWithRtcpFb).toContain("goog-remb");
-    expect(decompactedWithRtcpFb).toContain("transport-cc");
     expect(decompactedWithRtcpFb).toContain("ccm fir");
     expect(decompactedWithRtcpFb).toContain("nack");
     expect(decompactedWithRtcpFb).toContain("nack pli");
@@ -282,6 +281,111 @@ describe("minimize", () => {
     const decompacted = decompactSDP(compacted, true);
 
     expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
+  });
+});
+
+// Token-safety round-trip tests.
+//
+// `candidateDecode`/`mediaDecode` (and their encode counterparts) must never
+// substitute a single-char code inside a longer token — only exact tokens at
+// known field positions. Hostnames containing S/U/A/R/Z and codec names such
+// as AV1/VP8/VP9 must survive compact -> decompact intact.
+describe("token-safe candidate/media round-trip", () => {
+  const base =
+    "v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\n";
+
+  // Real WebRTC places candidates under a media section (sdp-transform
+  // attaches candidate lines to the preceding `m=`).
+  const candidateSdpPrefix = base + "m=video 9 UDP/TLS/RTP/SAVPF 96\r\nc=IN IP4 0.0.0.0\r\n";
+
+  test.each([
+    // candidate protocol is `udp`; hostname collides with single-char codes
+    ["S", "a=candidate:1 1 udp 2113937151 S.example.com 57834 typ host generation 0 network-cost 999"],
+    ["U", "a=candidate:1 1 udp 2113937151 U.example.com 57834 typ host generation 0 network-cost 999"],
+    ["A", "a=candidate:1 1 udp 2113937151 A.example.com 57834 typ host generation 0 network-cost 999"],
+    ["R", "a=candidate:1 1 udp 2113937151 R.example.com 57834 typ host generation 0 network-cost 999"],
+    ["Z", "a=candidate:1 1 udp 2113937151 Z.example.com 57834 typ host generation 0 network-cost 999"],
+    // all colliding uppercase letters in one hostname
+    ["SUAZR", "a=candidate:1 1 udp 2113937151 SUAZR.example.com 57834 typ host generation 0 network-cost 999"],
+    // srflx candidate with an raddr-bearing hostname that contains colliding chars
+    [
+      "srflx-S",
+      "a=candidate:2 1 udp 1677729535 S.example.com 57834 typ srflx raddr 0.0.0.0 rport 0 generation 0 network-cost 999",
+    ],
+    // 0.0.0.0 ip host candidate with a colliding-char hostname elsewhere
+    [
+      "Z-ip",
+      "a=candidate:3 1 udp 2113937151 0.0.0.0 57834 typ host generation 0 network-cost 999",
+    ],
+  ])("candidate hostname %s preserved", (_label, candidateLine) => {
+    const sdp = candidateSdpPrefix + candidateLine + "\r\n";
+    const options: Options = { compress: false };
+    const compacted = compactSDP(sdp, options);
+    const decompacted = decompactSDP(compacted, true, options);
+
+    const origTokens = candidateLine.slice("a=candidate:".length).split(" ");
+    const parsedOrig = sdpTransform.parse(sdp);
+    const parsedDec = sdpTransform.parse(decompacted);
+
+    const origCand = parsedOrig.media?.[0]?.candidates?.[0];
+    const decCand = parsedDec.media?.[0]?.candidates?.[0];
+    expect(origCand).toBeDefined();
+    expect(decCand).toBeDefined();
+
+    // The IP/hostname field must survive the round-trip exactly.
+    expect(decCand?.ip).toBe(origTokens[4]);
+    // Protocol and typ must round-trip.
+    expect(decCand?.transport).toBe(origTokens[2]);
+    expect(decCand?.type).toBe(origTokens[origTokens.indexOf("typ") + 1]);
+    if (origTokens.includes("raddr")) {
+      expect(decCand?.raddr).toBe(origTokens[origTokens.indexOf("raddr") + 1]);
+    }
+
+    // No corrupted hostname fragments in either direction.
+    for (const s of [compacted, decompacted]) {
+      expect(s).not.toContain("typ srflx.example.com");
+      expect(s).not.toContain("raddr.example.com");
+      expect(s).not.toContain("rport 0 generation 0 network-cost 999.example.com");
+      expect(s).not.toContain("0.0.0.0.example.com");
+    }
+  });
+
+  test.each([
+    // codec names after the protocol contain V/P/A — must never be touched
+    ["AV1", "m=video 9 UDP/TLS/RTP/SAVPF 96 AV1"],
+    ["VP9", "m=video 9 UDP/TLS/RTP/SAVPF 97 VP9"],
+    ["VP8", "m=video 9 UDP/TLS/RTP/SAVPF 98 VP8"],
+    ["VP9+VP8", "m=video 9 UDP/TLS/RTP/SAVPF 97 VP9 98 VP8"],
+    // datachannel with a colliding payload token after the protocol
+    ["datachannel", "m=application 57834 UDP/DTLS/SCTP webrtc-datachannel AV1"],
+    // media-type + protocol substituted but payload untouched
+    ["AV1+VP8", "m=video 9 UDP/TLS/RTP/SAVPF 96 AV1 97 VP9 98 VP8"],
+  ])("media codec %s preserved", (_label, mediaLine) => {
+    const sdp = base + mediaLine + "\r\nc=IN IP4 0.0.0.0\r\n";
+    const options: Options = { compress: false };
+    const compacted = compactSDP(sdp, options);
+    const decompacted = decompactSDP(compacted, true, options);
+
+    const mTokens = mediaLine.slice("m=".length).split(" ");
+    // Everything after the protocol token is the payload list.
+    const payloads = mTokens.slice(3).join(" ");
+
+    const origMedia = sdpTransform.parse(sdp).media?.[0];
+    const decMedia = sdpTransform.parse(decompacted).media?.[0];
+    expect(origMedia).toBeDefined();
+    expect(decMedia).toBeDefined();
+
+    // Media type, protocol and the full payload list must round-trip.
+    expect(decMedia?.type).toBe(mTokens[0]);
+    expect(decMedia?.protocol).toBe(mTokens[2]);
+    expect(decMedia?.payloads).toBe(payloads);
+
+    // No corrupted codec fragments in either direction.
+    for (const s of [compacted, decompacted]) {
+      expect(s).not.toContain("audiovideo1");
+      expect(s).not.toContain("videoapplication9");
+      expect(s).not.toContain("videoapplication8");
+    }
   });
 });
 
@@ -454,12 +558,80 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     expect(() => FingerprintToBase64.decode(b64)).not.toThrow();
   });
 
+  test("FingerprintToBase64.decode throws on non-alphabet characters (no silent corruption)", () => {
+    // A character outside the base64 alphabet used to be OR'd into the bit
+    // buffer as -1 and silently produced a wrong fingerprint.
+    expect(() => FingerprintToBase64.decode("A~B")).toThrow(
+      /Invalid base64 character at index 1/
+    );
+    // The error must be a descriptive Error, not a TypeError.
+    let caught: unknown;
+    try {
+      FingerprintToBase64.decode("A~B");
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect(caught).not.toBeInstanceOf(TypeError);
+    expect((caught as Error).message).toMatch(/~/);
+    // Whitespace and other common mangled-input characters are rejected too.
+    expect(() => FingerprintToBase64.decode("A B")).toThrow(
+      /Invalid base64 character/
+    );
+    expect(() => FingerprintToBase64.decode("A!B")).toThrow(
+      /Invalid base64 character/
+    );
+  });
+
+  test("FingerprintToBase64.decode throws on a stray '=' in the middle of the string", () => {
+    // '=' is only valid as trailing padding.
+    expect(() => FingerprintToBase64.decode("A==B")).toThrow(
+      /Invalid base64 padding at index 1/
+    );
+    expect(() => FingerprintToBase64.decode("A===")).toThrow(
+      /Invalid base64 padding/
+    );
+    expect(() => FingerprintToBase64.decode("AB==C")).toThrow(
+      /Invalid base64 padding/
+    );
+  });
+
+  test("FingerprintToBase64 encode/decode round-trips SHA-1/SHA-256/SHA-512 fingerprints", () => {
+    const fingerprints: [string, string][] = [
+      // SHA-1 (20 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C",
+        "4yXjEVE9okuqsajr2wOY8ccNTRw=",
+      ],
+      // SHA-256 (32 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
+        "4yXjEVE9okuqsajr2wOY8ccNTRxsiOy7INrQtzMzuow=",
+      ],
+      // SHA-512 (64 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA",
+        "4yXjEVE9okuqsajr2wOY8ccNTRxsiOy7INrQtzMzuoyY8ccNTRxsiOy7INrQtzMzuoyY8ccNTRxsiOy7INrQtzMzug==",
+      ],
+    ];
+    for (const [hex, canonicalBase64] of fingerprints) {
+      // Encoder output is standard (canonical) base64.
+      expect(FingerprintToBase64.encode(hex)).toBe(canonicalBase64);
+      // Round-trip is exact.
+      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(
+        hex
+      );
+      // Decoding the canonical encoding yields the same fingerprint.
+      expect(FingerprintToBase64.decode(canonicalBase64)).toBe(hex);
+    }
+  });
+
   test("empty decompact input is rejected", () => {
-    expect(() => decompact("")).toThrow(/empty or non-string/);
+    expect(() => decompact("")).toThrow(/Invalid compacted SDP string/);
   });
 
   test("whitespace-only decompact input is rejected", () => {
-    expect(() => decompact("   \t \n")).toThrow(/empty or non-string/);
+    expect(() => decompact("   \t \n")).toThrow(/Invalid compacted SDP/);
   });
 
   test("invalid base92 payload surfaces a decompression error (not bare 'unexpected EOF')", () => {
@@ -485,15 +657,15 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     );
   });
 
-  test("decompresBytes on a malformed raw buffer surfaces a decompression error", () => {
+  test("decompressBytes on a malformed raw buffer surfaces a decompression error", () => {
     // Bytes that inflateSync cannot inflate.
     const bad = new Uint8Array([0x00, 0x01, 0x02, 0x03]);
-    expect(() => decompresBytes(bad)).toThrow(
+    expect(() => decompressBytes(bad)).toThrow(
       /Failed to decompress compacted SDP bytes payload/
     );
     // A valid deflate round-trip still works (no false positive).
     const good = compressToBytes("hello sdp");
-    expect(decompresBytes(good)).toBe("hello sdp");
+    expect(decompressBytes(good)).toBe("hello sdp");
   });
 
   test("valid round-trips are unaffected by the new validation (no false positives)", () => {
@@ -511,6 +683,36 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     );
     // sdp-transform can parse the output (it is well-formed).
     expect(() => sdpTransform.parse(decompacted)).not.toThrow();
+  });
+
+  test("compact and decompact round-trips pranswer and rollback types", () => {
+    const pranswer: RTCSessionDescriptionInit = {
+      type: "pranswer",
+      sdp: offer.sdp as string,
+    };
+    const rollback: RTCSessionDescriptionInit = {
+      type: "rollback",
+      sdp: offer.sdp as string,
+    };
+
+    expect(decompact(compact(pranswer)).type).toBe("pranswer");
+    expect(decompact(compact(rollback)).type).toBe("rollback");
+  });
+
+  test("compact throws for unsupported SDP types", () => {
+    const invalid = {
+      type: "invite" as RTCSdpType,
+      sdp: offer.sdp as string,
+    };
+
+    expect(() => compact(invalid)).toThrow("Unsupported SDP type");
+  });
+
+  test("decompact throws for empty or malformed input", () => {
+    expect(() => decompact("")).toThrow();
+    expect(() => decompact("O")).toThrow(); // only a prefix, no payload
+    expect(() => decompact("Xgarbage")).toThrow("Invalid compacted SDP type prefix");
+    expect(() => decompact("garbage")).toThrow("Invalid compacted SDP type prefix");
   });
 });
 

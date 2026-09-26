@@ -106,12 +106,32 @@ export class FingerprintToBase64 {
     let bitCount = 0;
     let hexString = "";
 
-    for (const char of base64String) {
+    for (let i = 0; i < base64String.length; i++) {
+      const char = base64String[i];
+
       if (char === "=") {
+        // Padding is only valid as the final one or two characters; a '='
+        // in the middle, or a third '=' (three padding characters), is
+        // malformed input.
+        const rest = base64String.slice(i + 1);
+        if (rest.length > 1 || (rest.length === 1 && rest !== "=")) {
+          throw new Error(
+            `Invalid base64 padding at index ${i}: "${base64String}"`
+          );
+        }
         break;
       }
 
       const index = this.CHARSET.indexOf(char);
+      if (index === -1) {
+        // A character outside the base64 alphabet would otherwise be OR'd
+        // into the bit buffer as -1 and silently produce a corrupted
+        // fingerprint, so reject it explicitly.
+        throw new Error(
+          `Invalid base64 character at index ${i}: "${char}"`
+        );
+      }
+
       bitBuffer = (bitBuffer << this.BITS_PER_BASE64_CHAR) | index;
       bitCount += this.BITS_PER_BASE64_CHAR;
 
