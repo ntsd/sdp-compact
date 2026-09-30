@@ -35,17 +35,17 @@ const SDPTypePrefixMapReverse: Record<string, RTCSdpType> = {
  */
 export const decompact = (
   compacted: string,
-  options?: Options
+  options?: Options,
 ): RTCSessionDescriptionInit => {
   if (typeof compacted !== "string" || compacted.length < 2) {
     throw new Error(
-      `Invalid compacted SDP string: expected a non-empty string starting with a type prefix ("O", "A", "P", or "R")`
+      `Invalid compacted SDP string: expected a non-empty string starting with a type prefix ("O", "A", "P", or "R")`,
     );
   }
   const type: RTCSdpType | undefined = SDPTypePrefixMapReverse[compacted[0]];
   if (!type) {
     throw new Error(
-      `Invalid compacted SDP type prefix: ${String(compacted[0])}`
+      `Invalid compacted SDP type prefix: ${String(compacted[0])}`,
     );
   }
   const isOffer = type === "offer";
@@ -67,7 +67,7 @@ export const decompact = (
 export const decompactSDP = (
   compactSDPStr: string,
   isOffer: boolean,
-  newOptions?: Options
+  newOptions?: Options,
 ): string => {
   const options = mergeOptions(newOptions);
 
@@ -88,7 +88,7 @@ export const decompactSDP = (
 export const decompactSDPBytes = (
   compactSDPBytes: Uint8Array,
   isOffer: boolean,
-  newOptions?: Options
+  newOptions?: Options,
 ): string => {
   const options = mergeOptions(newOptions);
 
@@ -105,7 +105,7 @@ export const decompactSDPBytes = (
 function decompactSDPStr(
   compactSDPStr: string,
   isOffer: boolean,
-  options: Options
+  options: Options,
 ): string {
   let compactSDP = compactSDPStr.split("~");
   let decompactSDP: string[] = [];
@@ -257,7 +257,7 @@ function decompactSDPStr(
         fingerprint === ""
       ) {
         throw new Error(
-          `Malformed a=fingerprint line (missing hash method or fingerprint value): "${line}"`
+          `Malformed a=fingerprint line (missing hash method or fingerprint value): "${line}"`,
         );
       }
       if (hashMethod in HashFuncMapReverse) {
@@ -277,7 +277,7 @@ function decompactSDPStr(
         ip === ""
       ) {
         throw new Error(
-          `Malformed c= line (missing address type or IP address): "${line}"`
+          `Malformed c= line (missing address type or IP address): "${line}"`,
         );
       }
       if (addressType in MediaConnectionAddressTypeMapReverse) {
@@ -301,7 +301,7 @@ function decompactSDPStr(
         compressedURI === ""
       ) {
         throw new Error(
-          `Malformed a=extmap line (missing extmap id or URI): "${line}"`
+          `Malformed a=extmap line (missing extmap id or URI): "${line}"`,
         );
       }
       if (compressedURI in ExtmapURIMapReverse) {
@@ -310,7 +310,7 @@ function decompactSDPStr(
       decompactSDP.push(
         `a=extmap:${id} ${compressedURI}${
           attributes.length > 0 ? ` ${attributes.join(" ")}` : ""
-        }`
+        }`,
       );
       return;
     }
@@ -326,7 +326,7 @@ function decompactSDPStr(
 
   if (options.mediaOptions?.removeMediaID) {
     decompactSDP.unshift(
-      `a=group:BUNDLE ${Array.from(Array(mediaID).keys()).join(" ")}`
+      `a=group:BUNDLE ${Array.from(Array(mediaID).keys()).join(" ")}`,
     );
   }
 

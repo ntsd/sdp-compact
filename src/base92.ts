@@ -26,102 +26,106 @@ const ALPHABET = [
   // s t u v w x y z { |
   115, 116, 117, 118, 119, 120, 121, 122, 123, 124,
   // } ~
-  125, 126
+  125, 126,
 ];
 
 // Sentinel value for characters not present in ALPHABET. The decoder
 // checks for this to reject invalid input (matching upstream base-x).
-const INVALID = 255
+const INVALID = 255;
 
-const BASE_MAP = new Uint8Array(256)
+const BASE_MAP = new Uint8Array(256);
 for (let j = 0; j < BASE_MAP.length; j++) {
-  BASE_MAP[j] = INVALID
+  BASE_MAP[j] = INVALID;
 }
 
-const BASE = 92
+const BASE = 92;
 
 for (let i = 0; i < BASE; i++) {
-  const xc = ALPHABET[i]
-  BASE_MAP[xc] = i
+  const xc = ALPHABET[i];
+  BASE_MAP[xc] = i;
 }
 
-const LEADER = String.fromCharCode(ALPHABET[0])
-const FACTOR = Math.log(BASE) / Math.log(256) // log(BASE) / log(256), rounded up
-const iFACTOR = Math.log(256) / Math.log(BASE) // log(256) / log(BASE), rounded up
+const LEADER = String.fromCharCode(ALPHABET[0]);
+const FACTOR = Math.log(BASE) / Math.log(256); // log(BASE) / log(256), rounded up
+const iFACTOR = Math.log(256) / Math.log(BASE); // log(256) / log(BASE), rounded up
 
 export function uint8ArrayToBase92(source: Uint8Array): string {
-  if (source.length === 0) return ''
+  if (source.length === 0) return "";
 
   // Skip & count leading zeroes.
-  let zeroes = 0
-  let length = 0
-  let pbegin = 0
-  const pend = source.length
+  let zeroes = 0;
+  let length = 0;
+  let pbegin = 0;
+  const pend = source.length;
 
   while (pbegin !== pend && source[pbegin] === 0) {
-    pbegin++
-    zeroes++
+    pbegin++;
+    zeroes++;
   }
 
   // Allocate enough space in big-endian base58 representation.
-  const size = ((pend - pbegin) * iFACTOR + 1) >>> 0
-  const b58 = new Uint8Array(size)
+  const size = ((pend - pbegin) * iFACTOR + 1) >>> 0;
+  const b58 = new Uint8Array(size);
 
   // Process the bytes.
   while (pbegin !== pend) {
-    let carry = source[pbegin]
+    let carry = source[pbegin];
 
     // Apply "b58 = b58 * 256 + ch".
-    let i = 0
-    for (let it1 = size - 1; (carry !== 0 || i < length) && (it1 !== -1); it1--, i++) {
-      carry += (256 * b58[it1]) >>> 0
-      b58[it1] = (carry % BASE) >>> 0
-      carry = (carry / BASE) >>> 0
+    let i = 0;
+    for (
+      let it1 = size - 1;
+      (carry !== 0 || i < length) && it1 !== -1;
+      it1--, i++
+    ) {
+      carry += (256 * b58[it1]) >>> 0;
+      b58[it1] = (carry % BASE) >>> 0;
+      carry = (carry / BASE) >>> 0;
     }
 
-    if (carry !== 0) throw new Error('Non-zero carry')
-    length = i
-    pbegin++
+    if (carry !== 0) throw new Error("Non-zero carry");
+    length = i;
+    pbegin++;
   }
 
   // Skip leading zeroes in base58 result.
-  let it2 = size - length
+  let it2 = size - length;
   while (it2 !== size && b58[it2] === 0) {
-    it2++
+    it2++;
   }
 
   // Translate the result into a string.
-  let str = LEADER.repeat(zeroes)
-  for (; it2 < size; ++it2) str += String.fromCharCode(ALPHABET[b58[it2]])
+  let str = LEADER.repeat(zeroes);
+  for (; it2 < size; ++it2) str += String.fromCharCode(ALPHABET[b58[it2]]);
 
-  return str
+  return str;
 }
 
 export function base92ToUint8Array(source: string): Uint8Array {
-  if (source.length === 0) return new Uint8Array(0)
+  if (source.length === 0) return new Uint8Array(0);
 
-  let psz = 0
+  let psz = 0;
 
   // Skip and count leading '1's.
-  let zeroes = 0
-  let length = 0
+  let zeroes = 0;
+  let length = 0;
   while (source[psz] === LEADER) {
-    zeroes++
-    psz++
+    zeroes++;
+    psz++;
   }
 
   // Allocate enough space in big-endian base256 representation.
-  const size = (((source.length - psz) * FACTOR) + 1) >>> 0 // log(58) / log(256), rounded up.
-  const b256 = new Uint8Array(size)
+  const size = ((source.length - psz) * FACTOR + 1) >>> 0; // log(58) / log(256), rounded up.
+  const b256 = new Uint8Array(size);
 
   // Process the characters.
   while (psz < source.length) {
     // Find code of next character
-    const charCode = source.charCodeAt(psz)
+    const charCode = source.charCodeAt(psz);
 
     // Decode character. Out-of-bounds charCodes (non-ASCII, charCode >= 256)
     // read as undefined rather than the INVALID sentinel.
-    let carry: number | undefined = BASE_MAP[charCode]
+    let carry: number | undefined = BASE_MAP[charCode];
 
     // Reject any character not present in ALPHABET. Without this guard the
     // INVALID sentinel (255) would flow through the decode arithmetic as if
@@ -132,31 +136,34 @@ export function base92ToUint8Array(source: string): Uint8Array {
       throw new Error("Invalid base92 character");
     }
 
-    let i = 0
-    for (let it3 = size - 1; (carry !== 0 || i < length) && (it3 !== -1); it3--, i++) {
-      carry += (BASE * b256[it3]) >>> 0
-      b256[it3] = (carry % 256) >>> 0
-      carry = (carry / 256) >>> 0
+    let i = 0;
+    for (
+      let it3 = size - 1;
+      (carry !== 0 || i < length) && it3 !== -1;
+      it3--, i++
+    ) {
+      carry += (BASE * b256[it3]) >>> 0;
+      b256[it3] = (carry % 256) >>> 0;
+      carry = (carry / 256) >>> 0;
     }
 
-    if (carry !== 0) throw new Error('Non-zero carry')
-    length = i
-    psz++
+    if (carry !== 0) throw new Error("Non-zero carry");
+    length = i;
+    psz++;
   }
 
   // Skip leading zeroes in b256.
-  let it4 = size - length
+  let it4 = size - length;
   while (it4 !== size && b256[it4] === 0) {
-    it4++
+    it4++;
   }
 
-  const vch = new Uint8Array(zeroes + (size - it4))
+  const vch = new Uint8Array(zeroes + (size - it4));
 
-  let j = zeroes
+  let j = zeroes;
   while (it4 !== size) {
-    vch[j++] = b256[it4++]
+    vch[j++] = b256[it4++];
   }
 
   return vch;
 }
-

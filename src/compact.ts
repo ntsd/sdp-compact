@@ -33,7 +33,7 @@ const SDPTypePrefixMap: Record<RTCSdpType, string> = {
  */
 export const compact = (
   rtcSessionDesc: RTCSessionDescriptionInit,
-  options?: Options
+  options?: Options,
 ): string => {
   const sdp = rtcSessionDesc.sdp;
   if (!sdp) {
@@ -76,7 +76,7 @@ export const compactSDP = (sdpStr: string, newOptions?: Options): string => {
  */
 export const compactSDPBytes = (
   sdpStr: string,
-  newOptions?: Options
+  newOptions?: Options,
 ): Uint8Array => {
   const options = mergeOptions(newOptions);
 

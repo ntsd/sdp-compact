@@ -99,7 +99,7 @@ export class FingerprintToBase64 {
       base64String === ""
     ) {
       throw new Error(
-        "Fingerprint base64 decode failed: empty or missing base64 string"
+        "Fingerprint base64 decode failed: empty or missing base64 string",
       );
     }
     let bitBuffer = 0;
@@ -116,7 +116,7 @@ export class FingerprintToBase64 {
         const rest = base64String.slice(i + 1);
         if (rest.length > 1 || (rest.length === 1 && rest !== "=")) {
           throw new Error(
-            `Invalid base64 padding at index ${i}: "${base64String}"`
+            `Invalid base64 padding at index ${i}: "${base64String}"`,
           );
         }
         break;
@@ -127,9 +127,7 @@ export class FingerprintToBase64 {
         // A character outside the base64 alphabet would otherwise be OR'd
         // into the bit buffer as -1 and silently produce a corrupted
         // fingerprint, so reject it explicitly.
-        throw new Error(
-          `Invalid base64 character at index ${i}: "${char}"`
-        );
+        throw new Error(`Invalid base64 character at index ${i}: "${char}"`);
       }
 
       bitBuffer = (bitBuffer << this.BITS_PER_BASE64_CHAR) | index;
