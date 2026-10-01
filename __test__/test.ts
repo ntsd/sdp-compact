@@ -697,20 +697,20 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     // out-of-range values truncated to a byte, silently producing a wrong
     // fingerprint inside the compacted SDP.
     expect(() => FingerprintToBase64.encode("E3:zz")).toThrow(
-      /Invalid fingerprint hex token at index 1: "zz"/
+      /Invalid fingerprint hex token at index 1: "zz"/,
     );
     expect(() => FingerprintToBase64.encode("E3:123")).toThrow(
-      /Invalid fingerprint hex token at index 1: "123"/
+      /Invalid fingerprint hex token at index 1: "123"/,
     );
     expect(() => FingerprintToBase64.encode("E3:")).toThrow(
-      /Invalid fingerprint hex token at index 1: ""/
+      /Invalid fingerprint hex token at index 1: ""/,
     );
     expect(() => FingerprintToBase64.encode("E3:zz:00")).toThrow(
-      /Invalid fingerprint hex token at index 1/
+      /Invalid fingerprint hex token at index 1/,
     );
     // Empty input is rejected descriptively, mirroring the decode side.
     expect(() => FingerprintToBase64.encode("")).toThrow(
-      /empty or missing hex/
+      /empty or missing hex/,
     );
     // Errors are descriptive Errors, not raw TypeErrors.
     let caught: unknown;
@@ -739,7 +739,7 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
       "a=setup:actpass\r\n" +
       "a=mid:0\r\n";
     expect(() => compact({ type: "offer", sdp })).toThrow(
-      /Invalid fingerprint hex token at index 1/
+      /Invalid fingerprint hex token at index 1/,
     );
     // A valid fingerprint on the same pipeline still compacts.
     const validSdp = sdp.replace("E3:zz:00", "E3:25:E3:11");

@@ -60,7 +60,9 @@ export class FingerprintToBase64 {
 
   static encode(hexString: string): string {
     if (hexString === undefined || hexString === null || hexString === "") {
-      throw new Error("Fingerprint base64 encode failed: empty or missing hex string");
+      throw new Error(
+        "Fingerprint base64 encode failed: empty or missing hex string",
+      );
     }
     const hexArray = hexString.split(":");
     for (let i = 0; i < hexArray.length; i++) {
@@ -70,7 +72,9 @@ export class FingerprintToBase64 {
       // out-of-range values truncated to a byte) and silently produce a
       // corrupted fingerprint.
       if (!/^[0-9A-Fa-f]{1,2}$/.test(token)) {
-        throw new Error(`Invalid fingerprint hex token at index ${i}: "${token}"`);
+        throw new Error(
+          `Invalid fingerprint hex token at index ${i}: "${token}"`,
+        );
       }
     }
     const byteArray = new Uint8Array(hexArray.map((hex) => parseInt(hex, 16)));
