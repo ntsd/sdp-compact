@@ -1,10 +1,12 @@
 ---
 type: "Reference"
 title: "Token dictionary"
-openwiki_generated: true
+description: "The src/dict.ts substitution layer: field/attribute reverse-maps derived via reverseMap so encode/decode never drift, position-based candidate and media encoders, hash/connection/extmap/rtcp-fb token maps with longest-first rtcp-fb matching, and the two design choices that guarantee reversible round-trips."
+tags:
+  [token-dictionary, substitution, reverse-map, candidate, rtcp-fb, round-trip]
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-01T20:15:14.022Z
+    at: 2026-10-01T21:00:49.610Z
 sources:
   - id: openwiki-source-cbc4444388af9dc7474b60ef
     resource: repo://src/dict.ts

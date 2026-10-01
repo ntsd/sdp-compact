@@ -1,10 +1,11 @@
 ---
 type: "Reference"
 title: "Public api"
-openwiki_generated: true
+description: "The six exported sdp-compact functions with their signatures, the RTCSdpType single-character prefix convention (offer/answer/pranswer/rollback), the Options/OriginOptions/MediaOptions model with its pin-vs-preserve semantics, DefaultOptions, and mergeOptions normalization."
+tags: [public-api, compact, decompact, options, defaults, isOffer, rtcsdptype]
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-01T20:15:14.022Z
+    at: 2026-10-01T21:00:49.610Z
 sources:
   - id: openwiki-source-f29b153e49a0c9bf22b53533
     resource: repo://src/compact.ts

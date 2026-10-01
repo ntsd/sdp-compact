@@ -1,10 +1,11 @@
 ---
 type: "Reference"
 title: "Architecture"
-openwiki_generated: true
+description: "How sdp-compact works end to end: module ownership, the three-stage compact pipeline (line transform, field-name substitution, compression/encoding) and its inverse in decompact, offer/answer asymmetry, and round-trip invariants."
+tags: [architecture, compact, decompact, pipeline, round-trip, webrtc, sdp]
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-01T20:15:14.022Z
+    at: 2026-10-01T21:00:49.610Z
 sources:
   - id: openwiki-source-d42319ddef0ecb928498ecb5
     resource: repo://__test__/test.ts

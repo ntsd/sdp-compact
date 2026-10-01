@@ -1,10 +1,11 @@
 ---
 type: "Reference"
 title: "Encodings"
-openwiki_generated: true
+description: "The outer encoding layer of the sdp-compact pipeline: zlib deflate via fflate, environment-aware base64 with chunked encoding, the base92 codec and its invalid-character guard, and FingerprintToBase64 hex/bit-packing, with the fail-fast failure model for each primitive."
+tags: [encodings, base64, base92, zlib, fflate, fingerprint, failure-model]
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-01T20:15:14.022Z
+    at: 2026-10-01T21:00:49.610Z
 sources:
   - id: openwiki-source-673e322ac47e5c97c4f0898b
     resource: repo://src/base64.ts

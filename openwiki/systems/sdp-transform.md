@@ -1,10 +1,19 @@
 ---
 type: "Reference"
 title: "Sdp transform"
-openwiki_generated: true
+description: "The line-level SDP transformation that is the heart of sdp-compact: which lines compact drops and decompact restores, the dictionary rewrites for o=/m=/candidate/fingerprint/c=/extmap/rtcp-fb, the field-name substitution pass, offer/answer asymmetry, and the sdp-transform parse/write normalization that makes round-trip fidelity a logical (not byte) contract."
+tags:
+  [
+    sdp-transform,
+    line-transform,
+    field-substitution,
+    normalization,
+    isOffer,
+    round-trip,
+  ]
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-01T20:15:14.022Z
+    at: 2026-10-01T21:00:49.610Z
 sources:
   - id: openwiki-source-f29b153e49a0c9bf22b53533
     resource: repo://src/compact.ts

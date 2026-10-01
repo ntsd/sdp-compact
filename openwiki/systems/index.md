@@ -1,6 +1,6 @@
 # Files
 
-- [Encodings](encodings.md)
-- [Public api](public-api.md)
-- [Sdp transform](sdp-transform.md)
-- [Token dictionary](token-dictionary.md)
+- [Encodings](encodings.md) - The outer encoding layer of the sdp-compact pipeline: zlib deflate via fflate, environment-aware base64 with chunked encoding, the base92 codec and its invalid-character guard, and FingerprintToBase64 hex/bit-packing, with the fail-fast failure model for each primitive.
+- [Public api](public-api.md) - The six exported sdp-compact functions with their signatures, the RTCSdpType single-character prefix convention (offer/answer/pranswer/rollback), the Options/OriginOptions/MediaOptions model with its pin-vs-preserve semantics, DefaultOptions, and mergeOptions normalization.
+- [Sdp transform](sdp-transform.md) - The line-level SDP transformation that is the heart of sdp-compact: which lines compact drops and decompact restores, the dictionary rewrites for o=/m=/candidate/fingerprint/c=/extmap/rtcp-fb, the field-name substitution pass, offer/answer asymmetry, and the sdp-transform parse/write normalization that makes round-trip fidelity a logical (not byte) contract.
+- [Token dictionary](token-dictionary.md) - The src/dict.ts substitution layer: field/attribute reverse-maps derived via reverseMap so encode/decode never drift, position-based candidate and media encoders, hash/connection/extmap/rtcp-fb token maps with longest-first rtcp-fb matching, and the two design choices that guarantee reversible round-trips.

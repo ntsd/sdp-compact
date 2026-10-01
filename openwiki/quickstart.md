@@ -1,10 +1,11 @@
 ---
 type: "Reference"
 title: "Quickstart"
-openwiki_generated: true
+description: "What sdp-compact does, how to install it, minimal compact/decompact round-trip usage at both the RTCSessionDescription and raw-SDP-string levels, the task-routing map to the other wiki pages, and how to run the format/build/test precommit gate."
+tags: [quickstart, usage, compact, decompact, round-trip, precommit]
 verified:
   - by: openwiki/0.6.0
-    at: 2026-10-01T20:15:14.022Z
+    at: 2026-10-01T21:00:49.610Z
 sources:
   - id: openwiki-source-87a55af411f380073c43254e
     resource: repo://.npmignore
