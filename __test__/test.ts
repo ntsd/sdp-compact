@@ -626,6 +626,60 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     }
   });
 
+  test("FingerprintToBase64.encode throws on malformed hex tokens (no silent corruption)", () => {
+    // Previously malformed tokens were coerced by parseInt: NaN -> 0 and
+    // out-of-range values truncated to a byte, silently producing a wrong
+    // fingerprint inside the compacted SDP.
+    expect(() => FingerprintToBase64.encode("E3:zz")).toThrow(
+      /Invalid fingerprint hex token at index 1: "zz"/
+    );
+    expect(() => FingerprintToBase64.encode("E3:123")).toThrow(
+      /Invalid fingerprint hex token at index 1: "123"/
+    );
+    expect(() => FingerprintToBase64.encode("E3:")).toThrow(
+      /Invalid fingerprint hex token at index 1: ""/
+    );
+    expect(() => FingerprintToBase64.encode("E3:zz:00")).toThrow(
+      /Invalid fingerprint hex token at index 1/
+    );
+    // Empty input is rejected descriptively, mirroring the decode side.
+    expect(() => FingerprintToBase64.encode("")).toThrow(
+      /empty or missing hex/
+    );
+    // Errors are descriptive Errors, not raw TypeErrors.
+    let caught: unknown;
+    try {
+      FingerprintToBase64.encode("E3:zz");
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect(caught).not.toBeInstanceOf(TypeError);
+    expect((caught as Error).message).toMatch(/index 1: "zz"/);
+  });
+
+  test("compact() throws on an SDP with a malformed fingerprint instead of silently corrupting it", () => {
+    // compressFingerprint defaults to true, so the default compact() pipeline
+    // exercises FingerprintToBase64.encode. A malformed hex fingerprint must
+    // throw instead of emitting a corrupted base64 fingerprint.
+    const sdp =
+      "v=0\r\n" +
+      "o=- 4109260023080860376 2 IN IP4 127.0.0.1\r\n" +
+      "s=-\r\n" +
+      "t=0 0\r\n" +
+      "m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n" +
+      "c=IN IP4 0.0.0.0\r\n" +
+      "a=fingerprint:sha-256 E3:zz:00\r\n" +
+      "a=setup:actpass\r\n" +
+      "a=mid:0\r\n";
+    expect(() => compact({ type: "offer", sdp })).toThrow(
+      /Invalid fingerprint hex token at index 1/
+    );
+    // A valid fingerprint on the same pipeline still compacts.
+    const validSdp = sdp.replace("E3:zz:00", "E3:25:E3:11");
+    expect(() => compact({ type: "offer", sdp: validSdp })).not.toThrow();
+  });
+
   test("empty decompact input is rejected", () => {
     expect(() => decompact("")).toThrow(/Invalid compacted SDP string/);
   });
