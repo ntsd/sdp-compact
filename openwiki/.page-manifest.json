@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/architecture.md": {
+      "pageVersion": "sha256:b602e3c4b7fd8950baf2c104cf02d04d6987c902bdae6281719dbb8eed231007",
+      "completedBy": "hermes",
+      "completedRunId": "585d9366-8af9-40a5-a685-a998d02e1bdd",
+      "gitHead": "c33384e4b2bce8a38c8e84c97c8364439799f29b",
+      "sourceFingerprint": "sha256:23ee9e8edf8a94ef89961724017a4d7c504715b069bc6a11b07cebddb15bf416"
+    },
+    "/openwiki/quickstart.md": {
+      "pageVersion": "sha256:477262dc13ee71a5f0c525b2d1b6fdcbe68b2e8edeed704f36f9a862c9a24380",
+      "completedBy": "hermes",
+      "completedRunId": "585d9366-8af9-40a5-a685-a998d02e1bdd",
+      "gitHead": "c33384e4b2bce8a38c8e84c97c8364439799f29b",
+      "sourceFingerprint": "sha256:23ee9e8edf8a94ef89961724017a4d7c504715b069bc6a11b07cebddb15bf416"
+    },
+    "/openwiki/systems/encodings.md": {
+      "pageVersion": "sha256:710112534069e22c967e8c490a4353887419c3662ce255fc503407d4e7d24f33",
+      "completedBy": "hermes",
+      "completedRunId": "585d9366-8af9-40a5-a685-a998d02e1bdd",
+      "gitHead": "c33384e4b2bce8a38c8e84c97c8364439799f29b",
+      "sourceFingerprint": "sha256:23ee9e8edf8a94ef89961724017a4d7c504715b069bc6a11b07cebddb15bf416"
+    },
+    "/openwiki/systems/public-api.md": {
+      "pageVersion": "sha256:dbecc8bf9539092da2e8ccd0471c1ecc5d142b12e0293a851962b865900a01b5",
+      "completedBy": "hermes",
+      "completedRunId": "585d9366-8af9-40a5-a685-a998d02e1bdd",
+      "gitHead": "c33384e4b2bce8a38c8e84c97c8364439799f29b",
+      "sourceFingerprint": "sha256:23ee9e8edf8a94ef89961724017a4d7c504715b069bc6a11b07cebddb15bf416"
+    },
+    "/openwiki/systems/sdp-transform.md": {
+      "pageVersion": "sha256:3cb8f996907044c7791e1fa517fc559d107d9cc2ca57f3042b5f6ae577de12e2",
+      "completedBy": "hermes",
+      "completedRunId": "585d9366-8af9-40a5-a685-a998d02e1bdd",
+      "gitHead": "c33384e4b2bce8a38c8e84c97c8364439799f29b",
+      "sourceFingerprint": "sha256:23ee9e8edf8a94ef89961724017a4d7c504715b069bc6a11b07cebddb15bf416"
+    },
+    "/openwiki/systems/token-dictionary.md": {
+      "pageVersion": "sha256:3b4faf87d17ce4a452776c5acff185fcd2389d3b4cd3ac47936fef17cc2097d2",
+      "completedBy": "hermes",
+      "completedRunId": "585d9366-8af9-40a5-a685-a998d02e1bdd",
+      "gitHead": "c33384e4b2bce8a38c8e84c97c8364439799f29b",
+      "sourceFingerprint": "sha256:23ee9e8edf8a94ef89961724017a4d7c504715b069bc6a11b07cebddb15bf416"
+    }
+  }
+}

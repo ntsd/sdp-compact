@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:dbecc8bf9539092da2e8ccd0471c1ecc5d142b12e0293a851962b865900a01b5",
+  "claims": [
+    {
+      "id": "claim_7abacd073d774d4fb050b45f48bcb1f4",
+      "statement": "sdp-compact exports exactly six functions: compact and decompact operate on RTCSessionDescriptionInit (compact returns a type-prefixed string, decompact returns a reconstructed RTCSessionDescriptionInit), while compactSDP/decompactSDP/compactSDPBytes/decompactSDPBytes operate on raw SDP strings or bytes and require an explicit isOffer boolean on the decompact side because a bare SDP string does not carry its type.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L34-L93",
+          "version": "repo-lines-v1:sha256:c77b17d6471d86634e682641c8ea66e5f8d8f6ac853c6f466480582d6129d9ab:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwYzM1MThkMzg4MjQ3YjU5Y2UwMTcxM2VhZGMzZGQxNDgwZTc3NWE1ZDkyZGM0ZWQ0NmY3ZTY3ZjFlMzZiY2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5YzI5ZDAzZWRmZWNjM2RjOWFjNzRiMWJmMTZlNmY1ZTRiNmVhOThmNTljOGU0NGE2YzZjYmUwNDMyNjk4ODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhN2ZlMGE0ZjM1ZjhiOTBjOWI5MDE5ODExYzU0ZGMyYzEwNzdhZTE1YTRlYTAzNjNjMmM2ZjRkZTJlMTllNjAifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L36-L103",
+          "version": "repo-lines-v1:sha256:872878bfae01947362cc1c01f07f54a86ae2b0f748a679cb1715e646147d7e07:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzMjJjZWI5OWRmMWU3Nzc5MzQ4ZTJjODZiMmRjMDEwY2FkNmZmNWQxMDRiMjRjYWJiMDhhMGRmOWVjMjQ5YmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzZWU0ZTY3YThiZDM3NTRjM2VhNGFmNjRjMmY3MDFjMGI2YmQ0NmY4ZDMyZGU4NWIxODkzYWJjNjdmMmRkMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1ZGRhOGM1ZjZmMjhlZTNmNmZjODcyZTA1MDIxM2I3MGUxYWIwNWQ3ZmEyZDc0ODg2MmMxYWIyODVhZGU2NTUifQ"
+        },
+        {
+          "resource": "repo://src/index.ts",
+          "version": "repo-file-v1:sha256:bad055fe885a57668e97136523ac67eec24c62aea1a2e15177d0c467a862c0ea"
+        }
+      ]
+    },
+    {
+      "id": "claim_042793f1b51342f9809aea7329cd5034",
+      "statement": "compact maps RTCSdpType to a single leading character via SDPTypePrefixMap (offer->O, answer->A, pranswer->P, rollback->R) and decompact reverses it via SDPTypePrefixMapReverse, so all four RTCSdpType values round-trip.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L20-L25",
+          "version": "repo-lines-v1:sha256:9463d0c7672e993f376ee61b74ff807b32a90f998e7ecb805a693f2fcc6815d7:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2NlMmJhZWVhMWM3MGFkNDljNjVkYjJlYjUzZWRmOGE4NzgzZDAwYWUxMjU3ODllNTZlYmJmYjA2YWFmMGMwYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTJiNjk0NGM4NjQxMGEzMDU1MDZhZDM1ZDI5YWI1MTIyZmE2OTFhNTBiOWFhYWZmNjg3NzcwMGRiOTg3MDY3NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTYyYzBkMTZjODA1MWZmNjc1YjE3NmUyYTMzMDJkNWQxZmMyOTMwNjhkM2UwMjgwMWMwNGE4N2QxNjhlMjc0ZiJ9"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L21-L26",
+          "version": "repo-lines-v1:sha256:19a25d7740c7a147a6285a4654965e1b1104df39ccfedf97c24b58414f1cce1c:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWViMDYwNzdmODgwNzI2NmMyMTgwNmNlYWM4MjgwNTcxMzkxNTRhZjMyOTA1MjZlMjcyNjAzOTZhNDM2YTM3ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTU3MWY4NGFiN2JhNjhhODQzNzc2NWQwODQ0Y2Q1OTk0YzMyOWY3OTU5ODI4MzkyZmE2OWM2MDk1YjQ2MThjYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzI4YTRmNjg1MjVjMzg4OGRjMDc1ZTVlNWY5MzU2Y2NlYjQwYjg3ZDJkZmFlODM1Y2Y2MjVmNjY1YzZjY2NkYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d05f665157d74b80a00a7b43fc73e4c1",
+      "statement": "Input validation is fail-fast with no silent default to answer: compact throws 'SDP not found' when sdp is missing and 'Unsupported SDP type: …' when type is not one of the four RTCSdpType values; decompact throws 'Invalid compacted SDP string: …' for a non-string or a string shorter than 2 chars and 'Invalid compacted SDP type prefix: …' for an unknown first character.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L38-L45",
+          "version": "repo-lines-v1:sha256:adbb02e8458443b7fc19433fcecd1bed19a9439a32f4df858db8c8373e7da329:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzY4N2I5NGU5ZDE0M2Y2ZGZhYjkxNDNkOGYyMDYxYjE0NWNmMDkyZDc3NGQ2YzAxMjc4NDMzNjY4ODU2NmQ3ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTc2MjZiNjNkZGE1MGVhYTUyOGZmNDgzYTIxYjhkMjBhOGY2MDMxNDdlZjAyM2JjOWEzYTYzYmY4YmRkMDllYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGQ3NDViMWU2YjE5OTM3NmZkMTMwZmM0YzQyMzA2ZDliZWIxM2M0NmEwOTU5ODlhMTNlNjFhYWQzNzhhYzk5NCJ9"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L40-L50",
+          "version": "repo-lines-v1:sha256:d6f5847c040a0364be3c74efc6fabd41077ee1f41ec54930c10e4021c142c250:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlY2M5YjkzNWI5MmFiMzllNWRmNDdiNGNkODkxYjcyZTlmZGI2NzcwZjk3NDBhNWE2MDQ5NmNkNGRmYjFhYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVjM2EwODg3NTMzOGYxOTIyNDg0YWExMThhNmNlOTIwZGY3NzMzMmQ1MTM3MDk4YTA1MTI0NzQ4MGI2ZGE1MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwM2Y3Mzk1M2U3NTM2Y2MyMGMxYzMzY2EyZjhiMjAzOTI1YTlkOGViYmM3NjI1NzFlYzQ5Y2Y2YjUyMDM0ZTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_665e2eb5e48f42a2a32931b588f97277",
+      "statement": "Options is three nested optional interfaces: Options (compress, replaceFieldNames, sdpVersion, sessionName, origin, timing, extmapAllowMixed, msidSemantic, mediaOptions), OriginOptions (username, sessionId, netType, addrtype, unicastAddress), and MediaOptions (removeMediaID, removeSetup, replaceCandidateString, replaceMediaString, forceTrickle, compressFingerprint, compressConnection, compressExtmap, compressRtcpFb).",
+      "evidence": [
+        {
+          "resource": "repo://src/options.ts#L2-L60",
+          "version": "repo-lines-v1:sha256:afca2b60ec3fb4b696759f09ce0e124396e284bfd7b47f5100eb36c3545f1b56:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5MDY4Mjk2ZGNhZDE5ZGYzYjM0ZTJlNzU4NTc5YWI0MTlmM2VlNjE5Mjg4ZWY5ZGJiODk4YTZmOGNhY2I0MzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoxLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyODhkNTYzNGY1OWM2NDQ3NzRjMDJmM2ZkYjJlNWY5ODUyYTQxMjk3OTBkMjMxYzllMmY1ZDFhYWYwODRkOGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmNmY5NzUwYjkxMzQzNDg2YjgwNGYyMmNkZjY3MDBiZGY5ZDRjYTlhY2I4OWQzNzcyM2ExMzUzYWNlMTg0YjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_51c9f1880c9645ec8a7a2bff0880874e",
+      "statement": "DefaultOptions is a Required<Options> with compress 'base64', replaceFieldNames true, sdpVersion 0, sessionName '-', a standard origin, timing '0 0', extmapAllowMixed true, msidSemantic 'WMS', and all nine mediaOptions flags true; mergeOptions deep-merges top-level, origin, and mediaOptions over DefaultOptions and rewrites a caller-supplied compress:true to compress:'base64' so the merged compress is only ever false, 'base64', or 'base92'.",
+      "evidence": [
+        {
+          "resource": "repo://src/options.ts#L63-L89",
+          "version": "repo-lines-v1:sha256:651fecd4ac455a31952aa07750b0de2263d2121006051caba4300b3669080f24:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzN2QxNTlkOTVjZTkwMGFiNDY2YWMyMTVjYjZmMGFjYjZjYWExYTM4NzRhOGZmMGY4MmI2MjA4NzJlMTBkNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgzYWNjNGUxMzFkZTMxMTkyMzhkNWNkZWNhNzg3ZDBmNWMwNzJhZWYxZThlNzE1MTBmMjU3MDliYjg1YWE1OWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyZTU3OGM0YWQwYWRmOThlYmM1ZjNhMWFjNWNmZDhmOGIzYWQxYjZlMDU0YmM3M2MyMThkOTE5MjMyYmQ2NTQifQ"
+        },
+        {
+          "resource": "repo://src/options.ts#L95-L118",
+          "version": "repo-lines-v1:sha256:a899f32ed197194f51b583f812186c362d1f13ffb29fefdf97a2643f8f0df973:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3OTk1NDJjZTgzYzdiYjYyZDliMTc2NGRlMmY4MDZkYzAyOTg4NjgwMzIyYWJiMjcwN2ZmOGQ4MDhhMTNhNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIxZDRhNTRkNjQzOTNhYjE2ODdkYTM2MWYxYTYxMTZmYTdhMzQ3ZDE5ZmVlZTNhMmJhZDRjODRjZDgxMGJkMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-01T20:15:14.022Z"
+  }
+}

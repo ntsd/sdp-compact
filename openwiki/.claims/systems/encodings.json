@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:710112534069e22c967e8c490a4353887419c3662ce255fc503407d4e7d24f33",
+  "claims": [
+    {
+      "id": "claim_6f7efbeb16e040a1abce6fef5db40787",
+      "statement": "compressToBytes/decompressBytes wrap fflate deflateSync/inflateSync at level 9; compressText/decompressText additionally route the compressed bytes through the base64 or base92 codec selected by the encoding argument (encoder/decoder lookup tables).",
+      "evidence": [
+        {
+          "resource": "repo://src/compress.ts#L14-L48",
+          "version": "repo-lines-v1:sha256:dafc91ba6d51f7135618024d00209aa0431e62ccf82072b7c8a5f6d89c7a07ef:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4M2E0ZDc3YjE3ZmM1MmJiNmM3NzhlZTYzOTQ5YzJhNDAwM2Y2MzdiMjczOTk5MzlhYzJlYWM5MTdjZGM1ZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYwNjNhNWRjY2NjY2IzZGVjYmY1OWFhNjdjN2RhNTZiNGZmMTE1ZmJmOWM4M2IzYjYzZDAwMjkwNDE2MWUwMTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cc2d204e2a9b42059b640c235fd521d8",
+      "statement": "decompressText and decompressBytes catch any inflateSync failure and rethrow it as a descriptive 'Failed to decompress compacted SDP payload' error rather than surfacing the raw fflate exception.",
+      "evidence": [
+        {
+          "resource": "repo://src/compress.ts#L22-L34",
+          "version": "repo-lines-v1:sha256:aa27e3b7f785ea833ca5562445bcf5f7cb7f4e5432ca3eb893fc70fd1c744f64:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1NjA5OGY0ODBlZGEzNDI0YzYyYWViYjFhMjFmYzk5Mjc4ODJiMzZlN2M2OTViZTVmYzc5NDQ2ZDcxNWY1ZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkN2E0NDY5OTAwOTM0NmI5ZDM2ODQzMjgyNjMyOTRhNTdmYzJhMWFlNGJmYjcxOTViMmE1YzA0ZDU0ODRiZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkNGRhMTE2NjIyZjVhNTcxOTlhMGE2Yzc3NTI0YWEwMTJiNzhiNzlmMTg1MDRkM2NkYWQ2ZjI4YWVhYjNmMzcifQ"
+        },
+        {
+          "resource": "repo://src/compress.ts#L40-L47",
+          "version": "repo-lines-v1:sha256:c4d9736d9aa3d01d5fc7e3c6f2d59795ce9cceaf49bc19506341784fa87e9f31:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjMyMWIwNWRjM2MxNTAxMTMzMGZiYTU2ZDM1NmE4NjkzZTU4OTcyZDBmMDNjOWQwZjk2Y2Y0ZGFmNzg3NjFkOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmJhODZmNzhmOGZhMzg0NzU0ZjE4ODExMDdhNWQ4M2NlNGRjMGE5ZWM0M2RlODJhYTkwMzQwYTJlODM4Y2Y5MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c528799c11f043dd9c0bed8e9367d9e4",
+      "statement": "uint8ArrayToBase64 builds the binary string in bounded 0x8000 (32k) chunks before base64-encoding, avoiding a RangeError from String.fromCharCode when the byte count exceeds the engine call-argument limit (~126k on Node v26); base64encode/base64decode use btoa/atob when available and fall back to Node Buffer.",
+      "evidence": [
+        {
+          "resource": "repo://src/base64.ts#L31-L53",
+          "version": "repo-lines-v1:sha256:37a0cdb5451354fdbe321e67b3ae398758398fae95fdc5d7bdb4e4adec5b93bf:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExY2FlNjBhZWU3ZWVkMjIwM2U4OTZlYzNkMDRkN2IzOTMwMGI3NDRkZTU1NzZjMTM2N2Q1OThlNDYyNGYxZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkNTNhYjJjMGY0YmU1N2FlYjFkZjc3NTM4ZmI5Y2YxOTU2NDU2NGJiNWM4OTY3YWRlMmNjYzVmMGQwOTVjOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyYzE4MjBiODk1NWFiNmUwYWNkMjBkOWJiYzQ3MWM3NjUyNmQ4YjFmNGViMzhiYjYzY2YyNWVlMmY5MjdjODgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4005ba7861054a4cb87e76df2258cc97",
+      "statement": "base92ToUint8Array rejects any character not present in the 92-character ALPHABET (carry === undefined || carry === INVALID) by throwing 'Invalid base92 character'; this guards against out-of-bounds charCodes reading as undefined and unmapped chars otherwise flowing through the decode arithmetic as digit 255 and corrupting the output.",
+      "evidence": [
+        {
+          "resource": "repo://src/base92.ts#L104-L153",
+          "version": "repo-lines-v1:sha256:9377adeaa3a2284f9367e071ffc398599f22949c20447845992407d3e52d7cbf:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjY2QyNzA0NzhhMjBiOTcyMTVkZDMxMjU2MWNmODFlNzkzYzIzZTcwNWUxOGVlODczYWMyOTFkNTBiMzEzYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyZTUxNDg5ZjhkODU4MTdmYTUzMWU0ZDYyYjQwOWNjYTg5ZTIxM2JkNWE5ZmRlYzM5MjRjNmI2NDVhMzMyYTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwZjFkMjk5MWRkNzQ2ZDcxNGYxMmE4MjJlOWNmMWUxY2JjN2VmNWY0ZDA3Yjk5OTViMDJkODMzNTEyODIzMGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_43a0035a4b4b41a987dec9718b60969e",
+      "statement": "uint8ArrayToBase92 performs big-endian base-256 to base-92 conversion, preserves leading zero bytes by repeating the LEADER character, and throws 'Non-zero carry' if the division leaves an inconsistent carry.",
+      "evidence": [
+        {
+          "resource": "repo://src/base92.ts#L52-L102",
+          "version": "repo-lines-v1:sha256:36dcee32d9e7d20f2056e05a464c92fa96c9c51180d5dd33b28367480557bd75:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MTlhN2I3MzM5MjNmYTA1M2ZlMGE1NWEzZDY5M2FlYmQyOTAwOTE1ZjRhNGRhOWEwNWEzMWViZWM0YWE2NjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNWQxZWZmMGU1MzMwMmUzMjZhZGQyNjUxNjNiMmViODc2ZDcxN2JlZDg0ODAyZmZmODMzNDQ1OGRkNmU4NjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmNTQzZmU5NDNjODIzNDVhNWIyZmQ3M2FkODUyMDgxMzA4ODFhOTJjY2U5ZTA3NWQ4ZTJhNjFiNmQyNjk2ODAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1641d556a704477eaef282245a6015de",
+      "statement": "FingerprintToBase64.encode requires every colon-separated hex token to match /^[0-9A-Fa-f]{1,2}$/ and throws an indexed error on malformed tokens (rejecting silent parseInt coercion of NaN/out-of-range values); decode treats '=' as valid only as the final one-or-two padding characters and rejects any character outside the base64 charset, both throwing on empty/missing input.",
+      "evidence": [
+        {
+          "resource": "repo://src/base64.ts#L112-L170",
+          "version": "repo-lines-v1:sha256:732a022aa433e46e1a613bc85bf681a04da2731e0fa88e919ebbc91185c2a3c2:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiMTQwOGYyMDdhOTFkYTI2MTBhZmVhMjY5YjcyYTdlYjIyNjA4MTMxMWYwNmRmMDMwYTQ3YmMyNGQ0MzNlNzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM5ODQ2YWEwYjQ5YzZiMjBmZjhlYmNkZmY3MTA4NzgxMDczYzA2MGQ0MDMxZTRkZjQ5ZDg3MTQzOTlhOTZiMTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://src/base64.ts#L61-L110",
+          "version": "repo-lines-v1:sha256:a2b874176fcd14bb04665733577a67fb8274c65ab0b7061bf9a80bfaa0ca87a7:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxZTU3MmE2N2JhNzBjM2U0OTczZjZhNWU5NTNjYjEzNWEwN2YxZTg4NTZhNjU3ZDgyZDk1YmJiZTQ2ODhhY2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllNzgyY2FlZTFlZGMyZjk4OGVhMGEyY2U4M2NlYTAzMDdmMjJkODE1OGY2YTIzYjg2YTM2MTA0YWQ3N2UwYTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY3YmIxNmJjYmVmN2JhYTlkZjNhOGVlNzQ1NjkwOGMxMDUzNmQzYTJiY2RmMzk4ZjEyOTVkOTk4ZTVkYTQ0YjAifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-01T20:15:14.022Z"
+  }
+}

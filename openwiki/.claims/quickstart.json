@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:477262dc13ee71a5f0c525b2d1b6fdcbe68b2e8edeed704f36f9a862c9a24380",
+  "claims": [
+    {
+      "id": "claim_b1996ef7d7064371b6b54603c587f60f",
+      "statement": "sdp-compact is a small TypeScript ESM library that shortens WebRTC Session Description Protocol (SDP) strings for compact peer-to-peer transmission; it works on Unified Plan SDP and its only runtime dependencies are sdp-transform and fflate.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L1-L25",
+          "version": "repo-lines-v1:sha256:d9dfcb9ab7b322bbddb14c482fa06a36170bd54966e37ccea3a6d4f5b83312ac:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhOTA4NDRlZDg4MWQ4NmE4ZjdmYzM0ZDM3MDE1N2E2YTlmZmZlYWQ0NDkwOTRhNGU0NzdlZTlmNjAzM2QxZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4ZTBkMTFlOGEwOWJlY2IyODA1ZWRkMzA5MjhlYjhhYWNmNWM0ZDRkOWVkZjJjNWY3NmI5NmRjMjA4MjRiMTYifQ"
+        },
+        {
+          "resource": "repo://src/index.ts",
+          "version": "repo-file-v1:sha256:bad055fe885a57668e97136523ac67eec24c62aea1a2e15177d0c467a862c0ea"
+        }
+      ]
+    },
+    {
+      "id": "claim_cdb4e7496059401c97fa845b526f1f09",
+      "statement": "A standalone SvelteKit demo app lives in page/ and is published at https://ntsd.github.io/sdp-compact; it is excluded from the library build/test cycle via .prettierignore and from the npm package via .npmignore.",
+      "evidence": [
+        {
+          "resource": "repo://.npmignore",
+          "version": "repo-file-v1:sha256:0a1a29b6d4fd918ef8913b78294c6aea502b42fa8f491450033bea323a0870d2"
+        },
+        {
+          "resource": "repo://page/package.json",
+          "version": "repo-file-v1:sha256:8ed43e77a184493b5fbc7db353c5cda633a4ae11a91f3bee5acdba0fb28cb5ab"
+        }
+      ]
+    },
+    {
+      "id": "claim_413095708ef34bbdb8bd620c11af9e73",
+      "statement": "Install is npm install sdp-compact; the precommit gate is .zerofactory/precommit.sh which runs Prettier format, npm run build (tsc), and npm test (jest), auto-running npm install when node_modules is absent.",
+      "evidence": [
+        {
+          "resource": "repo://.zerofactory/precommit.sh#L38-L55",
+          "version": "repo-lines-v1:sha256:0e9798418ef702002de952ec238f00f628b02807dbd0bfdf609d56a580816b45:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjOGE2MGRjNTg2ZjExMTAwZDcxZjcwNjdjOTVlNWMyYTdiYjc0N2E2ZjVhNTIyYzdmZGQzN2FiNDUwMmE3YjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwMzlkYWU3YjExMmVkMjUzMDhiMDU2M2I1ZDM3NjdhNDNjYmNlODkzNmQ4N2UxOTIxM2M4OWQxY2U3YTdiNzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4NWYxNTJiMDM1Y2VmNzQzZTUyYmI5MmViMDRhZmZiMjBkYjg1OGMzOWRiZDFiNjFiOWE1ZTYwNmY1YTRjNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwNTcxZGM0YWEyYzcyMTY1NDUwZmYyM2U0NjU4OWM4YzI3OTc0ZGU2OWExOTExYTk3NDM2YjliNDEzNDAyMTAifQ"
+        },
+        {
+          "resource": "repo://package.json#L38-L41",
+          "version": "repo-lines-v1:sha256:4338a7d4b9cf9624dde656ee2b5017e2c4deae5ef31fe63d8029f77b876aff5b:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmEzYjQ2OWQ5ZTA5NzU3MjI0NjY2NzM0YzllZjdiMjU0ZDg4NTM0ZjVkNWJiNzA5ODk2MDgwNWM1NTNkYzMwNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDVkYTBhMmJjMGVkYjBkZmQyOGE5MDcxMjA0MzczMDYxYmFlOWE5ZTg2MTdjODk4Nzc4YjlmZjk2MDI4YzFiYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6e8e9ae5e4ef422d8b3530286e8a9b30",
+      "statement": "compact/decompact (the RTCSessionDescriptionInit-level functions) support all four RTCSdpType values via a single-character prefix (O/A/P/R), and invalid or missing input throws a descriptive error rather than silently defaulting to answer.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L20-L25",
+          "version": "repo-lines-v1:sha256:9463d0c7672e993f376ee61b74ff807b32a90f998e7ecb805a693f2fcc6815d7:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2NlMmJhZWVhMWM3MGFkNDljNjVkYjJlYjUzZWRmOGE4NzgzZDAwYWUxMjU3ODllNTZlYmJmYjA2YWFmMGMwYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTJiNjk0NGM4NjQxMGEzMDU1MDZhZDM1ZDI5YWI1MTIyZmE2OTFhNTBiOWFhYWZmNjg3NzcwMGRiOTg3MDY3NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTYyYzBkMTZjODA1MWZmNjc1YjE3NmUyYTMzMDJkNWQxZmMyOTMwNjhkM2UwMjgwMWMwNGE4N2QxNjhlMjc0ZiJ9"
+        },
+        {
+          "resource": "repo://src/compact.ts#L34-L93",
+          "version": "repo-lines-v1:sha256:c77b17d6471d86634e682641c8ea66e5f8d8f6ac853c6f466480582d6129d9ab:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwYzM1MThkMzg4MjQ3YjU5Y2UwMTcxM2VhZGMzZGQxNDgwZTc3NWE1ZDkyZGM0ZWQ0NmY3ZTY3ZjFlMzZiY2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5YzI5ZDAzZWRmZWNjM2RjOWFjNzRiMWJmMTZlNmY1ZTRiNmVhOThmNTljOGU0NGE2YzZjYmUwNDMyNjk4ODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhN2ZlMGE0ZjM1ZjhiOTBjOWI5MDE5ODExYzU0ZGMyYzEwNzdhZTE1YTRlYTAzNjNjMmM2ZjRkZTJlMTllNjAifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L21-L26",
+          "version": "repo-lines-v1:sha256:19a25d7740c7a147a6285a4654965e1b1104df39ccfedf97c24b58414f1cce1c:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWViMDYwNzdmODgwNzI2NmMyMTgwNmNlYWM4MjgwNTcxMzkxNTRhZjMyOTA1MjZlMjcyNjAzOTZhNDM2YTM3ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTU3MWY4NGFiN2JhNjhhODQzNzc2NWQwODQ0Y2Q1OTk0YzMyOWY3OTU5ODI4MzkyZmE2OWM2MDk1YjQ2MThjYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzI4YTRmNjg1MjVjMzg4OGRjMDc1ZTVlNWY5MzU2Y2NlYjQwYjg3ZDJkZmFlODM1Y2Y2MjVmNjY1YzZjY2NkYiJ9"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L36-L103",
+          "version": "repo-lines-v1:sha256:872878bfae01947362cc1c01f07f54a86ae2b0f748a679cb1715e646147d7e07:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzMjJjZWI5OWRmMWU3Nzc5MzQ4ZTJjODZiMmRjMDEwY2FkNmZmNWQxMDRiMjRjYWJiMDhhMGRmOWVjMjQ5YmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzZWU0ZTY3YThiZDM3NTRjM2VhNGFmNjRjMmY3MDFjMGI2YmQ0NmY4ZDMyZGU4NWIxODkzYWJjNjdmMmRkMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1ZGRhOGM1ZjZmMjhlZTNmNmZjODcyZTA1MDIxM2I3MGUxYWIwNWQ3ZmEyZDc0ODg2MmMxYWIyODVhZGU2NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-01T20:15:14.022Z"
+  }
+}
