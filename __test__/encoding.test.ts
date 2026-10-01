@@ -93,11 +93,11 @@ describe("base64 primitives", () => {
         expect(uint8ArrayToBase64(bytes)).toBe("SGVsbG8=");
         expectBytesEqual(
           base64ToUint8Array("SGVsbG8="),
-          new Uint8Array([72, 101, 108, 108, 111])
+          new Uint8Array([72, 101, 108, 108, 111]),
         );
         // 0x00/0xFF extremes through the Buffer path.
         expect(
-          uint8ArrayToBase64(new Uint8Array([0x00, 0xff, 0x00, 0xff]))
+          uint8ArrayToBase64(new Uint8Array([0x00, 0xff, 0x00, 0xff])),
         ).toBe("AP8A/w==");
         expect(base64decode("AP8A/w==")).toBe("\x00\xff\x00\xff");
       } finally {
@@ -114,21 +114,25 @@ describe("base64 primitives", () => {
 
     test("sha-256: fixed encode vector (matches Node Buffer base64 of the digest bytes)", () => {
       expect(FingerprintToBase64.encode(SHA256_HEX)).toBe(
-        "4yXjEVE9okuqsajr2wOY8ccNTRxsiOy7INrQtzMzuow="
+        "4yXjEVE9okuqsajr2wOY8ccNTRxsiOy7INrQtzMzuow=",
       );
     });
 
     test("sha-256: encode/decode round-trip", () => {
-      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(SHA256_HEX))).toBe(
-        SHA256_HEX
-      );
+      expect(
+        FingerprintToBase64.decode(FingerprintToBase64.encode(SHA256_HEX)),
+      ).toBe(SHA256_HEX);
     });
 
     test("sha-1 (20 bytes): fixed encode vector", () => {
       const hex = "0A:1B:2C:3D:4E:5F:6A:7B:8C:9D:0E:1F:2A:3B:4C:5D:6E:7F:8A:9B";
       // Pinned against Buffer.from(hex).toString("base64").
-      expect(FingerprintToBase64.encode(hex)).toBe("ChssPU5fanuMnQ4fKjtMXW5/ips=");
-      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(hex);
+      expect(FingerprintToBase64.encode(hex)).toBe(
+        "ChssPU5fanuMnQ4fKjtMXW5/ips=",
+      );
+      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(
+        hex,
+      );
     });
 
     test("leading 0x00 bytes: fixed encode vector (base64 padding path)", () => {
@@ -137,9 +141,11 @@ describe("base64 primitives", () => {
       // bits, not drop the first byte).
       const hex = "00:01:02:03:04:05:06:07:08:09:0A:0B:0C:0D:0E:0F:10:11:12:13";
       expect(FingerprintToBase64.encode(hex)).toBe(
-        "AAECAwQFBgcICQoLDA0ODxAREhM="
+        "AAECAwQFBgcICQoLDA0ODxAREhM=",
       );
-      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(hex);
+      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(
+        hex,
+      );
     });
 
     test("10-byte fingerprint: partial final 6-bit group", () => {
@@ -148,7 +154,9 @@ describe("base64 primitives", () => {
       // missing-tail-bit handling in decode().
       const hex = "11:22:33:44:55:66:77:88:99:AA";
       expect(FingerprintToBase64.encode(hex)).toBe("ESIzRFVmd4iZqg==");
-      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(hex);
+      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(
+        hex,
+      );
     });
 
     test("encode output equals standard base64 of the digest bytes (oracle check)", () => {
@@ -194,7 +202,7 @@ describe("base64 primitives", () => {
         // Re-encoding the decoded digest must reproduce the canonical
         // base64 of exactly the bytes that variant decodes to.
         expect(FingerprintToBase64.encode(decoded)).toBe(
-          Buffer.from(variant, "base64").toString("base64")
+          Buffer.from(variant, "base64").toString("base64"),
         );
       }
     });
@@ -216,7 +224,9 @@ describe("base92 primitives", () => {
     expect(encoded).toBe("!!!$j");
     // The leaders are literal '!' (charCode 0x21), i.e. LEADER.repeat(3).
     expect(encoded.slice(0, 3)).toBe("!!!");
-    expect([0, 1, 2].map((i) => encoded.charCodeAt(i))).toEqual([0x21, 0x21, 0x21]);
+    expect([0, 1, 2].map((i) => encoded.charCodeAt(i))).toEqual([
+      0x21, 0x21, 0x21,
+    ]);
     expectBytesEqual(base92ToUint8Array(encoded), bytes);
 
     // All-zero input: every byte is a leader.
@@ -227,7 +237,9 @@ describe("base92 primitives", () => {
   });
 
   test("known fixed vector: 8-byte sequence", () => {
-    const bytes = new Uint8Array([0xde, 0xad, 0xbe, 0xef, 0x00, 0x11, 0x22, 0x33]);
+    const bytes = new Uint8Array([
+      0xde, 0xad, 0xbe, 0xef, 0x00, 0x11, 0x22, 0x33,
+    ]);
     const encoded = uint8ArrayToBase92(bytes);
     // Pinned reference (computed once and verified against the round-trip).
     expect(encoded).toBe("C}N9t:KgIQ");

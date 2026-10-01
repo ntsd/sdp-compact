@@ -6,7 +6,7 @@ Shorten WebRTC Session Description Protocol (SDP) based on Unified Plan SDP
 
 ## Why?
 
-A WebRTC SDP can remove some of the attributes to compress/compact and share config on both the offer and answer sides. 
+A WebRTC SDP can remove some of the attributes to compress/compact and share config on both the offer and answer sides.
 
 ## Features
 

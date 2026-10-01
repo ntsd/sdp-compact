@@ -1,12 +1,10 @@
 // Helpers
 function reverseMap(m: { [key: string]: string }): { [key: string]: string } {
-  return Object.fromEntries(
-    Object.entries(m).map(([k, v]) => [v, k] as const)
-  );
+  return Object.fromEntries(Object.entries(m).map(([k, v]) => [v, k] as const));
 }
 function makeRegexSubstitution(
   map: { [key: string]: string },
-  options: { longestFirst?: boolean } = {}
+  options: { longestFirst?: boolean } = {},
 ): (line: string) => string {
   const keys = options.longestFirst
     ? Object.keys(map).sort((a, b) => b.length - a.length)
@@ -132,9 +130,27 @@ function candidateDecodeTokens(tokens: string[]): string[] {
     } else if (t === "S") {
       tokens.splice(i, 1, "typ", "srflx");
     } else if (t === "H") {
-      tokens.splice(i, 1, "typ", "host", "generation", "0", "network-cost", "999");
+      tokens.splice(
+        i,
+        1,
+        "typ",
+        "host",
+        "generation",
+        "0",
+        "network-cost",
+        "999",
+      );
     } else if (t === "R") {
-      tokens.splice(i, 1, "rport", "0", "generation", "0", "network-cost", "999");
+      tokens.splice(
+        i,
+        1,
+        "rport",
+        "0",
+        "generation",
+        "0",
+        "network-cost",
+        "999",
+      );
     }
   }
   return tokens;
@@ -253,7 +269,7 @@ export const RtcpFbMap: { [key: string]: string } = {
   "goog-remb": "G",
   "transport-cc": "T",
   "ccm fir": "C",
-  "nack": "N",
+  nack: "N",
 };
 export const RtcpFbMapReverse: { [key: string]: string } =
   reverseMap(RtcpFbMap);
