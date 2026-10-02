@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:9a4386478ad496d62bc915c93fda209115535eebed183c9bf5d72ac3df144685",
+  "claims": [
+    {
+      "id": "claim_d62bcf9865ac40c1a1893a4d1154662d",
+      "statement": "The public API is re-exported from src/index.ts, which re-exports the public entrypoints of compact.ts, decompact.ts, and options.ts; src/index.ts is the package entry (package.json main/types point at dist/index.js and dist/index.d.ts).",
+      "evidence": [
+        {
+          "resource": "repo://package.json",
+          "version": "repo-file-v1:sha256:ca8ab1701b879ce0ec11d0f41c0db17df9e3ec256f420a261761aa58a037ecaa"
+        },
+        {
+          "resource": "repo://src/index.ts",
+          "version": "repo-file-v1:sha256:bad055fe885a57668e97136523ac67eec24c62aea1a2e15177d0c467a862c0ea"
+        }
+      ]
+    },
+    {
+      "id": "claim_e3eb5c49881c4c45a61ebeb39671f2af",
+      "statement": "The runtime dependencies are exactly sdp-transform (parse/write normalization) and fflate (zlib deflate/inflate); the library otherwise depends only on its own src/ modules.",
+      "evidence": [
+        {
+          "resource": "repo://package.json",
+          "version": "repo-file-v1:sha256:ca8ab1701b879ce0ec11d0f41c0db17df9e3ec256f420a261761aa58a037ecaa"
+        },
+        {
+          "resource": "repo://src/compress.ts#L1-L1",
+          "version": "repo-lines-v1:sha256:9233ae5d821f22c36089d2aaae0ba5b153bd55793b9bba3ba6f3721a1281dcb6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTIzM2FlNWQ4MjFmMjJjMzYwODlkMmFhYWUwYmE1YjE1M2JkNTU3OTNiOWJiYTNiYTZmMzcyMWExMjgxZGNiNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTIzM2FlNWQ4MjFmMjJjMzYwODlkMmFhYWUwYmE1YjE1M2JkNTU3OTNiOWJiYTNiYTZmMzcyMWExMjgxZGNiNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2RlNmZmOWFmMzUxMDNkMjdkZjU5NGQ0YTZhMDZjMWI3MjIxOWU2NDdiNWE4YjI5ZDg2MTliMTcwZmU3NWE5NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f910040cdee0450ca7fcc098baf69544",
+      "statement": "compact/compactSDP run the SDP through three ordered stages: a line-level transform (compactSDPStr) that drops fixed fields and rewrites media/candidate/fingerprint/connection/extmap/rtcp-fb lines joined with '~', an optional field-name substitution pass, and an optional zlib-deflate (level 9) plus base64/base92 encoding pass.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L58-L93",
+          "version": "repo-lines-v1:sha256:d9a606fc25068495c1cb4cf803977cdc175e10eb66a4e1a5e82cba98c550b71e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3NjEyZjdlM2M2MDNmNjFjNzAxYWZlOGNmYmM2MDVkZWIzZjY1ZWFmNGNkMDBlYzM5YzAyNTUyNTIwMTAwMzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4N2ZhOWU5MTNlYmUwZTVlMTdlMzFkOTUzYTAyYTc0OTBhMzA2NmI1Y2U1YTc3MWMxNjIxZDRiMDc1NmU5ODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhN2ZlMGE0ZjM1ZjhiOTBjOWI5MDE5ODExYzU0ZGMyYzEwNzdhZTE1YTRlYTAzNjNjMmM2ZjRkZTJlMTllNjAifQ"
+        },
+        {
+          "resource": "repo://src/compact.ts#L95-L275",
+          "version": "repo-lines-v1:sha256:a6bcf97c705f3d03b0561ed80f7f9ddd94f1e4abf4fac0ba585f41c2b103add9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlNTc0MTUwODVmNmEyOWJjNzliNTMzZTdjZjA1YjkyZjU4MWJkZTg5NjUyMDNlMmNlYThhZDE3MDEzOWM4NWI3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI4NmQzNDQ2ZWE1ZDkwZGNiMjljNmE0MDJjM2NiZGQ5NGI2MjY3YjE5MzNjZTg4YWE5OGIyNDExMmM5NzE0MDFhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiOTgwOGQ3NjUyYTNlNDY2YzNmODJmYWM1NmRjNmViMDViOTdlOTA2YzU3ZjA5MDM3NjhkNTdmY2FiOTA3MzhhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_56ff2a3f15a34482bd1f760975a9b4e0",
+      "statement": "compact (the RTCSessionDescriptionInit-level function) prepends a single-character RTCSdpType prefix (O=offer, A=answer, P=pranswer, R=rollback) to the compacted SDP string; decompact strips and decodes that prefix back to the type.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L20-L48",
+          "version": "repo-lines-v1:sha256:8034b50f21ebd479d16acd6f9561dfe90b24b6f5a7d477924660ee3dddceb803:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjZTJiYWVlYTFjNzBhZDQ5YzY1ZGIyZWI1M2VkZjhhODc4M2QwMGFlMTI1Nzg5ZTU2ZWJiZmIwNmFhZjBjMGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3ZjBlNWJmNWE5NjlkODRlMGQ2YmNhMDk4ZmE1MDdkMzAxOWY1YThmM2Y0YjZmMTI5ZmMyMzUxOTMxNWUzYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyYjY5NDRjODY0MTBhMzA1NTA2YWQzNWQyOWFiNTEyMmZhNjkxYTUwYjlhYWFmZjY4Nzc3MDBkYjk4NzA2NzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlZWNhOWFmY2U1ZjIwMzVkOTdjYjgwNGEwNjI4MmE0YTEyMjM5ZWM1YTI0YWJiNmFlZmVlNzAzZTQ4YjhjODIifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L21-L57",
+          "version": "repo-lines-v1:sha256:d661c5733c3cc2a707d24163e6bcf661b79910b598ffb108998a6512b2c86f2c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYjA2MDc3Zjg4MDcyNjZjMjE4MDZjZWFjODI4MDU3MTM5MTU0YWYzMjkwNTI2ZTI3MjYwMzk2YTQzNmEzN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1NzFmODRhYjdiYTY4YTg0Mzc3NjVkMDg0NGNkNTk5NGMzMjlmNzk1OTgyODM5MmZhNjljNjA5NWI0NjE4Y2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlZWNhOWFmY2U1ZjIwMzVkOTdjYjgwNGEwNjI4MmE0YTEyMjM5ZWM1YTI0YWJiNmFlZmVlNzAzZTQ4YjhjODIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2bf4385f7d1c440fbab2173c2425a9eb",
+      "statement": "Compaction is asymmetric between offer and answer: compact drops a=setup:, a=mid:, and a=group:BUNDLE, and decompact reconstructs them using the isOffer flag, writing a=setup:actpass for offer and a=setup:active for answer and reassigning sequential a=mid: values plus a re-derived a=group:BUNDLE line.",
+      "evidence": [
+        {
+          "resource": "repo://src/decompact.ts#L214-L237",
+          "version": "repo-lines-v1:sha256:bd79a532d95cc5a4c4cd82ce2f7654d2df52c11dd8d617ee4f457f7468b03e57:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5ZDU3MDdkM2IxZmM4OGJiNzVhMjg2YmU2ZjY5NDliYWZmZDFlMDEwMDFjOWUxZDZkZDVhYWM2NzcxNDk5ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNDFkNzNjNDUyMmJlYTM5ZmY4MTVlMjRiY2YxMzExODUzMWQ2NzFlYjNjZjUzMTIxODg1ZTExYTFjNDcyNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjMDM0NTU4MjllN2I1ZWM1OGYwOGI5Mzg5NTgwYjc1YTUxZjRiMGFiNTQ3NGZmODAyYTY0YmU1OTg0NmIxZTQifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L327-L331",
+          "version": "repo-lines-v1:sha256:e51e85e17ae830068f89df251705a61cb986c70172d7a50a645d9c3fb3810e83:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODY0ODhkZTFmOTcwMmY2Y2M2MDhmMGJlMTI5ZTMwYjNiYjAwYmYwMWEzM2ViYjFiYWQ4Yzc4ZTE2ZWQxYjJlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODAyZDcwNTE5MmFiZmU1YzA2Mzk3ZGZiM2VlMzI3YzdkMTc1YmU3NjkxZDdkOGY2MTcyMTYyY2RkYzg2NzM1YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTUxNDljMmQxMzQ4ZWI3OTU1NjJhNmY0MDIxNjAwMjk1MDFhYzcyZjdjMTM5NWIxZjAxNGQ3MzUwZjEwZmE2NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6e96b8643c3845d8b1593e2a479140b6",
+      "statement": "decompact ends by normalizing its rebuilt SDP through sdpTransform.parse and sdpTransform.write so the output is always a canonically re-serialized SDP, and the test suite verifies round-trip fidelity by parsing both original and decompacted SDP with sdp-transform before comparing.",
+      "evidence": [
+        {
+          "resource": "repo://__test__/test.ts#L25-L50",
+          "version": "repo-lines-v1:sha256:ba0eb9b85579c27d4fa2ea003735bd09a8ffad5fecc616caf550a1a3d251add9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkM2NlY2QxZWQ5MWQxYTEzY2NmNGZhOWU1YTg0OGZiMGEzN2ExY2JjODZmYmRiNWI4YTIzM2U0MmY3YzRkMTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI0ZWEyOGQ3Mjg3MDg5YzQzY2EzNmU2NjdhZTc4NWM4NDZlNmUxNDRiZjZkMDRkZTMxOGNhNmRkN2RhMDEyOTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5MTM0NTNiNmZkZmE4YTk0MGQzY2RiMTNiZGI0YmE4MWZjNmRjMTViYTIzZWJiMmRjYTNhNTJiMDM0ZGMwODQifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L333-L338",
+          "version": "repo-lines-v1:sha256:372735812de49458ba48ed4d489b622fcd834cc5ac4137586fa69cec6334cd89:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2FkNDI5ZWIwOWJkYWY2NmI4NzJhOTdjMWEyNjNkYjQwMGMxMzA2ODQ3ZjYyZWI5YjQwZDFmNjU0ZmRhMTU1ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTk4MGVmM2ZlYjU0NGFlYTk5ZTE5NDQwMzI5MDVmNGYyMmNhZGRkNWU0NTcyYmM2NGZlMTUxZDkzNmFjMTI1YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWRiM2U3Y2QwYzNhNjIzMDQ3NjY4MTYxZDEwNGU5OWQ4NjIwOWNhM2U3NzU0YTI1YjExOWE0OTA3ODc4MDQyNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_54673fff0db14d218e7681130aa3278b",
+      "statement": "The library is built with tsc (npm run build, tsconfig.json includes only src/*.ts and emits dist/ with declarations) and tested with Jest under ts-jest in a node environment; .zerofactory/precommit.sh runs format, build, and test in sequence and auto-runs npm install when node_modules is absent.",
+      "evidence": [
+        {
+          "resource": "repo://.zerofactory/precommit.sh#L38-L55",
+          "version": "repo-lines-v1:sha256:0e9798418ef702002de952ec238f00f628b02807dbd0bfdf609d56a580816b45:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjOGE2MGRjNTg2ZjExMTAwZDcxZjcwNjdjOTVlNWMyYTdiYjc0N2E2ZjVhNTIyYzdmZGQzN2FiNDUwMmE3YjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwMzlkYWU3YjExMmVkMjUzMDhiMDU2M2I1ZDM3NjdhNDNjYmNlODkzNmQ4N2UxOTIxM2M4OWQxY2U3YTdiNzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4NWYxNTJiMDM1Y2VmNzQzZTUyYmI5MmViMDRhZmZiMjBkYjg1OGMzOWRiZDFiNjFiOWE1ZTYwNmY1YTRjNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwNTcxZGM0YWEyYzcyMTY1NDUwZmYyM2U0NjU4OWM4YzI3OTc0ZGU2OWExOTExYTk3NDM2YjliNDEzNDAyMTAifQ"
+        },
+        {
+          "resource": "repo://jest.config.cts",
+          "version": "repo-file-v1:sha256:0ee5e4b70a6e77b48a019f50b9876bb11fe25b0628b7e6a4a480e817a1ae61a9"
+        },
+        {
+          "resource": "repo://tsconfig.json",
+          "version": "repo-file-v1:sha256:fc36b510d726137378a54ad1c088c280c26bd8461d5d318ca852479676329457"
+        }
+      ]
+    },
+    {
+      "id": "claim_bc1c4d4f669c42c58a3b34adf7457e6c",
+      "statement": "The page/ directory is a separate SvelteKit demo application with its own toolchain; it is excluded from the library build/test cycle via .prettierignore and excluded from the npm package via .npmignore.",
+      "evidence": [
+        {
+          "resource": "repo://.npmignore",
+          "version": "repo-file-v1:sha256:0a1a29b6d4fd918ef8913b78294c6aea502b42fa8f491450033bea323a0870d2"
+        },
+        {
+          "resource": "repo://.zerofactory/precommit.sh#L9-L12",
+          "version": "repo-lines-v1:sha256:cdea5cbdb8b8f826405c941ac5ae311d68df6179cab515fa5c0e660c395a627d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzJjNDg1OGUyMmNjMmM5NjdiNDIxNTBmYTU1MDU2MmEyYzgzOWMyY2ViY2FhYjkxY2FiZGY2ZjRkYTAyMDAyMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjNlNTU5NDE1ZDU0NmU1ZGQ2NTQ2MGY0NTZmZmEwMjQ2MjllNzI5Y2FjZDNmYTEyZmZiNjVmNGIyNmI3ZTJiMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDQ5ZmM0YjFlNjA2ZWQ3ZmJmY2YzMmVkNzc2ZTMxZWQ1MDlmZjkyMDVjZjFjNzM1OGJhZDk4ZGRiZjlmNTI2ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWQ5ZDMzMmFjMzMxMmQ5ODY0OTIwOWRlMmZkMjRlNzFkNmE3MGVjZjA4ZmIzZTUwYmIyMDA5MTVjZTQ3NGE4NSJ9"
+        },
+        {
+          "resource": "repo://page/package.json",
+          "version": "repo-file-v1:sha256:8ed43e77a184493b5fbc7db353c5cda633a4ae11a91f3bee5acdba0fb28cb5ab"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-01T21:00:49.610Z"
+  }
+}
