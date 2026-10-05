@@ -102,13 +102,17 @@ function decompactSDPStr(
       }
 
       // replace attributes
+      // Mirror the compact side: `attr` is the full attribute name with the
+      // colon (e.g. "fingerprint:"), and the compressed payload may carry
+      // either the single-char code ("F") or the full name (when the
+      // matching mediaOptions compression flag was disabled at encode time).
       if (field === "a=") {
-        let attr = value.slice(0, 1);
-        const subValue = value.slice(1);
+        let [attr, ...subValue] = value.split(":");
+        attr = attr + ":";
 
         if (attr in AttributeRepalceMapReverse) {
           attr = AttributeRepalceMapReverse[attr];
-          value = attr + subValue;
+          value = attr + subValue.join(":");
         }
       }
 
