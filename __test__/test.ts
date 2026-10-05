@@ -324,13 +324,16 @@ describe("minimize", () => {
     expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
   });
 
-  // Regression: replaceFieldNames attribute mapping when a mediaOptions
-  // compression flag is disabled. The decompact side must mirror the compact
-  // side: the AttributeRepalceMapReverse key is the FULL attribute name with
-  // colon (or the single-char code when the attr was compressed at encode
-  // time), never just the first character of the value — otherwise a payload
-  // carrying a full attribute name gets its leading char mangled
-  // (e.g. a=fingerprint: -> a=Fingerrint:).
+  // Regression coverage: replaceFieldNames with mediaOptions compression
+  // flags disabled. Verified: the compact side replaces AttributeReplaceMap
+  // attribute names unconditionally (independently of the mediaOptions flags,
+  // which only gate value-level transforms), and the decompact side's
+  // value[0] lookup is safe because the reverse-map keys (single uppercase
+  // codes) and full attribute names (lowercase) are disjoint — a full name
+  // can never be read as a single-char code. These tests guard that
+  // invariant against future changes (e.g. a refactor that splits `value`
+  // on ":" to "restore" full names, which would mangle attribute values that
+  // contain colons).
   test("replaceFieldNames with all media compression flags off round-trips", () => {
     const options: Options = {
       compress: false,

@@ -120,13 +120,18 @@ function decompactSDPStr(
       }
 
       // replace attributes
-      // `value` is like "E1 A": the first char is the attribute code when the
-      // attribute was replaced at encode time (the compact side rewrites the
-      // full "extmap:" name to "E", dropping the colon). Attributes whose
-      // mediaOptions compression flag was off at encode time still carry the
-      // full name (e.g. "fingerprint:sha-256 ..."); their leading char ("f")
-      // is never a reverse-map key (keys are single uppercase codes), so they
-      // pass through unchanged and round-trip intact.
+      // `value` is like "E1 A": when replaceFieldNames is on, the compact side
+      // (compactSDPStr) rewrites EVERY AttributeReplaceMap attribute name to
+      // its single uppercase code ("fingerprint:" -> "F", "extmap:" -> "E")
+      // unconditionally — the mediaOptions compression flags only gate the
+      // value-level transforms, never the attribute-name replacement. So the
+      // first char here is either such a code (expand it) or the leading
+      // letter of a non-replaced attribute ("setup:", "mid:", ...). The
+      // reverse-map keys are single uppercase codes and SDP attribute names
+      // start lowercase, so the key spaces are disjoint: codes expand,
+      // everything else passes through untouched. Do NOT split `value` on ":"
+      // to look up the full name — it never occurs in the payload, and
+      // attribute values contain colons (fingerprint hashes).
       if (field === "a=") {
         const attr = value[0];
         if (attr in AttributeReplaceMapReverse) {
