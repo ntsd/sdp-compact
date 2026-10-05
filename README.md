@@ -6,7 +6,7 @@ Shorten WebRTC Session Description Protocol (SDP) based on Unified Plan SDP
 
 ## Why?
 
-A WebRTC SDP can remove some of the attributes to compress/compact and share config on both the offer and answer sides. 
+A WebRTC SDP can remove some of the attributes to compress/compact and share config on both the offer and answer sides.
 
 ## Features
 
@@ -36,11 +36,11 @@ const sessDesc: RTCSessionDescriptionInit = {
 
 const options: spdCompact.Options = { compress: true };
 // When compress is enabled, sdp-compact use base64 encoding by default. You can switch to base92 for more compact size:
-const options: spdCompact.Options = { compress: 'base92' };
+// const options: spdCompact.Options = { compress: 'base92' };
 
 // compact the `RTCSessionDescriptionInit`
 const compactedSessDesc = spdCompact.compact(sessDesc, options);
-const decompactedSessDesc = spdCompact.decompact(compactedSPD, options);
+const decompactedSessDesc = spdCompact.decompact(compactedSessDesc, options);
 
 // compact only the SDP string, will return base64 encoded if compress is enabled.
 const compactedSPD = spdCompact.compactSDP(sessDesc.sdp, options);
@@ -50,7 +50,23 @@ const decompactedSPD = spdCompact.decompactSDP(compactedSPD, true, options);
 // compact only the SDP string to bytes
 const compactedSPDBytes = spdCompact.compactSDPBytes(sessDesc.sdp, options);
 // decompact the compacted SDP bytes to decompacted string
-const decompactedSPD = spdCompact.decompactSDPBytes(compactedSPDBytes, true, options);
+const decompactedSPDBytes = spdCompact.decompactSDPBytes(compactedSPDBytes, true, options);
+```
+
+## Supported SDP Types
+
+`compact()` supports all four `RTCSdpType` values and encodes the type as the first character of the compacted string: `O` (offer), `A` (answer), `P` (pranswer), and `R` (rollback). `decompact()` decodes the prefix back to the original type. An unsupported or missing type prefix throws a descriptive error instead of silently defaulting to `answer`.
+
+```TypeScript
+import * as spdCompact from "sdp-compact";
+
+// pranswer/rollback are supported:
+const compacted = spdCompact.compact({ type: "pranswer", sdp });
+console.log(spdCompact.decompact(compacted).type); // "pranswer"
+
+// Invalid input throws instead of silently corrupting:
+spdCompact.decompact(""); // throws: Invalid compacted SDP string
+spdCompact.decompact("Xgarbage"); // throws: Invalid compacted SDP type prefix
 ```
 
 ## Options
@@ -61,7 +77,7 @@ You can override the default options to suit your application's requirements, wh
 
 ```Typescript
 const DefaultOptions: Options = {
-  compress: 'base64'
+  compress: 'base64',
   replaceFieldNames: true,
   sdpVersion: 0,
   sessionName: "-",
@@ -135,8 +151,8 @@ Customize media options. This includes the following properties:
 
 - `removeMediaID`: Remove media ID (a=mid:) and group (a=group:<type>) (a=group:BUNDLE) to use sequence medias instead. (default: true)
 - `removeSetup`: Remove DTLS role (a=setup:). It will set to actpass for offer and active for answer. (default: true)
-- `replaceCandidateString`: replaced string in ice candidate (a=candidate:) following `CandidateReplaceList`. (default: true)
-- `replaceMediaString`: replace string in media (m=) following `MediaReplaceList`. (default: true)
+- `replaceCandidateString`: replace strings in ice candidate (a=candidate:) following `candidateEncodeMap`/`candidateDecodeMap` in `src/dict.ts`. (default: true)
+- `replaceMediaString`: replace strings in media (m=) following `mediaEncodeMap`/`mediaDecodeMap` in `src/dict.ts`. (default: true)
 - `forceTrickle`: force ice-options to trickle (a=ice-options:trickle). (default: true)
 - `compressFingerprint`: compress fingerprint (a=fingerprint:). (default: true)
 - `compressConnection`: compress media connection (c=). (default: true)

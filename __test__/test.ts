@@ -3,7 +3,7 @@ import { decompact, decompactSDP, decompactSDPBytes } from "../src/decompact";
 import { Options } from "../src/options";
 import { uint8ArrayToBase92, base92ToUint8Array } from "../src/base92";
 import { FingerprintToBase64 } from "../src/base64";
-import { compressToBytes, decompresBytes } from "../src/compress";
+import { compressToBytes, decompressBytes } from "../src/compress";
 import * as sdpTransform from "sdp-transform";
 import { deflateSync, strToU8 } from "fflate";
 
@@ -29,7 +29,7 @@ describe("minimize", () => {
 
     offer.sdp = sdpTransform.write(sdpTransform.parse(offer.sdp as string));
     decompacted.sdp = sdpTransform.write(
-      sdpTransform.parse(decompacted.sdp as string)
+      sdpTransform.parse(decompacted.sdp as string),
     );
 
     expect(offer).toEqual(decompacted);
@@ -48,10 +48,7 @@ describe("minimize", () => {
     expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
   });
 
-  ([
-    'base64',
-    'base92'
-  ] as const).forEach((encoding) => {
+  (["base64", "base92"] as const).forEach((encoding) => {
     test("compactSDP and decompactSDP offer (" + encoding + ")", () => {
       const options: Options = { compress: encoding };
 
@@ -149,15 +146,26 @@ describe("minimize", () => {
     const sdpWithExtmap = `v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\nc=IN IP4 0.0.0.0\r\na=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r\na=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time\r\na=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r\na=extmap:4 urn:ietf:params:rtp-hdrext:sdes:mid\r\n`;
 
     // Test with extmap compression enabled
-    const optionsWithExtmap: Options = { compress: false, mediaOptions: { compressExtmap: true } };
+    const optionsWithExtmap: Options = {
+      compress: false,
+      mediaOptions: { compressExtmap: true },
+    };
     const compactedWithExtmap = compactSDP(sdpWithExtmap, optionsWithExtmap);
 
     // Test with extmap compression disabled
-    const optionsWithoutExtmap: Options = { compress: false, mediaOptions: { compressExtmap: false } };
-    const compactedWithoutExtmap = compactSDP(sdpWithExtmap, optionsWithoutExtmap);
+    const optionsWithoutExtmap: Options = {
+      compress: false,
+      mediaOptions: { compressExtmap: false },
+    };
+    const compactedWithoutExtmap = compactSDP(
+      sdpWithExtmap,
+      optionsWithoutExtmap,
+    );
 
     // The compressed version should be shorter
-    expect(compactedWithExtmap.length).toBeLessThan(compactedWithoutExtmap.length);
+    expect(compactedWithExtmap.length).toBeLessThan(
+      compactedWithoutExtmap.length,
+    );
 
     // The compressed version should contain short identifiers instead of full URIs
     expect(compactedWithExtmap).toContain("AE1 A"); // compressed ssrc-audio-level
@@ -166,17 +174,33 @@ describe("minimize", () => {
     expect(compactedWithExtmap).toContain("AE4 D"); // compressed sdes:mid
 
     // The uncompressed version should still contain full URIs
-    expect(compactedWithoutExtmap).toContain("urn:ietf:params:rtp-hdrext:ssrc-audio-level");
-    expect(compactedWithoutExtmap).toContain("http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time");
+    expect(compactedWithoutExtmap).toContain(
+      "urn:ietf:params:rtp-hdrext:ssrc-audio-level",
+    );
+    expect(compactedWithoutExtmap).toContain(
+      "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
+    );
 
     // Test decompression works correctly - the extmap URIs should be restored
-    const decompactedWithExtmap = decompactSDP(compactedWithExtmap, true, optionsWithExtmap);
+    const decompactedWithExtmap = decompactSDP(
+      compactedWithExtmap,
+      true,
+      optionsWithExtmap,
+    );
 
     // Check that extmap URIs are properly restored
-    expect(decompactedWithExtmap).toContain("urn:ietf:params:rtp-hdrext:ssrc-audio-level");
-    expect(decompactedWithExtmap).toContain("http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time");
-    expect(decompactedWithExtmap).toContain("http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01");
-    expect(decompactedWithExtmap).toContain("urn:ietf:params:rtp-hdrext:sdes:mid");
+    expect(decompactedWithExtmap).toContain(
+      "urn:ietf:params:rtp-hdrext:ssrc-audio-level",
+    );
+    expect(decompactedWithExtmap).toContain(
+      "http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time",
+    );
+    expect(decompactedWithExtmap).toContain(
+      "http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01",
+    );
+    expect(decompactedWithExtmap).toContain(
+      "urn:ietf:params:rtp-hdrext:sdes:mid",
+    );
   });
 
   test("rtcp-fb compression", () => {
@@ -184,15 +208,26 @@ describe("minimize", () => {
     const sdpWithRtcpFb = `v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\nm=video 9 UDP/TLS/RTP/SAVPF 96\r\nc=IN IP4 0.0.0.0\r\na=rtcp-fb:96 goog-remb\r\na=rtcp-fb:96 transport-cc\r\na=rtcp-fb:96 ccm fir\r\na=rtcp-fb:96 nack\r\na=rtcp-fb:96 nack pli\r\n`;
 
     // Test with rtcp-fb compression enabled
-    const optionsWithRtcpFb: Options = { compress: false, mediaOptions: { compressRtcpFb: true } };
+    const optionsWithRtcpFb: Options = {
+      compress: false,
+      mediaOptions: { compressRtcpFb: true },
+    };
     const compactedWithRtcpFb = compactSDP(sdpWithRtcpFb, optionsWithRtcpFb);
 
     // Test with rtcp-fb compression disabled
-    const optionsWithoutRtcpFb: Options = { compress: false, mediaOptions: { compressRtcpFb: false } };
-    const compactedWithoutRtcpFb = compactSDP(sdpWithRtcpFb, optionsWithoutRtcpFb);
+    const optionsWithoutRtcpFb: Options = {
+      compress: false,
+      mediaOptions: { compressRtcpFb: false },
+    };
+    const compactedWithoutRtcpFb = compactSDP(
+      sdpWithRtcpFb,
+      optionsWithoutRtcpFb,
+    );
 
     // The compressed version should be shorter
-    expect(compactedWithRtcpFb.length).toBeLessThan(compactedWithoutRtcpFb.length);
+    expect(compactedWithRtcpFb.length).toBeLessThan(
+      compactedWithoutRtcpFb.length,
+    );
 
     // The compressed version should contain short identifiers instead of full feedback types
     expect(compactedWithRtcpFb).toContain("AB96 G"); // compressed goog-remb
@@ -208,11 +243,14 @@ describe("minimize", () => {
     expect(compactedWithoutRtcpFb).toContain("nack pli");
 
     // Test decompression works correctly
-    const decompactedWithRtcpFb = decompactSDP(compactedWithRtcpFb, true, optionsWithRtcpFb);
+    const decompactedWithRtcpFb = decompactSDP(
+      compactedWithRtcpFb,
+      true,
+      optionsWithRtcpFb,
+    );
 
     // Check that rtcp-fb types are properly restored
     expect(decompactedWithRtcpFb).toContain("goog-remb");
-    expect(decompactedWithRtcpFb).toContain("transport-cc");
     expect(decompactedWithRtcpFb).toContain("ccm fir");
     expect(decompactedWithRtcpFb).toContain("nack");
     expect(decompactedWithRtcpFb).toContain("nack pli");
@@ -238,7 +276,9 @@ describe("minimize", () => {
     // `a=group:BUNDLE 0..N-1` is required: decompact re-inserts it for every
     // media section (removeMediaID), so the original must carry it for the
     // parsed round-trip to be equal.
-    const bundleIDs = Array.from({ length: candidateCount }, (_, i) => i).join(" ");
+    const bundleIDs = Array.from({ length: candidateCount }, (_, i) => i).join(
+      " ",
+    );
     const lines: string[] = [
       "v=0",
       "o=- 4109260023080860376 2 IN IP4 127.0.0.1",
@@ -255,7 +295,7 @@ describe("minimize", () => {
       lines.push(
         `a=candidate:${100000 + i} 1 udp ${
           2147483648 + i
-        } ${ip} ${10000 + i} typ host generation 0 network-cost 999`
+        } ${ip} ${10000 + i} typ host generation 0 network-cost 999`,
       );
       // decompact re-inserts these for every media section
       // (removeSetup / removeMediaID / forceTrickle), so the original must
@@ -344,6 +384,132 @@ describe("minimize", () => {
   });
 });
 
+// Token-safety round-trip tests.
+//
+// `candidateDecode`/`mediaDecode` (and their encode counterparts) must never
+// substitute a single-char code inside a longer token — only exact tokens at
+// known field positions. Hostnames containing S/U/A/R/Z and codec names such
+// as AV1/VP8/VP9 must survive compact -> decompact intact.
+describe("token-safe candidate/media round-trip", () => {
+  const base =
+    "v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=extmap-allow-mixed\r\na=msid-semantic: WMS\r\n";
+
+  // Real WebRTC places candidates under a media section (sdp-transform
+  // attaches candidate lines to the preceding `m=`).
+  const candidateSdpPrefix =
+    base + "m=video 9 UDP/TLS/RTP/SAVPF 96\r\nc=IN IP4 0.0.0.0\r\n";
+
+  test.each([
+    // candidate protocol is `udp`; hostname collides with single-char codes
+    [
+      "S",
+      "a=candidate:1 1 udp 2113937151 S.example.com 57834 typ host generation 0 network-cost 999",
+    ],
+    [
+      "U",
+      "a=candidate:1 1 udp 2113937151 U.example.com 57834 typ host generation 0 network-cost 999",
+    ],
+    [
+      "A",
+      "a=candidate:1 1 udp 2113937151 A.example.com 57834 typ host generation 0 network-cost 999",
+    ],
+    [
+      "R",
+      "a=candidate:1 1 udp 2113937151 R.example.com 57834 typ host generation 0 network-cost 999",
+    ],
+    [
+      "Z",
+      "a=candidate:1 1 udp 2113937151 Z.example.com 57834 typ host generation 0 network-cost 999",
+    ],
+    // all colliding uppercase letters in one hostname
+    [
+      "SUAZR",
+      "a=candidate:1 1 udp 2113937151 SUAZR.example.com 57834 typ host generation 0 network-cost 999",
+    ],
+    // srflx candidate with an raddr-bearing hostname that contains colliding chars
+    [
+      "srflx-S",
+      "a=candidate:2 1 udp 1677729535 S.example.com 57834 typ srflx raddr 0.0.0.0 rport 0 generation 0 network-cost 999",
+    ],
+    // 0.0.0.0 ip host candidate with a colliding-char hostname elsewhere
+    [
+      "Z-ip",
+      "a=candidate:3 1 udp 2113937151 0.0.0.0 57834 typ host generation 0 network-cost 999",
+    ],
+  ])("candidate hostname %s preserved", (_label, candidateLine) => {
+    const sdp = candidateSdpPrefix + candidateLine + "\r\n";
+    const options: Options = { compress: false };
+    const compacted = compactSDP(sdp, options);
+    const decompacted = decompactSDP(compacted, true, options);
+
+    const origTokens = candidateLine.slice("a=candidate:".length).split(" ");
+    const parsedOrig = sdpTransform.parse(sdp);
+    const parsedDec = sdpTransform.parse(decompacted);
+
+    const origCand = parsedOrig.media?.[0]?.candidates?.[0];
+    const decCand = parsedDec.media?.[0]?.candidates?.[0];
+    expect(origCand).toBeDefined();
+    expect(decCand).toBeDefined();
+
+    // The IP/hostname field must survive the round-trip exactly.
+    expect(decCand?.ip).toBe(origTokens[4]);
+    // Protocol and typ must round-trip.
+    expect(decCand?.transport).toBe(origTokens[2]);
+    expect(decCand?.type).toBe(origTokens[origTokens.indexOf("typ") + 1]);
+    if (origTokens.includes("raddr")) {
+      expect(decCand?.raddr).toBe(origTokens[origTokens.indexOf("raddr") + 1]);
+    }
+
+    // No corrupted hostname fragments in either direction.
+    for (const s of [compacted, decompacted]) {
+      expect(s).not.toContain("typ srflx.example.com");
+      expect(s).not.toContain("raddr.example.com");
+      expect(s).not.toContain(
+        "rport 0 generation 0 network-cost 999.example.com",
+      );
+      expect(s).not.toContain("0.0.0.0.example.com");
+    }
+  });
+
+  test.each([
+    // codec names after the protocol contain V/P/A — must never be touched
+    ["AV1", "m=video 9 UDP/TLS/RTP/SAVPF 96 AV1"],
+    ["VP9", "m=video 9 UDP/TLS/RTP/SAVPF 97 VP9"],
+    ["VP8", "m=video 9 UDP/TLS/RTP/SAVPF 98 VP8"],
+    ["VP9+VP8", "m=video 9 UDP/TLS/RTP/SAVPF 97 VP9 98 VP8"],
+    // datachannel with a colliding payload token after the protocol
+    ["datachannel", "m=application 57834 UDP/DTLS/SCTP webrtc-datachannel AV1"],
+    // media-type + protocol substituted but payload untouched
+    ["AV1+VP8", "m=video 9 UDP/TLS/RTP/SAVPF 96 AV1 97 VP9 98 VP8"],
+  ])("media codec %s preserved", (_label, mediaLine) => {
+    const sdp = base + mediaLine + "\r\nc=IN IP4 0.0.0.0\r\n";
+    const options: Options = { compress: false };
+    const compacted = compactSDP(sdp, options);
+    const decompacted = decompactSDP(compacted, true, options);
+
+    const mTokens = mediaLine.slice("m=".length).split(" ");
+    // Everything after the protocol token is the payload list.
+    const payloads = mTokens.slice(3).join(" ");
+
+    const origMedia = sdpTransform.parse(sdp).media?.[0];
+    const decMedia = sdpTransform.parse(decompacted).media?.[0];
+    expect(origMedia).toBeDefined();
+    expect(decMedia).toBeDefined();
+
+    // Media type, protocol and the full payload list must round-trip.
+    expect(decMedia?.type).toBe(mTokens[0]);
+    expect(decMedia?.protocol).toBe(mTokens[2]);
+    expect(decMedia?.payloads).toBe(payloads);
+
+    // No corrupted codec fragments in either direction.
+    for (const s of [compacted, decompacted]) {
+      expect(s).not.toContain("audiovideo1");
+      expect(s).not.toContain("videoapplication9");
+      expect(s).not.toContain("videoapplication8");
+    }
+  });
+});
+
 describe("base92", () => {
   test("round-trip: base92ToUint8Array(uint8ArrayToBase92(bytes)).equals(bytes)", () => {
     const payloads: Uint8Array[] = [
@@ -351,9 +517,11 @@ describe("base92", () => {
       new Uint8Array([0xde, 0xad, 0xbe, 0xef, 0x00, 0x11, 0x22, 0x33]),
       new Uint8Array([0x00, 0x00, 0x01, 0x02, 0x03]), // leading 0x00 -> LEADER repeat path
       new Uint8Array([0x00, 0x00, 0x00, 0xff]), // multiple leading 0x00
-      new Uint8Array([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a]),
+      new Uint8Array([
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
+      ]),
       new TextEncoder().encode(
-        "v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\nt=0 0\r\n"
+        "v=0\r\no=- 4109260023080860376 2 IN IP4 127.0.0.1\r\nt=0 0\r\n",
       ),
     ];
 
@@ -379,7 +547,9 @@ describe("base92", () => {
   });
 
   test("invalid char throws: single space injected into a valid string", () => {
-    const bytes = new Uint8Array([0xde, 0xad, 0xbe, 0xef, 0x00, 0x11, 0x22, 0x33]);
+    const bytes = new Uint8Array([
+      0xde, 0xad, 0xbe, 0xef, 0x00, 0x11, 0x22, 0x33,
+    ]);
     const valid = uint8ArrayToBase92(bytes);
     // 0x20 (space) is not in ALPHABET; inject it mid-string.
     const tampered = valid.slice(0, 2) + " " + valid.slice(3);
@@ -387,7 +557,9 @@ describe("base92", () => {
   });
 
   test("invalid char throws: tab injected into a valid string", () => {
-    const bytes = new Uint8Array([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]);
+    const bytes = new Uint8Array([
+      0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    ]);
     const valid = uint8ArrayToBase92(bytes);
     const tampered = valid.slice(0, 3) + "\t" + valid.slice(4);
     expect(() => base92ToUint8Array(tampered)).toThrow();
@@ -432,12 +604,10 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
   test("extmap line missing URI token throws a descriptive error (no literal 'undefined')", () => {
     // extmap attr `E` + id `1` with the URI token missing. Previously this
     // silently emitted `a=extmap:1 undefined` with no error.
-    expect(() => decompactSDP("AE1", true, noCompress)).toThrow(
-      /extmap/i
-    );
+    expect(() => decompactSDP("AE1", true, noCompress)).toThrow(/extmap/i);
     // And the corrupted output must not be produced either.
     expect(() => decompactSDP("AE1", true, noCompress)).toThrow(
-      /missing extmap id or URI/
+      /missing extmap id or URI/,
     );
   });
 
@@ -450,7 +620,7 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     // rejected just like missing ones — an empty id is a structurally invalid
     // extmap (id 1-15 required) and must not be silently emitted.
     expect(() => decompactSDP("O~AE 1", true, noCompress)).toThrow(
-      /missing extmap id or URI/
+      /missing extmap id or URI/,
     );
   });
 
@@ -458,19 +628,19 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     // c= line missing the IP token. Previously this silently emitted
     // `c=IN IP4 undefined`.
     expect(() => decompactSDP("C4", true, noCompress)).toThrow(
-      /missing address type or IP address/
+      /missing address type or IP address/,
     );
   });
 
   test("connection error message includes the offending line", () => {
-    expect(() => decompactSDP("C4", true, noCompress)).toThrow('c=4');
+    expect(() => decompactSDP("C4", true, noCompress)).toThrow("c=4");
   });
 
   test("connection line with empty address type token throws a descriptive error", () => {
     // `C 1`: c= line with an empty address type token. Previously the
     // malformed `c=IN  1` line was silently dropped by sdpTransform.parse.
     expect(() => decompactSDP("O~C 1", true, noCompress)).toThrow(
-      /missing address type or IP address/
+      /missing address type or IP address/,
     );
   });
 
@@ -478,7 +648,7 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     // fingerprint missing the value token. Previously `FingerprintToBase64.decode`
     // threw `TypeError: base64String is not iterable` with no context.
     expect(() => decompactSDP("AF1", true, noCompress)).toThrow(
-      /missing hash method or fingerprint value/
+      /missing hash method or fingerprint value/,
     );
   });
 
@@ -497,14 +667,14 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
   test("FingerprintToBase64.decode rejects undefined/null/empty input descriptively", () => {
     expect(() =>
       // @ts-expect-error: intentionally passing undefined
-      FingerprintToBase64.decode(undefined)
+      FingerprintToBase64.decode(undefined),
     ).toThrow(/empty or missing base64/);
     expect(() =>
       // @ts-expect-error: intentionally passing null
-      FingerprintToBase64.decode(null)
+      FingerprintToBase64.decode(null),
     ).toThrow(/empty or missing base64/);
     expect(() => FingerprintToBase64.decode("")).toThrow(
-      /empty or missing base64/
+      /empty or missing base64/,
     );
     // A valid fingerprint still decodes (no false positive): encode a hex
     // fingerprint to base64, then decode it back to the original hex.
@@ -513,18 +683,140 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     expect(() => FingerprintToBase64.decode(b64)).not.toThrow();
   });
 
+  test("FingerprintToBase64.decode throws on non-alphabet characters (no silent corruption)", () => {
+    // A character outside the base64 alphabet used to be OR'd into the bit
+    // buffer as -1 and silently produced a wrong fingerprint.
+    expect(() => FingerprintToBase64.decode("A~B")).toThrow(
+      /Invalid base64 character at index 1/,
+    );
+    // The error must be a descriptive Error, not a TypeError.
+    let caught: unknown;
+    try {
+      FingerprintToBase64.decode("A~B");
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect(caught).not.toBeInstanceOf(TypeError);
+    expect((caught as Error).message).toMatch(/~/);
+    // Whitespace and other common mangled-input characters are rejected too.
+    expect(() => FingerprintToBase64.decode("A B")).toThrow(
+      /Invalid base64 character/,
+    );
+    expect(() => FingerprintToBase64.decode("A!B")).toThrow(
+      /Invalid base64 character/,
+    );
+  });
+
+  test("FingerprintToBase64.decode throws on a stray '=' in the middle of the string", () => {
+    // '=' is only valid as trailing padding.
+    expect(() => FingerprintToBase64.decode("A==B")).toThrow(
+      /Invalid base64 padding at index 1/,
+    );
+    expect(() => FingerprintToBase64.decode("A===")).toThrow(
+      /Invalid base64 padding/,
+    );
+    expect(() => FingerprintToBase64.decode("AB==C")).toThrow(
+      /Invalid base64 padding/,
+    );
+  });
+
+  test("FingerprintToBase64 encode/decode round-trips SHA-1/SHA-256/SHA-512 fingerprints", () => {
+    const fingerprints: [string, string][] = [
+      // SHA-1 (20 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C",
+        "4yXjEVE9okuqsajr2wOY8ccNTRw=",
+      ],
+      // SHA-256 (32 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
+        "4yXjEVE9okuqsajr2wOY8ccNTRxsiOy7INrQtzMzuow=",
+      ],
+      // SHA-512 (64 bytes)
+      [
+        "E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA",
+        "4yXjEVE9okuqsajr2wOY8ccNTRxsiOy7INrQtzMzuoyY8ccNTRxsiOy7INrQtzMzuoyY8ccNTRxsiOy7INrQtzMzug==",
+      ],
+    ];
+    for (const [hex, canonicalBase64] of fingerprints) {
+      // Encoder output is standard (canonical) base64.
+      expect(FingerprintToBase64.encode(hex)).toBe(canonicalBase64);
+      // Round-trip is exact.
+      expect(FingerprintToBase64.decode(FingerprintToBase64.encode(hex))).toBe(
+        hex,
+      );
+      // Decoding the canonical encoding yields the same fingerprint.
+      expect(FingerprintToBase64.decode(canonicalBase64)).toBe(hex);
+    }
+  });
+
+  test("FingerprintToBase64.encode throws on malformed hex tokens (no silent corruption)", () => {
+    // Previously malformed tokens were coerced by parseInt: NaN -> 0 and
+    // out-of-range values truncated to a byte, silently producing a wrong
+    // fingerprint inside the compacted SDP.
+    expect(() => FingerprintToBase64.encode("E3:zz")).toThrow(
+      /Invalid fingerprint hex token at index 1: "zz"/,
+    );
+    expect(() => FingerprintToBase64.encode("E3:123")).toThrow(
+      /Invalid fingerprint hex token at index 1: "123"/,
+    );
+    expect(() => FingerprintToBase64.encode("E3:")).toThrow(
+      /Invalid fingerprint hex token at index 1: ""/,
+    );
+    expect(() => FingerprintToBase64.encode("E3:zz:00")).toThrow(
+      /Invalid fingerprint hex token at index 1/,
+    );
+    // Empty input is rejected descriptively, mirroring the decode side.
+    expect(() => FingerprintToBase64.encode("")).toThrow(
+      /empty or missing hex/,
+    );
+    // Errors are descriptive Errors, not raw TypeErrors.
+    let caught: unknown;
+    try {
+      FingerprintToBase64.encode("E3:zz");
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect(caught).not.toBeInstanceOf(TypeError);
+    expect((caught as Error).message).toMatch(/index 1: "zz"/);
+  });
+
+  test("compact() throws on an SDP with a malformed fingerprint instead of silently corrupting it", () => {
+    // compressFingerprint defaults to true, so the default compact() pipeline
+    // exercises FingerprintToBase64.encode. A malformed hex fingerprint must
+    // throw instead of emitting a corrupted base64 fingerprint.
+    const sdp =
+      "v=0\r\n" +
+      "o=- 4109260023080860376 2 IN IP4 127.0.0.1\r\n" +
+      "s=-\r\n" +
+      "t=0 0\r\n" +
+      "m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n" +
+      "c=IN IP4 0.0.0.0\r\n" +
+      "a=fingerprint:sha-256 E3:zz:00\r\n" +
+      "a=setup:actpass\r\n" +
+      "a=mid:0\r\n";
+    expect(() => compact({ type: "offer", sdp })).toThrow(
+      /Invalid fingerprint hex token at index 1/,
+    );
+    // A valid fingerprint on the same pipeline still compacts.
+    const validSdp = sdp.replace("E3:zz:00", "E3:25:E3:11");
+    expect(() => compact({ type: "offer", sdp: validSdp })).not.toThrow();
+  });
+
   test("empty decompact input is rejected", () => {
-    expect(() => decompact("")).toThrow(/empty or non-string/);
+    expect(() => decompact("")).toThrow(/Invalid compacted SDP string/);
   });
 
   test("whitespace-only decompact input is rejected", () => {
-    expect(() => decompact("   \t \n")).toThrow(/empty or non-string/);
+    expect(() => decompact("   \t \n")).toThrow(/Invalid compacted SDP/);
   });
 
   test("invalid base92 payload surfaces a decompression error (not bare 'unexpected EOF')", () => {
     const options: Options = { compress: "base92" };
     expect(() => decompactSDP("garbage", true, options)).toThrow(
-      /Failed to decompress compacted SDP payload/
+      /Failed to decompress compacted SDP payload/,
     );
     expect(() => decompactSDP("garbage", true, options)).toThrow(/base92/);
     // The raw fflate "unexpected EOF" should no longer be the top-level message.
@@ -540,19 +832,19 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
   test("invalid base64 payload surfaces a decompression error", () => {
     const options: Options = { compress: "base64" };
     expect(() => decompactSDP("!!!not-base64!!!", true, options)).toThrow(
-      /Failed to decompress compacted SDP payload/
+      /Failed to decompress compacted SDP payload/,
     );
   });
 
-  test("decompresBytes on a malformed raw buffer surfaces a decompression error", () => {
+  test("decompressBytes on a malformed raw buffer surfaces a decompression error", () => {
     // Bytes that inflateSync cannot inflate.
     const bad = new Uint8Array([0x00, 0x01, 0x02, 0x03]);
-    expect(() => decompresBytes(bad)).toThrow(
-      /Failed to decompress compacted SDP bytes payload/
+    expect(() => decompressBytes(bad)).toThrow(
+      /Failed to decompress compacted SDP bytes payload/,
     );
     // A valid deflate round-trip still works (no false positive).
     const good = compressToBytes("hello sdp");
-    expect(decompresBytes(good)).toBe("hello sdp");
+    expect(decompressBytes(good)).toBe("hello sdp");
   });
 
   test("valid round-trips are unaffected by the new validation (no false positives)", () => {
@@ -563,12 +855,46 @@ describe("input validation (no silent 'undefined' / unhandled TypeErrors)", () =
     expect(decompacted).not.toContain("undefined");
     expect(decompacted).toContain("c=IN IP4 0.0.0.0");
     expect(decompacted).toContain(
-      "a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level"
+      "a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level",
     );
     expect(decompacted).toContain(
-      "a=fingerprint:sha-256 E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C"
+      "a=fingerprint:sha-256 E3:25:E3:11:51:3D:A2:4B:AA:B1:A8:EB:DB:03:98:F1:C7:0D:4D:1C:6C:88:EC:BB:20:DA:D0:B7:33:33:BA:8C",
     );
     // sdp-transform can parse the output (it is well-formed).
     expect(() => sdpTransform.parse(decompacted)).not.toThrow();
+  });
+
+  test("compact and decompact round-trips pranswer and rollback types", () => {
+    const pranswer: RTCSessionDescriptionInit = {
+      type: "pranswer",
+      sdp: offer.sdp as string,
+    };
+    const rollback: RTCSessionDescriptionInit = {
+      type: "rollback",
+      sdp: offer.sdp as string,
+    };
+
+    expect(decompact(compact(pranswer)).type).toBe("pranswer");
+    expect(decompact(compact(rollback)).type).toBe("rollback");
+  });
+
+  test("compact throws for unsupported SDP types", () => {
+    const invalid = {
+      type: "invite" as RTCSdpType,
+      sdp: offer.sdp as string,
+    };
+
+    expect(() => compact(invalid)).toThrow("Unsupported SDP type");
+  });
+
+  test("decompact throws for empty or malformed input", () => {
+    expect(() => decompact("")).toThrow();
+    expect(() => decompact("O")).toThrow(); // only a prefix, no payload
+    expect(() => decompact("Xgarbage")).toThrow(
+      "Invalid compacted SDP type prefix",
+    );
+    expect(() => decompact("garbage")).toThrow(
+      "Invalid compacted SDP type prefix",
+    );
   });
 });

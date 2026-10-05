@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:aafb316a4b622da230244705e2d2e261cf65fa2ee6d49355bc8f81e8f4effa90",
+  "claims": [
+    {
+      "id": "claim_d50fc54c225c4eb1b72446198aeea849",
+      "statement": "compactSDPStr splits the SDP on CRLF, trims each line, and for each line performs exactly one of: drop it, rewrite it, run a dictionary substitution (for m=/candidate/fingerprint/c=/extmap/rtcp-fb), or keep it verbatim; surviving lines are joined with the '~' separator.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L95-L275",
+          "version": "repo-lines-v1:sha256:a6bcf97c705f3d03b0561ed80f7f9ddd94f1e4abf4fac0ba585f41c2b103add9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlNTc0MTUwODVmNmEyOWJjNzliNTMzZTdjZjA1YjkyZjU4MWJkZTg5NjUyMDNlMmNlYThhZDE3MDEzOWM4NWI3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI4NmQzNDQ2ZWE1ZDkwZGNiMjljNmE0MDJjM2NiZGQ5NGI2MjY3YjE5MzNjZTg4YWE5OGIyNDExMmM5NzE0MDFhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiOTgwOGQ3NjUyYTNlNDY2YzNmODJmYWM1NmRjNmViMDViOTdlOTA2YzU3ZjA5MDM3NjhkNTdmY2FiOTA3MzhhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_05fc2dba30b84da1aca7a547c8100c1f",
+      "statement": "Decompact restores the fixed session-scoped lines (v=, s=, t=, a=extmap-allow-mixed, a=msid-semantic:) by pushing them before the per-line loop and re-derives a=group:BUNDLE by unshifting it to the front after the loop; a defined option means the field was dropped (compact) / restored (decompact) while an undefined option means the SDP's own value is preserved.",
+      "evidence": [
+        {
+          "resource": "repo://src/decompact.ts#L138-L156",
+          "version": "repo-lines-v1:sha256:faef63028062e466bd4dc5f6f3e4191efc800186b2cdd59f71610f0471407063:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNDc1MDdhY2RhOTc0Yjg2ZDA4ZmY3ODVhODZhZTA0NTdhMjVlNDUxM2Q4MzIwNGY2NTFjMzVmZTc5ODk1YTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIzMzI5YTY5MTNjODA2MGM0ZWRjNDdjMzAwYmJlMmQzMDliYTk0NWM1ZGY1NGU3YjI1ZjUwMTFmMDc2Nzg0MDYifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L327-L331",
+          "version": "repo-lines-v1:sha256:e51e85e17ae830068f89df251705a61cb986c70172d7a50a645d9c3fb3810e83:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODY0ODhkZTFmOTcwMmY2Y2M2MDhmMGJlMTI5ZTMwYjNiYjAwYmYwMWEzM2ViYjFiYWQ4Yzc4ZTE2ZWQxYjJlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODAyZDcwNTE5MmFiZmU1YzA2Mzk3ZGZiM2VlMzI3YzdkMTc1YmU3NjkxZDdkOGY2MTcyMTYyY2RkYzg2NzM1YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTUxNDljMmQxMzQ4ZWI3OTU1NjJhNmY0MDIxNjAwMjk1MDFhYzcyZjdjMTM5NWIxZjAxNGQ3MzUwZjEwZmE2NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2c6243cba88c408fb8e15747c798be92",
+      "statement": "The offer/answer asymmetry: compact drops a=setup:, a=mid:, and a=group:BUNDLE; decompact reconstructs a=setup:actpass for offer and a=setup:active for answer, reassigns sequential a=mid: values, and rebuilds the a=group:BUNDLE line from the count of media lines.",
+      "evidence": [
+        {
+          "resource": "repo://src/decompact.ts#L214-L237",
+          "version": "repo-lines-v1:sha256:bd79a532d95cc5a4c4cd82ce2f7654d2df52c11dd8d617ee4f457f7468b03e57:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5ZDU3MDdkM2IxZmM4OGJiNzVhMjg2YmU2ZjY5NDliYWZmZDFlMDEwMDFjOWUxZDZkZDVhYWM2NzcxNDk5ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNDFkNzNjNDUyMmJlYTM5ZmY4MTVlMjRiY2YxMzExODUzMWQ2NzFlYjNjZjUzMTIxODg1ZTExYTFjNDcyNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjMDM0NTU4MjllN2I1ZWM1OGYwOGI5Mzg5NTgwYjc1YTUxZjRiMGFiNTQ3NGZmODAyYTY0YmU1OTg0NmIxZTQifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L327-L331",
+          "version": "repo-lines-v1:sha256:e51e85e17ae830068f89df251705a61cb986c70172d7a50a645d9c3fb3810e83:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODY0ODhkZTFmOTcwMmY2Y2M2MDhmMGJlMTI5ZTMwYjNiYjAwYmYwMWEzM2ViYjFiYWQ4Yzc4ZTE2ZWQxYjJlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODAyZDcwNTE5MmFiZmU1YzA2Mzk3ZGZiM2VlMzI3YzdkMTc1YmU3NjkxZDdkOGY2MTcyMTYyY2RkYzg2NzM1YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTUxNDljMmQxMzQ4ZWI3OTU1NjJhNmY0MDIxNjAwMjk1MDFhYzcyZjdjMTM5NWIxZjAxNGQ3MzUwZjEwZmE2NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e5d385412bfd4d5aadb06535b6f1e090",
+      "statement": "The field-name substitution pass (when replaceFieldNames is set) maps the two-character field prefixes (v= o= s= c= a= m= t=) to single characters (V O S C A M T) via FieldReplaceMap and maps a= attribute names to single letters via AttributeReplaceMap (e.g. rtcp:->R, ice-ufrag:->U, fingerprint:->F, extmap:->E, rtcp-fb:->B, fmtp:->Z); decompact reverses both maps.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L251-L272",
+          "version": "repo-lines-v1:sha256:ebd76171811c67a692b8e108136e055c10b29e21d8e2c2c21452371e5a79999c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlM2E3ZjczYmY5ZDVkNmEwY2QwMWQwMDFkZGMzMWIzNDNjOTNkZDRlNDVlZWZjMjQ1MGMyNWY3YjdmYTQwMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0MmRjODY1ZDZjNWNhZGY1ZDg4NTQyYTIyYjhmMzJhYjBhZTM0M2VhZjYzZGJjMjUwMzBkZmFhN2I1MDliMzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkZjNkMDEzMTY4N2NlZTJlYzk1NTkxYThjM2UwOWNmZjQwZDI4OWNkMGQwYTBmN2I2OGVlMTM3YWUwMDAyNzMifQ"
+        },
+        {
+          "resource": "repo://src/dict.ts#L17-L47",
+          "version": "repo-lines-v1:sha256:b9747ccb21fa083a8b3f18c328c819f46ced6f155d9bedaaf858b898a45b6223:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5MWY0ZmQ0NjZhMTk1ZDI1MjRhZmJkOTFiNzNhNWQ5MDE0MDU2MzFiMWYyNmQ5ZTRkNmU0ZmIwZWIyMGE4N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0YzEyY2I3ZTU0NzA5MzIzNjFkOWYzYzJlMTMwNGVkY2M3M2Q1MDBiOGE3ZDU5Nzg5ZDcyYzBiNjFjYzE0OGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3Nzg4NDQ3ODgxODAyYWM3ZmMzMWQxYWE2NGQ0YzM1YWM0MGY4NmQ4MTM2OTZkYzE5M2MwZWM2ZDA5ZjBhZWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzYmExMDBiMjZmYzU3MmFmOWM1ZTgxYTU2ZTM0MWM4YmMyZmFjYzg4NTYxMDY5ZjI2YzM4ZDBkZmQxMjA2ZjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_555bbb2159184889bdd7f18f21bee0e1",
+      "statement": "decompactSDPStr ends by normalizing the rebuilt SDP through sdpTransform.parse and sdpTransform.write so output is canonically re-serialized regardless of re-insertion order; it also throws descriptive errors on malformed compacted a=fingerprint:, c=, and a=extmap: lines rather than emitting a broken SDP.",
+      "evidence": [
+        {
+          "resource": "repo://src/decompact.ts#L259-L315",
+          "version": "repo-lines-v1:sha256:5f32caef1a53baf1980983067405c9e10a3fc93d63e73135dba9a4e212f0c889:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczZDY3Mjk2ZTU5ZmUwYTExYWMyOTE4MTk5MmNjZTY1MDI4ODRlMjhkMTAxZTEwYjFmOTdkNTI3MWE5YmFjN2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3OTJmODQ3YmIyMWNiMjkyZGQwOWY3ZmE2ZTdjYWM0YThjMTRkOTdkMzg5NjMzYjNkMTUyMGVhMTRiNWIxZGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxOGM4OTk0NDRkOWRhNjVhMDA2NzFiODAzOTE5NDZlYjI5MmFiYTRjYzhiZWEwZjFhODY0M2Q1MjRiZmRlNDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmNDQ0OWRlNTExYTdmMWE3M2Q1Y2VjY2U4ZWQ4YTYyYzM4MTE3ODVmNWQxNjVlYjI1N2I1OGVlM2Y2OTc1ZjYifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L333-L338",
+          "version": "repo-lines-v1:sha256:372735812de49458ba48ed4d489b622fcd834cc5ac4137586fa69cec6334cd89:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2FkNDI5ZWIwOWJkYWY2NmI4NzJhOTdjMWEyNjNkYjQwMGMxMzA2ODQ3ZjYyZWI5YjQwZDFmNjU0ZmRhMTU1ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTk4MGVmM2ZlYjU0NGFlYTk5ZTE5NDQwMzI5MDVmNGYyMmNhZGRkNWU0NTcyYmM2NGZlMTUxZDkzNmFjMTI1YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWRiM2U3Y2QwYzNhNjIzMDQ3NjY4MTYxZDEwNGU5OWQ4NjIwOWNhM2U3NzU0YTI1YjExOWE0OTA3ODc4MDQyNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_021532f82bbf4d28a1649cf5c6d9fa43",
+      "statement": "The c= media-connection line is compressed by mapping the address type (IP4->4, IP6->6) and 0.0.0.0->0 and discarding the network-type token; decompact re-assumes the network type as IN, emitting c=IN <addressType> <ip>.",
+      "evidence": [
+        {
+          "resource": "repo://src/compact.ts#L213-L224",
+          "version": "repo-lines-v1:sha256:6fff63b30d9bbfd7cd66242c1660a3104efa940f6fb3683191007b1c45feaf82:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwZDYwM2ZlMzdmMTU1ZjA2YzNmMmYwMjRjOTUxMzBlYjFkYjBjMWUzMDY5NTEwZTQ3OTMxNDZlMzgwNjc5YzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNDFkNzNjNDUyMmJlYTM5ZmY4MTVlMjRiY2YxMzExODUzMWQ2NzFlYjNjZjUzMTIxODg1ZTExYTFjNDcyNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1MjQ5ZmQ5MDQ0M2U4YWY3MDViYWFkYzEyNWY3MGU3NWI1NTEwNjA0Mjk1NmUwNDE2MjRmNzA0ZWQ2NzAzOGQifQ"
+        },
+        {
+          "resource": "repo://src/decompact.ts#L271-L292",
+          "version": "repo-lines-v1:sha256:00f1435b2fce8513a254d7aa3c6f8b1aaad59c6d5a799afcac192bf02a0aee0b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwZDYwM2ZlMzdmMTU1ZjA2YzNmMmYwMjRjOTUxMzBlYjFkYjBjMWUzMDY5NTEwZTQ3OTMxNDZlMzgwNjc5YzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNDFkNzNjNDUyMmJlYTM5ZmY4MTVlMjRiY2YxMzExODUzMWQ2NzFlYjNjZjUzMTIxODg1ZTExYTFjNDcyNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5MTcyN2ZhZWNiNTJmZjFkMDlhZDAzNDZkMjM4ZWE3YjJiZTE5NWViNDZhNTg4OWM5OTcyYWNkMTQ4MGM3NzkifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-01T21:00:49.610Z"
+  }
+}

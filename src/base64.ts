@@ -59,7 +59,24 @@ export class FingerprintToBase64 {
   private static readonly BITS_PER_BASE64_CHAR = 6;
 
   static encode(hexString: string): string {
+    if (hexString === undefined || hexString === null || hexString === "") {
+      throw new Error(
+        "Fingerprint base64 encode failed: empty or missing hex string",
+      );
+    }
     const hexArray = hexString.split(":");
+    for (let i = 0; i < hexArray.length; i++) {
+      const token = hexArray[i];
+      // Each token must be one hex byte (1-2 hex digits). Without this
+      // check, malformed tokens are coerced by parseInt (NaN -> 0,
+      // out-of-range values truncated to a byte) and silently produce a
+      // corrupted fingerprint.
+      if (!/^[0-9A-Fa-f]{1,2}$/.test(token)) {
+        throw new Error(
+          `Invalid fingerprint hex token at index ${i}: "${token}"`,
+        );
+      }
+    }
     const byteArray = new Uint8Array(hexArray.map((hex) => parseInt(hex, 16)));
 
     let bitBuffer = 0;
@@ -99,19 +116,37 @@ export class FingerprintToBase64 {
       base64String === ""
     ) {
       throw new Error(
-        "Fingerprint base64 decode failed: empty or missing base64 string"
+        "Fingerprint base64 decode failed: empty or missing base64 string",
       );
     }
     let bitBuffer = 0;
     let bitCount = 0;
     let hexString = "";
 
-    for (const char of base64String) {
+    for (let i = 0; i < base64String.length; i++) {
+      const char = base64String[i];
+
       if (char === "=") {
+        // Padding is only valid as the final one or two characters; a '='
+        // in the middle, or a third '=' (three padding characters), is
+        // malformed input.
+        const rest = base64String.slice(i + 1);
+        if (rest.length > 1 || (rest.length === 1 && rest !== "=")) {
+          throw new Error(
+            `Invalid base64 padding at index ${i}: "${base64String}"`,
+          );
+        }
         break;
       }
 
       const index = this.CHARSET.indexOf(char);
+      if (index === -1) {
+        // A character outside the base64 alphabet would otherwise be OR'd
+        // into the bit buffer as -1 and silently produce a corrupted
+        // fingerprint, so reject it explicitly.
+        throw new Error(`Invalid base64 character at index ${i}: "${char}"`);
+      }
+
       bitBuffer = (bitBuffer << this.BITS_PER_BASE64_CHAR) | index;
       bitCount += this.BITS_PER_BASE64_CHAR;
 

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:5b026550aef10eb444f8e06ed63619ab7db265357eb90953b0c452844bffd1ee",
+  "claims": [
+    {
+      "id": "claim_3e0eebc2b48b47eeb6a980101a634e81",
+      "statement": "src/dict.ts owns the token-dictionary substitution layer; every *Reverse map is derived from its encode map via the reverseMap helper (swapping keys and values), so encode and decode tables are always exact inverses and cannot drift apart.",
+      "evidence": [
+        {
+          "resource": "repo://src/dict.ts#L16-L47",
+          "version": "repo-lines-v1:sha256:5a0c533d8dc62860d045b765162ed6611dca1056ca5bd0d1c52b038a956bbfa1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyMDIyNmI5NWM0NzM4MzM2ZWViMDhiOGQzNDMxYTM5OGVhNGM5YWI3NGNmNjFkMzg4Zjk1ZTA3NzAyZjVmYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0YzEyY2I3ZTU0NzA5MzIzNjFkOWYzYzJlMTMwNGVkY2M3M2Q1MDBiOGE3ZDU5Nzg5ZDcyYzBiNjFjYzE0OGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiY2ZmNDE0YjJjZTdhZTBmODVhZjQ3NzYzNjhhZTdkZDRjYzk3ZTJhMDZmNjM0YjU2ZDJlZjYzZmZjMzliYzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzYmExMDBiMjZmYzU3MmFmOWM1ZTgxYTU2ZTM0MWM4YmMyZmFjYzg4NTYxMDY5ZjI2YzM4ZDBkZmQxMjA2ZjEifQ"
+        },
+        {
+          "resource": "repo://src/dict.ts#L2-L14",
+          "version": "repo-lines-v1:sha256:27bc7a3847146f916b8337b4996988ad128fa365b5cf63c8c842af152824fdbd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMjk1ZWViNmU0ZDE3Mzg3ZjgyODQ3OTI1NDZkMmZhMmZhZmFlYjM4ZjA3OWU5OGM5ZjRlYmRjNjI2NWM5MWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoxLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0MTE5MWUxOGM3ZmY5MWVjMTFkNWFiYjE5NWU4NjhkY2YwZjY1ZjlkMmUyMzA4ZjU2NWZlNGQyMTY1Yjc5M2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExNjZlZWRjZDAxZTUxMzE2ZjQ2NzMzOGIxOTI1NmMzODQyOWQxOTlmZTNlNWZjMzRiZWMwZjYxMDM4YjE1YjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a38dbdae55e8437e9a2b4fae8a472ad2",
+      "statement": "FieldReplaceMap shrinks two-character field prefixes to one character (v= to V, o= to O, s= to S, c= to C, a= to A, m= to M, t= to T) and AttributeReplaceMap shrinks a= attribute names to one letter (rtcp to R, ice-ufrag to U, ice-pwd to P, ice-options to O, fingerprint to F, candidate to C, sctp-port to S, max-message-size to M, extmap to E, rtpmap to T, rtcp-fb to B, fmtp to Z); these are exact-key lookups consulted by the replaceFieldNames pass.",
+      "evidence": [
+        {
+          "resource": "repo://src/dict.ts#L17-L25",
+          "version": "repo-lines-v1:sha256:67c84988f0ef7c8f9026011a633131d7c402eeb4b697df1fd4f24f09fb76c559:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjkxZjRmZDQ2NmExOTVkMjUyNGFmYmQ5MWI3M2E1ZDkwMTQwNTYzMWIxZjI2ZDllNGQ2ZTRmYjBlYjIwYTg3YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzc3ODg0NDc4ODE4MDJhYzdmYzMxZDFhYTY0ZDRjMzVhYzQwZjg2ZDgxMzY5NmRjMTkzYzBlYzZkMDlmMGFlYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTBhOTdhZGU3OTA0YzlmMGQ4YjgxMGI1M2E1NzAyODBjYWZjNjZiZmU0NTQ5NDY2ZDUyZjEwMzU1OTJjMmYzNSJ9"
+        },
+        {
+          "resource": "repo://src/dict.ts#L30-L47",
+          "version": "repo-lines-v1:sha256:b716a46f159de4478092e033c4f52282d87289c89afa96559ce043e4e23e9f06:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwZGY2NGI5NzU4ZmFkZmU0OGQxZWViZDJhZjQ3MjJjOWM0ZTZkMTJhYmU2ZjBkZWVjZGVlMzJhNGNkOTg4NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0YzEyY2I3ZTU0NzA5MzIzNjFkOWYzYzJlMTMwNGVkY2M3M2Q1MDBiOGE3ZDU5Nzg5ZDcyYzBiNjFjYzE0OGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1MGViMzhmYTA2OGJmYzQ1MWJhNWMyNjhhNWI0MjM3MTdkNmVlZmQ2YTk4OWU0YmJlYWI2ZDkxYmZhZTU5MmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzYmExMDBiMjZmYzU3MmFmOWM1ZTgxYTU2ZTM0MWM4YmMyZmFjYzg4NTYxMDY5ZjI2YzM4ZDBkZmQxMjA2ZjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_af1ccc17253d40338a4981160fb7a042",
+      "statement": "mediaEncode/mediaDecode substitute only the media-type token (index 0) and protocol token (index 2) of the m= line (audio to A, video to V, application to P, UDP/TLS/RTP/SAVPF to T, UDP/DTLS/SCTP to U); everything after the protocol (payload types/formats) is never touched, so codec names and data-channel formats survive intact.",
+      "evidence": [
+        {
+          "resource": "repo://src/dict.ts#L175-L227",
+          "version": "repo-lines-v1:sha256:447c663c8fa62e91073a7cca9d89e5e2cd53a72ee8c34e646a9d3fe645a65e21:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2M2U0MGFhOTJiOTliZWFhNTAxMDA1NTk4NDQ1OTU0NTYxNWUxMjgyNzgyY2NjYmNhMzg0ZmFjYjcxNGY0ZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4ZjAxNDFlMTExOWI5YTgyNTQ1ODY2Yzk0YTE5MGQ3ZjE1NDM3ZTY0MGQ4MTdiYjE1MTkxYjA1MGY1MGYxYjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1YzQzYzllYjU1Y2UwZWI4Yzc5M2YxY2Y5MWQxN2RhNGUzN2FiYzE1N2UyYWU1ZDc3ZDg2NTMyYzhhMjE2MWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_84765531d43746d79edc6372bb790636",
+      "statement": "candidateEncode/candidateDecode substitute only exact tokens at fixed positions of the a=candidate line (protocol udp to U, ip 0.0.0.0 to Z, raddr-0.0.0.0 to A-Z, typ-srflx to S, the full typ-host-generation-0-network-cost-999 sequence to H, the full rport-0-generation-0-network-cost-999 sequence to R); because matching is position- and whole-token-based, the single-character codes never match inside a longer token, so hostnames or attribute values that contain a code letter survive the round-trip untouched.",
+      "evidence": [
+        {
+          "resource": "repo://src/dict.ts#L63-L173",
+          "version": "repo-lines-v1:sha256:2e33b01822a435331d3bc129934d0957889959981485930b338f0b3b66b2ca23:eyJzZWxlY3RlZExpbmVDb3VudCI6MTExLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzNDdiZTBiODlhZDE2MDBlNDhiMDc1YmEzMTY4NzAwMTEyMGZmNmI1ZTYwMGMyZTE3MDZlOTY0YWEzMjcxMWU1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzNTdjM2YzZGEyM2Y3YjNlNTk0ZjcwN2E0NDhhZmVmMmFhMDU4ODEyMTY0MDYwZjZjNGNmMGNjNTE1NDc4Y2I3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjNDIwNzJiMmQ5ZTcwNTg1NDYyMDA4NWE5NzgyMzRiYTA3MmUzMmMzZWVlZWQ5MGE4YTJhZDNkMDYwMzE3NjAyIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_e788f1a46d35479ab460df7727a99eb0",
+      "statement": "HashFuncMap (RFC 8122 section 5) maps fingerprint hash functions to digits (sha-1 to 1, sha-256 to 3, etc); MediaConnectionAddressTypeMap maps IP4 to 4 and IP6 to 6 and MediaConnectionIPMap maps 0.0.0.0 to 0; ExtmapURIMap maps 16 common WebRTC extension URNs to short letters A through P; RtcpFbMap maps common RTCP feedback types (nack pli to P, goog-remb to G, transport-cc to T, ccm fir to C, nack to N).",
+      "evidence": [
+        {
+          "resource": "repo://src/dict.ts#L230-L264",
+          "version": "repo-lines-v1:sha256:1bf3d458c3613551b4e62bb9797919b8a11c843444a609bc09fbf862e38e2fe4:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiZDVjNGEzODE2YjA0NmE0MWZlZGNlNGU3YjA5ZGFjOTdmZGFiZGRkZTk3YjlkMGNlMjM4MmI1OTM1NGE3ZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmNTExYTU1ZTAxZTMzMjAyNjMyZDY3YTdlZmViMmNjMGY4NDkwMTk3MGIxMmUzOGY2YmQ4N2Y4ZjA5NWIxNTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcyMWRlMTFiZDRjYTZjMmQyNWJkZDc3YWI2ZWQ5YmJmOGI1ZjA4NGNmNWQ1ZDVhZGE0MTMwNGRiNmI2ODQ1OTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVjODU3YWEyMDI5Y2IzYTI5ZDE2NWFlOWQxYjBhNDc2NDg5YzVlODY3MmEzN2M0Mzg4MWM4NzJlMjYyZTBiMDUifQ"
+        },
+        {
+          "resource": "repo://src/dict.ts#L267-L288",
+          "version": "repo-lines-v1:sha256:d376f9c7e4290fc9c514b5bbbaa6c963811a5fa8cdb298e2dcd8e21b637449fd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5MzZmMmUwYTlkYzBlZTE2NjZjMDhmZGI4ZjZmYTQxYTQ4YWM5ZjI4MmRmYTljODc5MGJkZDY4NDM0MjUxZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5OTY0MmJjNzY0MTE3YmY4YmY5OTNlMzk2MWM1MTM1NDQ0MGEyZmJiMWJmMjg5YzAzMGExMzUwODA1OTAxYzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmODkxMjhkODMwNDI0NGRjOThhNGQ4N2RlODY0MDNlNWZiZWYxNTUzZjUwN2NiZmI2Zjc3MWQzYjVjZGUwMjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://src/dict.ts#L50-L61",
+          "version": "repo-lines-v1:sha256:824c89d03d6f96d2b3951a52281537475528bd629e2f07e31a6dd03784872e3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5ZDBjZDc1ODFlMmViNzM4NDRkY2I4N2EyNGM0ZDhiOTEwYzMwNTZkZTEzMzU2YTVlOWEwZTM3YjBjZTBiNzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjNDU1YzQyNDNjNjUxYzRmZWFjYzcwMWZiYmQ3NmRhMTExYTFkNzk3NTRhYTFjYzY2OTdmMDZiZTJmMTBkMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjZWM2YmM0NjhmYjIwMmQyYjBhZWQxODFmODBmY2M3ODVmYWJlYzBlNDNlYTIxMDJkYjdkMjI5NDlmNzAyZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVhY2ZkNzEyMTNmMjA0YTc3ZjU2YWIwNjdhZDBmZjU1NmIxM2JkODY4MjYyYjdhOWI0NzJjNGI4ZmUxOWYyZTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_830897a2abb94b16a643ad2d9cc11ded",
+      "statement": "rtcpFbEncode and rtcpFbDecode use makeRegexSubstitution with longestFirst set to true, which sorts map keys by length (longest first) and builds a single regex with alternation; this ordering is required so the multi-word 'nack pli' is matched before the shorter 'nack' would otherwise consume the prefix and leave 'pli' behind.",
+      "evidence": [
+        {
+          "resource": "repo://src/dict.ts#L276-L288",
+          "version": "repo-lines-v1:sha256:0305aedb5fa3f7332252cf96d7880a763255188b1b46f6c2ee2c5ff22d90c59f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5OTY0MmJjNzY0MTE3YmY4YmY5OTNlMzk2MWM1MTM1NDQ0MGEyZmJiMWJmMjg5YzAzMGExMzUwODA1OTAxYzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjYzliZDJiODEyNmFiMmI4MTE0MTZlYTRiZTlkODllYzg5MTRmYzg4NDhiMGQwYTQwNGExOTM1Mjk0MmM0MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://src/dict.ts#L5-L14",
+          "version": "repo-lines-v1:sha256:88edd17b4e678ae814d5da4c7b071a31727679093a70d38eff39a05e980a692e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwYjA5ODExNWQ1NTk1OTRjZWZlOGVjYTgwMDVlYWU0YTVlYTc5MWMyZTVkY2FhNjFiMGVkOGMwYThkZGRjNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ3ZTVhZWEzMWRhOGU3MzFkZDk0YzlhN2YwZjcwNWYwMGE1Y2EyMDM3ZWFjYmVmNDI3NTlkNDM1NzBhMjcwYjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExNjZlZWRjZDAxZTUxMzE2ZjQ2NzMzOGIxOTI1NmMzODQyOWQxOTlmZTNlNWZjMzRiZWMwZjYxMDM4YjE1YjgifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.6.0",
+    "at": "2026-10-01T21:00:49.610Z"
+  }
+}

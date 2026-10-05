@@ -1,7 +1,7 @@
 import { FingerprintToBase64 } from "./base64";
-import { decompresBytes, decompressText } from "./compress";
+import { decompressBytes, decompressText } from "./compress";
 import {
-  AttributeRepalceMapReverse,
+  AttributeReplaceMapReverse,
   FieldReplaceMapReverse,
   HashFuncMapReverse,
   MediaConnectionAddressTypeMapReverse,
@@ -15,26 +15,44 @@ import { Options, mergeOptions } from "./options";
 import * as sdpTransform from "sdp-transform";
 
 /**
+ * Map the single-character prefix at the start of a compacted
+ * `RTCSessionDescriptionInit` string to `RTCSdpType` (reverse of `SDPTypePrefixMap`).
+ */
+const SDPTypePrefixMapReverse: Record<string, RTCSdpType> = {
+  O: "offer",
+  A: "answer",
+  P: "pranswer",
+  R: "rollback",
+};
+
+/**
  * Decompact a compacted `RTCSessionDescriptionInit` string to the `RTCSessionDescriptionInit`
  *
  * @param compacted The compacted `RTCSessionDescriptionInit` string to decompact.
  * @param options The options.
  * @returns The `RTCSessionDescriptionInit`.
+ * @throws Error if `compacted` is empty or does not start with a known type prefix.
  */
 export const decompact = (
   compacted: string,
-  options?: Options
+  options?: Options,
 ): RTCSessionDescriptionInit => {
-  if (typeof compacted !== "string" || compacted.trim().length === 0) {
+  if (typeof compacted !== "string" || compacted.length < 2) {
     throw new Error(
-      "Invalid compacted input: empty or non-string value (expected a compacted SDP string)"
+      `Invalid compacted SDP string: expected a non-empty string starting with a type prefix ("O", "A", "P", or "R")`,
     );
   }
-  const isOffer = compacted[0] === "O";
+  const type: RTCSdpType | undefined = SDPTypePrefixMapReverse[compacted[0]];
+  if (!type) {
+    throw new Error(
+      `Invalid compacted SDP type prefix: ${String(compacted[0])}`,
+    );
+  }
+  const isOffer = type === "offer";
   const sdpMinStr = compacted.slice(1);
 
   return {
-    type: isOffer ? "offer" : "answer",
+    type,
     sdp: decompactSDP(sdpMinStr, isOffer, options),
   };
 };
@@ -49,7 +67,7 @@ export const decompact = (
 export const decompactSDP = (
   compactSDPStr: string,
   isOffer: boolean,
-  newOptions?: Options
+  newOptions?: Options,
 ): string => {
   const options = mergeOptions(newOptions);
 
@@ -70,13 +88,13 @@ export const decompactSDP = (
 export const decompactSDPBytes = (
   compactSDPBytes: Uint8Array,
   isOffer: boolean,
-  newOptions?: Options
+  newOptions?: Options,
 ): string => {
   const options = mergeOptions(newOptions);
 
   let compactSDPStr: string;
   if (options.compress) {
-    compactSDPStr = decompresBytes(compactSDPBytes);
+    compactSDPStr = decompressBytes(compactSDPBytes);
   } else {
     compactSDPStr = new TextDecoder().decode(compactSDPBytes);
   }
@@ -87,7 +105,7 @@ export const decompactSDPBytes = (
 function decompactSDPStr(
   compactSDPStr: string,
   isOffer: boolean,
-  options: Options
+  options: Options,
 ): string {
   let compactSDP = compactSDPStr.split("~");
   let decompactSDP: string[] = [];
@@ -102,17 +120,18 @@ function decompactSDPStr(
       }
 
       // replace attributes
-      // Mirror the compact side: `attr` is the full attribute name with the
-      // colon (e.g. "fingerprint:"), and the compressed payload may carry
-      // either the single-char code ("F") or the full name (when the
-      // matching mediaOptions compression flag was disabled at encode time).
+      // `value` is like "E1 A": the first char is the attribute code when the
+      // attribute was replaced at encode time (the compact side rewrites the
+      // full "extmap:" name to "E", dropping the colon). Attributes whose
+      // mediaOptions compression flag was off at encode time still carry the
+      // full name (e.g. "fingerprint:sha-256 ..."); their leading char ("f")
+      // is never a reverse-map key (keys are single uppercase codes), so they
+      // pass through unchanged and round-trip intact.
       if (field === "a=") {
-        let [attr, ...subValue] = value.split(":");
-        attr = attr + ":";
-
-        if (attr in AttributeRepalceMapReverse) {
-          attr = AttributeRepalceMapReverse[attr];
-          value = attr + subValue.join(":");
+        const attr = value[0];
+        if (attr in AttributeReplaceMapReverse) {
+          const mapped = AttributeReplaceMapReverse[attr];
+          value = mapped + value.slice(1);
         }
       }
 
@@ -146,53 +165,53 @@ function decompactSDPStr(
     if (line.startsWith("o=") && options.origin !== undefined) {
       // `o=<username> <sessID> <sessVersion> <netType> <addrType> <unicastAddress>`
       let origin = line.slice(2).split(" ");
-      let newOrgin: string[] = [];
+      let newOrigin: string[] = [];
 
       // username
       if (options.origin.username !== undefined) {
-        newOrgin.push(options.origin.username);
+        newOrigin.push(options.origin.username);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
       // sessionId
       if (options.origin.sessionId !== undefined) {
-        newOrgin.push(options.origin.sessionId);
+        newOrigin.push(options.origin.sessionId);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
       // sessVersion
       const f = origin.shift();
-      if (f) newOrgin.push(f);
+      if (f) newOrigin.push(f);
 
       // netType
       if (options.origin.netType !== undefined) {
-        newOrgin.push(options.origin.netType);
+        newOrigin.push(options.origin.netType);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
       // addrtype
       if (options.origin.addrtype !== undefined) {
-        newOrgin.push(options.origin.addrtype);
+        newOrigin.push(options.origin.addrtype);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
       // unicastAddress
       if (options.origin.unicastAddress !== undefined) {
-        newOrgin.push(options.origin.unicastAddress);
+        newOrigin.push(options.origin.unicastAddress);
       } else {
         const f = origin.shift();
-        if (f) newOrgin.push(f);
+        if (f) newOrigin.push(f);
       }
 
-      decompactSDP.push(`o=${newOrgin.join(" ")}`);
+      decompactSDP.push(`o=${newOrigin.join(" ")}`);
       return;
     }
 
@@ -242,7 +261,7 @@ function decompactSDPStr(
         fingerprint === ""
       ) {
         throw new Error(
-          `Malformed a=fingerprint line (missing hash method or fingerprint value): "${line}"`
+          `Malformed a=fingerprint line (missing hash method or fingerprint value): "${line}"`,
         );
       }
       if (hashMethod in HashFuncMapReverse) {
@@ -262,7 +281,7 @@ function decompactSDPStr(
         ip === ""
       ) {
         throw new Error(
-          `Malformed c= line (missing address type or IP address): "${line}"`
+          `Malformed c= line (missing address type or IP address): "${line}"`,
         );
       }
       if (addressType in MediaConnectionAddressTypeMapReverse) {
@@ -286,7 +305,7 @@ function decompactSDPStr(
         compressedURI === ""
       ) {
         throw new Error(
-          `Malformed a=extmap line (missing extmap id or URI): "${line}"`
+          `Malformed a=extmap line (missing extmap id or URI): "${line}"`,
         );
       }
       if (compressedURI in ExtmapURIMapReverse) {
@@ -295,7 +314,7 @@ function decompactSDPStr(
       decompactSDP.push(
         `a=extmap:${id} ${compressedURI}${
           attributes.length > 0 ? ` ${attributes.join(" ")}` : ""
-        }`
+        }`,
       );
       return;
     }
@@ -311,7 +330,7 @@ function decompactSDPStr(
 
   if (options.mediaOptions?.removeMediaID) {
     decompactSDP.unshift(
-      `a=group:BUNDLE ${Array.from(Array(mediaID).keys()).join(" ")}`
+      `a=group:BUNDLE ${Array.from(Array(mediaID).keys()).join(" ")}`,
     );
   }
 

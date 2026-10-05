@@ -1,2 +1,7 @@
 /node_modules
 /dist
+/bun.lock
+bun.lockb
+yarn.lock
+pnpm-lock.yaml
+/docs/
