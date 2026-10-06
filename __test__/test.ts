@@ -323,6 +323,68 @@ describe("minimize", () => {
 
     expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(decompacted));
   });
+
+  // Regression coverage: replaceFieldNames with mediaOptions compression
+  // flags disabled. Verified: the compact side replaces AttributeReplaceMap
+  // attribute names unconditionally (independently of the mediaOptions flags,
+  // which only gate value-level transforms), and the decompact side's
+  // value[0] lookup is safe because the reverse-map keys (single uppercase
+  // codes) and full attribute names (lowercase) are disjoint — a full name
+  // can never be read as a single-char code. These tests guard that
+  // invariant against future changes (e.g. a refactor that splits `value`
+  // on ":" to "restore" full names, which would mangle attribute values that
+  // contain colons).
+  test("replaceFieldNames with all media compression flags off round-trips", () => {
+    const options: Options = {
+      compress: false,
+      mediaOptions: {
+        compressFingerprint: false,
+        replaceCandidateString: false,
+        replaceMediaString: false,
+        compressConnection: false,
+        compressExtmap: false,
+        compressRtcpFb: false,
+        removeMediaID: false,
+        removeSetup: false,
+        forceTrickle: false,
+      },
+    };
+    const sdp = offer2.sdp as string;
+    const out = decompactSDP(compactSDP(sdp, options), true, options);
+
+    // The corruption signatures must not appear.
+    expect(out).not.toContain("a=Fingerrint:");
+    expect(out).not.toContain("a=Rtcp:");
+    // And the full round-trip must hold (parse-equality).
+    expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(out));
+  });
+
+  (
+    [
+      "compressFingerprint",
+      "compressConnection",
+      "compressExtmap",
+      "compressRtcpFb",
+      "replaceCandidateString",
+      "replaceMediaString",
+    ] as const
+  ).forEach((flag) => {
+    (
+      [
+        { name: "offer", sdp: offer.sdp as string },
+        { name: "offer2", sdp: offer2.sdp as string },
+      ] as { name: string; sdp: string }[]
+    ).forEach(({ name, sdp }) => {
+      test(`round-trip with ${flag} disabled: ${name}`, () => {
+        const options: Options = {
+          compress: false,
+          mediaOptions: { [flag]: false },
+        };
+        const out = decompactSDP(compactSDP(sdp, options), true, options);
+        expect(sdpTransform.parse(sdp)).toEqual(sdpTransform.parse(out));
+      });
+    });
+  });
 });
 
 // Token-safety round-trip tests.

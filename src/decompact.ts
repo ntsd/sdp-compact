@@ -120,14 +120,23 @@ function decompactSDPStr(
       }
 
       // replace attributes
+      // `value` is like "E1 A": when replaceFieldNames is on, the compact side
+      // (compactSDPStr) rewrites EVERY AttributeReplaceMap attribute name to
+      // its single uppercase code ("fingerprint:" -> "F", "extmap:" -> "E")
+      // unconditionally — the mediaOptions compression flags only gate the
+      // value-level transforms, never the attribute-name replacement. So the
+      // first char here is either such a code (expand it) or the leading
+      // letter of a non-replaced attribute ("setup:", "mid:", ...). The
+      // reverse-map keys are single uppercase codes and SDP attribute names
+      // start lowercase, so the key spaces are disjoint: codes expand,
+      // everything else passes through untouched. Do NOT split `value` on ":"
+      // to look up the full name — it never occurs in the payload, and
+      // attribute values contain colons (fingerprint hashes).
       if (field === "a=") {
-        // value is like "E1 A" where first char is the attribute code
         const attr = value[0];
-        const subValue = value.slice(1);
-
         if (attr in AttributeReplaceMapReverse) {
           const mapped = AttributeReplaceMapReverse[attr];
-          value = mapped + subValue;
+          value = mapped + value.slice(1);
         }
       }
 
